@@ -126,7 +126,9 @@ function submitAnswer() {
         if(correct.includes(val)) label.classList.add("correct-option");
         if(selected.includes(val) && !correct.includes(val)) label.classList.add("wrong-option");
     });
-
+    // 无论答对还是答错，都显示解析
+    document.getElementById("explanation").innerText = q.Explanation;
+    
     if(JSON.stringify(selected.sort()) === JSON.stringify(correct.sort())) {
         removeMistake(q);
     } else {
