@@ -155,7 +155,7 @@
       { "label": "E", "text": "broadcasting shared server session responses back to requesters on all connections" },
       { "label": "F", "text": "sending shared server session responses back to requesters on the appropriate connection" }
     ],
-    "CorrectAnswer": ["A", "C", "F"],
+    "CorrectAnswer": ["A", "D", "F"],
     "Explanation": "1.Dispatcher：客户端请求入口 → 写入 CRQ → 从 Response Queue 取结果 → 发回客户端。 2.Shared Server：从 CRQ 获取请求 → 执行 SQL → 写入 Response Queue。 3.Queues：CRQ 是共享请求队列，Response Queue 每个会话有独立队列。"
   },
   {
