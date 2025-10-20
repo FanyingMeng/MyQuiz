@@ -117,3 +117,38 @@ input[type="text"] {
     background-color: #007BFF;
     color: #ffffff;
 }
+/* ================== 响应式布局 ================== */
+
+/* iPad 和小平板 */
+@media (max-width: 768px) {
+    input[type="text"], #loginPage button, .subject-buttons button, .quiz-btn {
+        font-size: 15px;
+        padding: 10px;
+    }
+    #quizContainer {
+        padding: 15px;
+    }
+}
+
+/* 手机 */
+@media (max-width: 480px) {
+    input[type="text"], #loginPage button, .subject-buttons button, .quiz-btn {
+        font-size: 14px;
+        padding: 8px;
+        width: 95%;
+    }
+
+    #quizContainer {
+        width: 95%;
+        padding: 10px;
+    }
+
+    #questionText {
+        font-size: 14px;
+    }
+
+    #options label {
+        font-size: 14px;
+        padding: 5px;
+    }
+}
