@@ -1,0 +1,119 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 40px;
+    margin-bottom: 20px;
+}
+
+/* 登录页输入框 */
+input[type="text"] {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 登录按钮 */
+#loginPage button {
+    width: 300px;
+    margin: 0 auto;
+    display: block;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+/* 科目按钮行 */
+.subject-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.subject-buttons button {
+    width: 120px;
+    background-color: #007BFF;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+}
+
+/* 做题页面容器 */
+#quizContainer {
+    max-width: 600px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    text-align: left;
+}
+
+/* 图片自适应 */
+#questionImage {
+    max-width: 90%;
+    height: auto;
+    display: block;
+    margin: 10px auto;
+}
+
+/* 选项样式 */
+#options label {
+    display: block;
+    margin: 10px 0;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 正确/错误标色 */
+.correct-option { background-color: #d4edda; }
+.wrong-option { background-color: #f8d7da; }
+
+/* 做题导航按钮 */
+#navigation button {
+    margin: 5px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: none;
+    background-color: #6c757d;
+    color: white;
+    cursor: pointer;
+}
+/* 做题页面按钮统一样式（白色边框按钮） */
+.quiz-btn {
+    padding: 10px 20px;           /* 按钮大小 */
+    margin: 5px;
+    border-radius: 5px;
+    border: 2px solid #007BFF;    /* 蓝色边框 */
+    background-color: #ffffff;     /* 白色背景 */
+    color: #007BFF;                /* 文字颜色 */
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* 鼠标悬停效果 */
+.quiz-btn:hover {
+    background-color: #007BFF;
+    color: #ffffff;
+}

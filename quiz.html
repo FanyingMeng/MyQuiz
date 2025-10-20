@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>做题页面</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="quizContainer">
+        <div id="progress"></div>
+        <div id="questionText"></div>
+        <img id="questionImage">
+        <div id="options"></div>
+        
+        <!-- 提交答案按钮 -->
+        <div style="text-align:center; margin:10px 0;">
+            <button class="quiz-btn" onclick="submitAnswer()">提交答案</button>
+        </div>
+
+        <div id="explanation"></div>
+
+        <!-- 导航按钮 -->
+        <div id="navigation">
+            <button class="quiz-btn" onclick="prevQuestion()">上一题</button>
+            <button class="quiz-btn" onclick="nextQuestion()">下一题</button>
+            <button class="quiz-btn" onclick="goHome()">主界面</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
