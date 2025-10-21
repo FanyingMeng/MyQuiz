@@ -247,7 +247,7 @@
       { "label": "F", "text": "A column that is set to UNUSED still counts towards the limit of 1000 columns per table." }
     ],
     "CorrectAnswer": ["A", "E", "F"],
-    "Explanation": ""
+    "Explanation": "1.DROP COLUMN（删除列）真正从表中删除列，包括数据和元数据。是 DDL 操作，会自动提交，不能回滚。可以使用 CASCADE CONSTRAINT,分区键列（Partition Key）不能删除。 2.SET UNUSED（标记列为 UNUSED）将列标记为 UNUSED，使列名不可见，但数据仍在表中。快速，不需要重写整个表。数据仍占用空间。UNUSED 列仍计入表的最大列数（1000 列/表）。不会立即释放空间可以通过 ALTER TABLE DROP UNUSED COLUMNS 真正删除列并释放空间。"
   },
   {
     "QuestionID": 17,
@@ -262,7 +262,7 @@
       { "label": "E", "text": "A primary key constraint can be added on the invisible column." }
     ],
     "CorrectAnswer": ["A", "B", "E"],
-    "Explanation": "1.DROP COLUMN（删除列）真正从表中删除列，包括数据和元数据。是 DDL 操作，会自动提交，不能回滚。可以使用 CASCADE CONSTRAINT分区键列（Partition Key）不能删除。 2.SET UNUSED（标记列为 UNUSED）将列标记为 UNUSED，使列名不可见，但数据仍在表中。快速，不需要重写整个表。数据仍占用空间。UNUSED 列仍计入表的最大列数（1000 列/表）。不会立即释放空间可以通过 ALTER TABLE DROP UNUSED COLUMNS 真正删除列并释放空间。"
+    "Explanation": ""
   },
   {
     "QuestionID": 18,
