@@ -1541,7 +1541,309 @@
         ],
         "CorrectAnswer": ["B","D"],
         "Explanation": ""
-    }
+    },
+    {
+        "QuestionID": 102,
+        "QuestionType": "multiple",
+        "QuestionText": "The CUSTOMERS table has a CUST_CREDIT_LIMIT column of data type NUMBER. Which two queries execute successfully? (Choose two.)",
+        "ImageURL": "",
+        "Options": [
+            {"label": "A","text": "SELECT NVL(cust_credit_limit * .15, 'Not Available') FROM customers;"},
+            {"label": "B","text": "SELECT NVL2(cust_credit_limit * .15, 'Not Available') FROM customers;"},
+            {"label": "C","text": "SELECT NVL(TO_CHAR(cust_credit_limit * .15), 'Not Available') FROM customers;"},
+            {"label": "D","text": "SELECT TO_CHAR(NVL(cust_credit_limit * .15, 'Not Available')) FROM customers;"},
+            {"label": "E","text": "SELECT NVL2(cust_credit_limit, TO_CHAR(cust_credit_limit * .15), 'Not Available') FROM customers;"}
+        ],
+        "CorrectAnswer": ["C", "E"],
+        "Explanation": "1.NVL(expr1, expr2)必须两个参数。返回值的数据类型与第一个参数(expr1) 保持一致。数据库会尝试把 expr2 转换成 expr1 的类型(如果类型不同),如果不能转换则报错。2.NVL2(expr1,expr2, expr3) 含义是:如果第一个参数为空,则返回第三个参数;如果第一个参数不为空那么显示第二个参数的值。expr2 与 expr3 的数据类型应该互相兼容（通常都为字符串或都为数字等）。"
+    },
+    {
+        "QuestionID": 103,
+        "QuestionType": "single",
+        "QuestionText": "Which SQL statement would produce the required result?",
+        "ImageURL": "images/q103.png",
+        "Options": [
+            {"label": "A", "text": "SELECT NVL (TO_CHAR(cust_credit_limit*.15), ‘Not Available’) “NEW CREDIT” FROM customers"},
+            {"label": "B", "text": "SELECT TO_CHAR(NVL(cust_credit_limit*.15), ‘Not Available’)) “NEW CREDIT” FROM customers"},
+            {"label": "C", "text": "SELECT NVL (cust_credit_limit*.15, ‘Not Available’) “NEW CREDIT” FROM customers"},
+            {"label": "D", "text": "SELECT NVL (cust_credit_limit, ‘Not Available’)*.15 “NEW CREDIT” FROM customers"}
+        ],
+        "CorrectAnswer": ["A"],
+        "Explanation": "NVL(expr1, expr2)必须两个参数。返回值的数据类型与第一个参数(expr1) 保持一致。数据库会尝试把 expr2 转换成 expr1 的类型(如果类型不同),如果不能转换则报错。"
+    },
+    {
+        "QuestionID": 104,
+        "QuestionType": "single",
+        "QuestionText": "Which statement is true about aggregate functions?",
+        "ImageURL": "",
+        "Options": [
+            {"label": "A", "text": "Aggregate functions can be nested to any number of levels"},
+            {"label": "B", "text": "The AVG function implicitly converts NULLS to zero"},
+            {"label": "C", "text": "Aggregate functions can be used in any clause of a SELECT statement"},
+            {"label": "D", "text": "Types MAX and MIN functions can be used on columns with character data"}
+        ],
+        "CorrectAnswer": ["D"],
+        "Explanation": "A.聚合函数不可以无限嵌套，单行函数可以嵌套无穷 B.AVG 计算平均值时，NULL 值会被忽略，并不是当作 0 参与计算。C.聚合函数不能在任意子句中使用，例如 WHERE 子句 中是不允许的（因为 WHERE 是在聚合前过滤数据），只能在 SELECT 列表、HAVING 子句 或 ORDER BY 中使用。D.max 和 min 可以用在数字、字符、和日期型的数据类型上"
+    },
+    {
+  "QuestionID": 105,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true regarding the WHERE and HAVING clauses in a SELECT statement? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The WHERE and HAVING clauses can be used in the same statement only if they are applied to different columns in the table."},
+    {"label": "B", "text": "The aggregate functions and columns used in the HAVING clause must be specified in the SELECT list of the query."},
+    {"label": "C", "text": "The WHERE clause can be used to exclude rows after dividing them into groups."},
+    {"label": "D", "text": "The HAVING clause can be used with aggregate functions in subqueries."},
+    {"label": "E", "text": "The WHERE clause can be used to exclude rows before dividing them into groups."}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation": "A.where 和 having 子句中用到的列没有相关联性 B.HAVING 可以使用未在 SELECT 中显示的聚合函数 C.WHERE 是在分组 前 执行的，不能用于分组后的数据。分组后筛选必须用 HAVING "
+},
+{
+  "QuestionID": 106,
+  "QuestionType": "multiple",
+  "QuestionText": "Your database instance was shut down normally and then started in NOMOUNT state. You then execute this command: ALTER DATABASE MOUNT; Which two actions are performed? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The online redo logs are opened"},
+    {"label": "B", "text": "The online data files are opened"},
+    {"label": "C", "text": "The alert log records the execution details"},
+    {"label": "D", "text": "The Oracle background processes are started"},
+    {"label": "E", "text": "The initialization parameter file is read"},
+    {"label": "F", "text": "The control file is read"}
+  ],
+  "CorrectAnswer": ["C", "F"],
+  "Explanation": "1.NOMOUNT:实例启动，但数据库还没有挂载。读取 初始化参数文件(SPFILE 或 PFILE)。启动Oracle后台进程(如 SMON、PMON、DBWR 等)。不读控制文件。不打开数据文件和重做日志。2.MOUNT:使用 ALTER DATABASE MOUNT 或 STARTUP MOUNT。读取 控制文件。可以进行数据库恢复和修改操作(例如修改表空间)。不打开数据文件。不打开在线重做日志(redo log)。3.OPEN:使用 ALTER DATABASE OPEN。数据库可以正常访问。打开数据文件和 redo log。"
+},
+{
+  "QuestionID": 107,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about shrinking a segment online? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is not possible to shrink either indexes or Index Organized Tables (IOTs)"},
+    {"label": "B", "text": "It always eliminates all migrated rows if any exist in the table"},
+    {"label": "C", "text": "To shrink a table it must have a PRIMARY KEY constraint"},
+    {"label": "D", "text": "To shrink a table it must have a UNIQUE KEY constraint"},
+    {"label": "E", "text": "To shrink a table it must have row movement enabled"},
+    {"label": "F", "text": "It must be in a tablespace that uses Automatic Segment Space Management (ASSM)"}
+  ],
+  "CorrectAnswer": ["E", "F"],
+  "Explanation": "在 Oracle 中，ALTER TABLE ... SHRINK SPACE 可以用来释放表或索引占用的空间，同时整理表中的行，使它们尽量紧凑地存储。它可以 在线（online） 执行，也就是在收缩表的同时，应用仍然可以对表进行 DML 操作（INSERT、UPDATE、DELETE）Online shrink 只能在使用 ASSM 的表空间中执行，因为 ASSM 才能管理空闲空间并允许在线段收缩。必须启用行移动（row movement）。A.在线收缩 不能直接收缩 IOT（Index Organized Table），但普通表的索引是可以收缩的（ALTER INDEX ... SHRINK SPACE）。"
+},
+{
+  "QuestionID": 108,
+  "QuestionType": "single",
+  "QuestionText": "What must you do before executing it?",
+  "ImageURL": "images/q108.png",
+  "Options": [
+    {"label": "A", "text": "Ensure there are no pending transactions on the table."},
+    {"label": "B", "text": "Disable all indexes on the table."},
+    {"label": "C", "text": "Ensure free space that is approximately equal to the space used by the table should be available."},
+    {"label": "D", "text": "Enable row movement is enabled."}
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "SHRINK SPACE 是 Oracle 用来回收表的空闲空间 的命令。COMPACT 表示 仅整理行，使行紧凑，不立即收回空间。COMPACT 只是重排行，把空闲空间集中到段的末尾，但不会立即减少段大小。如果想最终释放空间，需要执行 SHRINK SPACE（不带 COMPACT）或再执行 SHRINK SPACE 不带 COMPACT。"
+},
+{
+  "QuestionID": 109,
+  "QuestionType": "single",
+  "QuestionText": "You want to reduce fragmentation and reclaim unused space for the sales table but not its dependent objects. During this operation, you want to ensure the following:\ni. Long-running queries are not affected.\nii. No extra space is used.\niii. Data manipulation language (DML) operations on the table succeed at all times throughout the process\niv. Unused space is reclaimed both above and below the high water mark.\nWhich ALTER TABLE option would you recommend?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "DEALLOCATE UNUSED"},
+    {"label": "B", "text": "SHRINK SPACE CASCADE"},
+    {"label": "C", "text": "SHRINK SPACE COMPACT"},
+    {"label": "D", "text": "ROW STORE COMPRESS BASIC"}
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "(high water mark)HWM = 表空间使用的“最高标记”，不是实际数据量，而是已分配过的最高位置.A.只会释放表尾的未使用块。不能释放 HWM 以下的空间，也不能处理表中间的碎片 B.可以收回表和依赖的对象（索引）的空间。但题目要求不要影响 dependent objects，而 CASCADE 会同时移动索引等依赖对象。D.这是表压缩选项，主要用来减少存储占用，提高查询性能,不是专门用来回收碎片，也可能需要额外空间,SHRINK SPACE → 回收碎片、释放空间ROW STORE COMPRESS BASIC → 压缩数据，提高存储利用率"
+},
+{
+  "QuestionID": 110,
+  "QuestionType": "multiple",
+  "QuestionText": "Which four actions are possible during an Online Datafile Move operation?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Creating and dropping tables in the datafile being moved"},
+    {"label": "B", "text": "Performing file shrink of the data file being moved"},
+    {"label": "C", "text": "Querying tables in the datafile being moved"},
+    {"label": "D", "text": "Performing Block Media Recovery for a data block in the datafile being moved"},
+    {"label": "E", "text": "Flashing back the database"},
+    {"label": "F", "text": "Executing DML statements on objects stored in the datafile being moved"}
+  ],
+  "CorrectAnswer": ["A", "C", "D", "F"],
+  "Explanation": "Online Datafile Move可以在表空间在线（不需要关闭数据库）的情况下，把数据文件从一个位置移动到另一个位置或不同的磁盘卷上。表和索引在移动期间仍然可以访问。移动过程尽量不阻塞用户操作。移动是在线进行的，但有些操作是受限的。A.在线数据文件移动不会阻止对该文件中表的 DDL（创建、删除表等）操作 B.File shrink是收缩文件空间的操作，需要对文件本身做结构性调整。在线移动期间，数据文件正在被 Oracle 系统操作，无法同时执行收缩操作。D.Block Media Recovery (BMR) 是针对单个数据块的恢复操作。在线数据文件移动不影响 BMR，可以在需要的时候修复特定数据块。"
+},
+{
+  "QuestionID": 111,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the SQL*Loader (sqlldr) execution? (Choose two.)",
+  "ImageURL": "images/q111.png",
+  "Options": [
+    {"label": "A", "text": "It overwrites data in EMP with data in EMP.DAT"},
+    {"label": "B", "text": "It uses the database buffer cache to load data"},
+    {"label": "C", "text": "It generates a log that contains control file entries, which can be used with normal SQL*Loader operations"},
+    {"label": "D", "text": "It generates a SQL script that it uses to load data from EMP.DAT to EMP"},
+    {"label": "E", "text": "It appends data from EMP.DAT to EMP"}
+  ],
+  "CorrectAnswer": ["C", "E"],
+  "Explanation": "SQL*Loader(sqlldr) 可以有三种模式来加载数据：1.INSERT（默认模式）插入数据到表中。如果表已经存在主键冲突，会报错。2.APPEND在现有数据基础上追加数据。3.REPLACE删除表中原有数据，然后加载新数据。如果没有在命令中指定 APPEND 或 REPLACE，默认模式是 INSERT。B.SQL*Loader 默认使用 直接路径（direct path）或常规路径（conventional path）。直接路径加载会绕过数据库缓冲区。常规路径加载会使用 SQL 插入操作，但不等同于直接操作缓存。"
+},
+{
+  "QuestionID": 112,
+  "QuestionType": "single",
+  "QuestionText": "A script abc.sql must be executed to perform a job. A database user HR, who is defined in this database, executes this command:\n$ sqlplus hr/hr@orcl @abc.sql\nWhat will happen upon execution?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The command succeeds and HR will be connected to the orcl and abc.sql databases"},
+    {"label": "B", "text": "The command succeeds and HR will be connected to the orcl database instance, and the abc.sql script will be executed"},
+    {"label": "C", "text": "The command fails because the script must refer to the full path name"},
+    {"label": "D", "text": "The command fails and reports an error because @ is used twice"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "命令行提示符 $（普通用户）或 #（root 用户）来表示可以输入命令。sqlplus 是启动 Oracle SQL*Plus 客户端的命令。hr/hr@orcl表示:用户名hr,密码hr,数据库实例orcl（TNS alias，表示要连接的数据库）,所以执行这个命令后，SQL*Plus会尝试连接到orcl数据库，使用 HR 用户。@abc.sql在 SQL*Plus 中，@filename 用于执行SQL脚本文件,这里的 abc.sql 可以是：当前目录下的文件或者指定完整路径（如 /home/oracle/abc.sql）。SQL*Plus会读取这个文件，并执行里面的SQL命令。"
+},
+{
+  "QuestionID": 113,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true regarding indexes? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A UNIQUE index can be altered to be non-unique"},
+    {"label": "B", "text": "A SELECT statement can access one or more indexes without accessing any tables"},
+    {"label": "C", "text": "A table belonging to one user can have an index that belongs to a different user"},
+    {"label": "D", "text": "An update to a table can result in updates to any or all of the table’s indexes"},
+    {"label": "E", "text": "When a table is dropped and is moved to the RECYCLE BIN, all indexes built on that table are permanently dropped"},
+    {"label": "F", "text": "An update to a table can result in no updates to any of the table’s indexes"}
+  ],
+  "CorrectAnswer": ["C", "D", "F"],
+  "Explanation": "索引在数据库中主要作用是提高查询效率，并在某些情况下维护数据完整性（如 UNIQUE 或 PRIMARY KEY）。A.UNIQUE 索引本身不能直接改成非唯一索引。你需要先删除索引，然后重新创建为非唯一索引。B.如果查询中需要的列 不在索引里，数据库仍然需要回表。并不是所有索引都是覆盖索引，只有当索引包含查询所需的所有列时才是。E.当表被放入 RECYCLE BIN 时，表和它的索引都暂时保留在回收站中，可以用 FLASHBACK TABLE 恢复。DF.对表的更新可能导致对表的任何或所有索引的更新,例如:更新表的列是索引的列,也可能不会导致对表索引的任何更新,例如:更新表的列不是索引的列"
+},
+{
+  "QuestionID": 114,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about Oracle synonyms? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A synonym cannot be created for a PL/SQL package"},
+    {"label": "B", "text": "A synonym can be available to all users"},
+    {"label": "C", "text": "A SEQUENCE can have a synonym"},
+    {"label": "D", "text": "A synonym created by one user can refer to an object belonging to another user"},
+    {"label": "E", "text": "Any user can drop a PUBLIC synonym"}
+  ],
+  "CorrectAnswer": ["B", "C", "D"],
+  "Explanation": "Synonym相当于是一个别名，用来引用数据库中的其他对象（表、视图、序列、存储过程、函数、包等）。简化了对象访问（不用写完整的schema.object）。屏蔽对象实际所属 schema 或位置。Private synonym（私有同义词）：只能由创建它的用户访问。Public synonym（公共同义词）：所有用户都可以访问。只有属主和有drop public synonym权限的用户才能够删除public同义词。C.SEQUENCE（序列）是一个独立的数据库对象，用来生成唯一的、按顺序递增或递减的数字"
+},
+{
+  "QuestionID": 115,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two tasks can be performed on an external table?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Partitioning the table"},
+    {"label": "B", "text": "Creating an invisible index"},
+    {"label": "C", "text": "Updating the table by using an UPDATE statement"},
+    {"label": "D", "text": "Creating a public synonym"},
+    {"label": "E", "text": "Creating a view"}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation": "外部表（External Table）是 Oracle 提供的一种功能，让你可以 像查询普通表一样访问数据库外部的文件（比如 CSV、文本文件等）。数据存储在数据库外部，Oracle 只是“读取”它。可以用 SELECT 查询数据。不能进行 DML 操作（INSERT、UPDATE、DELETE），因为数据不在数据库里。E.视图 = 一张“查询结果表”，用来看数据，但不存数据本身"
+},
+{
+  "QuestionID": 116,
+  "QuestionType": "single",
+  "QuestionText": "Which is true?",
+  "ImageURL": "images/q116.png",
+  "Options": [
+    {"label": "A", "text": "It performs the export successfully."},
+    {"label": "B", "text": "It throws an error as the table test_employees is empty and CONTENT=data_only is specified."},
+    {"label": "C", "text": "It throws an error as the QUERY parameter is not supported on an empty table."},
+    {"label": "D", "text": "It throws an error as Data Pump cannot find a table called TEST.EMP."}
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "Oracle Data Pump 是 Oracle 提供的一种高速数据导入/导出工具，用来在数据库之间迁移数据或备份表、模式、表空间等。它的命令行工具有两个：expdp → Export Data Pump：导出数据（生成 .dmp 文件）。impdp → Import Data Pump：导入数据（从 .dmp 文件恢复数据）。比传统 exp/imp 快，支持并行导出/导入，支持导出表、视图、模式、表空间。支持通过 查询过滤导出部分数据。可以导出到服务器上指定的目录，而不是客户端。本题:创建了DIRECTORY dumpdir一个物理目录，给了所有用户读写public权限，创建了一个新用户TEST密码是test，TEST创建了一个test_employees表格，为 test_employees 表创建了一个 同义词 emp。最后指令TABLES=emp 指定了要导出的对象是emp。但emp是同义词，不是表，Data Pump 不直接支持导出同义词，它只能导出 表、视图、模式等真实对象。即使emp指向test_employees，Data Pump仍然会报错：“找不到表 TEST.EMP”。"
+},
+{
+  "QuestionID": 117,
+  "QuestionType": "multiple",
+  "QuestionText": "You issue the following command to drop the PRODUCTS table:\nSQL > DROP TABLE products;\nWhich three statements are true about the implication of this command?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "All data along with the table structure is deleted."},
+    {"label": "B", "text": "A pending transaction in the session is committed."},
+    {"label": "C", "text": "All indexes on the table remain but they are invalidated."},
+    {"label": "D", "text": "All views and synonyms on the table remain but they are invalidated."},
+    {"label": "E", "text": "All data in the table is deleted but the table structure remains."}
+  ],
+  "CorrectAnswer": ["A", "B", "D"],
+  "Explanation": "B.Oracle 中 DDL 自动提交，Oracle在执行DROP TABLE前，会隐式提交当前会话里的所有未提交事务。"
+},
+{
+  "QuestionID": 118,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two tasks require subqueries? (Choose two.)",
+  "ImageURL": "images/q118.png",
+  "Options": [
+    {"label": "A", "text": "Display the number of products whose PROD_LIST_PRICE is more than the average PROD_LIST_PRICE"},
+    {"label": "B", "text": "Display suppliers whose PROD_LIST_PRICE is less than 1000"},
+    {"label": "C", "text": "Display products whose PROD_MIN_PRICE is more than the average PROD_LIST_PRICE of all products, and whose status is orderable"},
+    {"label": "D", "text": "Display the total number of products supplied by supplier 102 which have a product status of obsolete"},
+    {"label": "E", "text": "Display the minimum PROD_LIST_PRICE for each product status"}
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 119,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements must be true so that the SALES user can create tables in SALES_Q1? (Choose three.)",
+  "ImageURL": "images/q119.png",
+  "Options": [
+    {"label": "A", "text": "The sales user must have a quota on the TEMP tablespace"},
+    {"label": "B", "text": "The sales user must have a quota on the SALES_Q1 tablespace to hold the initial extends of all tables they plan to create in their schema"},
+    {"label": "C", "text": "The sales user must have been granted the CREATE SESSION privilege"},
+    {"label": "D", "text": "The sales user must have their quota on the users tablespace removed"},
+    {"label": "E", "text": "The sales user must have a quota on the SALES_Q1 tablespace to hold all the rows to be inserted into any table in their schema"},
+    {"label": "F", "text": "The sales user must have been granted the CREATE TABLE privilege"}
+  ],
+  "CorrectAnswer": ["B", "C", "F"],
+  "Explanation": "命令解析:先创建了个用户和密码，但是没给权限。用户创建后，如果没有其他权限，他还不能登录数据库，因为缺少登录权限（CREATE SESSION）。DEFAULT TABLESPACE sales_q1指定该用户的默认表空间为 sales_q1。这意味着：当该用户创建表或索引时，如果不指定 TABLESPACE 子句，这些对象会默认保存在 sales_q1 表空间中。但是要在这个表空间中存储数据，还必须有配额 (quota)。TEMPORARY TABLESPACE temp指定该用户使用的临时表空间。临时表空间用于排序、哈希连接、创建索引等操作的临时数据。普通用户不需要配额使用临时表空间（临时空间不算 quota 限制）。QUOTA 5M ON users;给sales用户在users表空间上分配5MB的使用额度。A.临时表空间不需要配额。它只是用来放排序或中间结果，Oracle自动管理。"
+},
+{
+  "QuestionID": 120,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about table data storage in an Oracle Database? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Data block headers contain their own Data Block Address (DBA)"},
+    {"label": "B", "text": "A table row piece can be chained across several database blocks"},
+    {"label": "C", "text": "Multiple row pieces from the same row may be stored in different database blocks"},
+    {"label": "D", "text": "Multiple row pieces from the same row may be stored in the same block"},
+    {"label": "E", "text": "Data block free space is always contiguous in the middle of the block"},
+    {"label": "F", "text": "Index block free space is always contiguous in the middle of the block"}
+  ],
+  "CorrectAnswer": ["A", "B", "C"],
+  "Explanation": "A.每个数据块（Data Block）是最小的存储单位。每个数据块由三个主要部分组成：1.Block Header（块头）2.Table Directory / Row Directory（表和行目录）3.Free space + Row data（空闲区和行数据）块头 (Header) 存放元信息，例如：该块的类型（数据块、索引块等）,块所属的段（segment）信息,事务信息（事务槽）,DBA（Data Block Address） — 数据块的物理地址（数据文件号 + 块号）B.一个“行（row）”的数据可能太大，无法完全放进一个数据块,Oracle会将该行拆成多个row piece（行片段）。如果这些行片段分布在不同的数据块中，就叫做 chained row（行链式存储）。"
+},
+{
+  "QuestionID": 121,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true? (Choose two.)",
+  "ImageURL": "images/q121",
+  "Options": [
+    {"label": "A", "text": "The second ROLLBACK command does nothing"},
+    {"label": "B", "text": "The second ROLLBACK command replays the delete"},
+    {"label": "C", "text": "The first ROLLBACK command restores the 101 rows that were deleted, leaving the inserted row still to be committed"},
+    {"label": "D", "text": "The second ROLLBACK command undoes the insert"},
+    {"label": "E", "text": "The first ROLLBACK command restores the 101 rows that were deleted and commits the inserted row"}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": "1.初始状态(已提交)100行 → 2.INSERT 101行(未提交) → 3.SAVEPOINT a 101行 → 4.DELETE 0行 → 5.ROLLBACK TO a 101行 → 6.ROLLBACK 100行,最后一个rollback指整个事务回滚"
+}
+
+
       ]
     },
     {
