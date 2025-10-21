@@ -27,7 +27,8 @@ function userKey(base) {
 // 科目页面逻辑
 // ==========================
 async function loadSubjects() {
-    const res = await fetch("./Questions.json");
+    // 加时间戳防缓存
+    const res = await fetch(`./Questions.json?t=${Date.now()}`);
     const data = await res.json();
     let container = document.getElementById("subjects");
 
@@ -87,7 +88,8 @@ async function loadQuiz() {
     const subjectID = parseInt(urlParams.get("subjectID"));
     const mode = urlParams.get("mode");
 
-    const res = await fetch("./Questions.json");
+    // 同样加时间戳防缓存
+    const res = await fetch(`./Questions.json?t=${Date.now()}`);
     const data = await res.json();
 
     // 找到科目
