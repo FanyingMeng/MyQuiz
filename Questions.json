@@ -311,7 +311,7 @@
     "QuestionID": 21,
     "QuestionType": "multiple",
     "QuestionText": "Rows exist in this table with data in all the columns. You put the PRODUCTS table in read-only mode.Which three commands execute successfully on PRODUCTS?",
-    "ImageURL": "",
+    "ImageURL": "images/q21.png",
     "Options": [
       { "label": "A", "text": "ALTER TABLE products DROP COLUMN expiry_date;" },
       { "label": "B", "text": "CREATE INDEX price_idx ON products (price);" },
