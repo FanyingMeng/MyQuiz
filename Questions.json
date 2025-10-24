@@ -751,7 +751,7 @@
   {
     "QuestionID": 50,
     "QuestionType": "single",
-    "QuestionText": "Choose the best answer. Examine this scenario: connect / as sysdba Connected. SHUTDOWN TRANSACTIONAL. Database closed. Database dismounted. ORACLE instance shut down. STARTUP Now examine these steps: 1. Oracle instance is started. 2. The control file is read. 3. Instance recovery is started. 4. Datafiles and redo log files are opened. 5. The spfile or pfile is read. 6. The database is available for use. 7. The database is mounted. 8. Instance recovery is completed. Identify the correct steps and the order they will be executed in following this command",
+    "QuestionText": "Choose the best answer. Examine this scenario: connect / as sysdba Connected. SHUTDOWN TRANSACTIONAL. Database closed. Database dismounted. ORACLE instance shut down. STARTUP Now examine these steps:\n 1. Oracle instance is started. \n2. The control file is read. \n3. Instance recovery is started.\n 4. Datafiles and redo log files are opened.\n 5. The spfile or pfile is read.\n 6. The database is available for use. \n7. The database is mounted.\n 8. Instance recovery is completed.\n Identify the correct steps and the order they will be executed in following this command",
     "ImageURL": "",
     "Options": [
       { "label": "A", "text": "5,2,1,7,4,6" },
@@ -1069,7 +1069,7 @@
   {
     "QuestionID": 71,
     "QuestionType": "single",
-    "QuestionText": "In the ORCL database, UNDOTBS1 is the active undo tablespace with these properties: 1. A size of 100 MB 2. AUTOEXTEND is off 3. UNDO_RETENTION is set to 15 minutes 4. It has RETENTION GUARANTEE UNDOTBS1 fills with uncommitted undo 10 minutes after the database opens. What will happen when the next update is attempted by any transaction?",
+    "QuestionText": "In the ORCL database, UNDOTBS1 is the active undo tablespace with these properties: \n1. A size of 100 MB \n2. AUTOEXTEND is off \n3. UNDO_RETENTION is set to 15 minutes\n 4. It has RETENTION GUARANTEE \nUNDOTBS1 fills with uncommitted undo 10 minutes after the database opens. What will happen when the next update is attempted by any transaction?",
     "ImageURL": "",
     "Options": [
       { "label": "A", "text": "It succeeds and the generated undo is stored in SYSTEM" },
@@ -1220,7 +1220,7 @@
   {
     "QuestionID": 81,
     "QuestionType": "multiple",
-    "QuestionText": "In your data center, Oracle Managed Files (OMF) is used for all databases. All tablespaces are smallfile tablespaces. SALES_Q1 is a permanent user-defined tablespace in the SALES database. Examine this command which is about to be issued by a DBA logged in to the SALES database: ALTER TABLESPACE sales_q1 ADD DATAFILE; Which are two actions, either one of which you could take to ensure that the command executes successfully?",
+    "QuestionText": "In your data center, Oracle Managed Files (OMF) is used for all databases. All tablespaces are smallfile tablespaces. SALES_Q1 is a permanent user-defined tablespace in the SALES database. Examine this command which is about to be issued by a DBA logged in to the SALES database: \nALTER TABLESPACE sales_q1 ADD DATAFILE; \nWhich are two actions, either one of which you could take to ensure that the command executes successfully?",
     "ImageURL": "",
     "Options": [
       { "label": "A", "text": "Ensure that DB_RECOVERY_FILE_DEST and DB_CREATE_FILE_DEST each specify with at least 50 Mb of available space." },
@@ -1326,7 +1326,7 @@
    {
     "QuestionID": 88,
     "QuestionType": "multiple",
-    "QuestionText": "Examine this command: SQL> ALTER SYSTEM SET ENABLE_DDL_LOGGING=TRUE; Which two statements are true?",
+    "QuestionText": "Examine this command: SQL> ALTER SYSTEM SET ENABLE_DDL_LOGGING=TRUE;\n Which two statements are true?",
     "ImageURL": "",
     "Options": [
       { "label": "A", "text": "All DDL statements are logged in to a text file in Automatic Diagnostic Repository (ADR) home." },
@@ -1404,7 +1404,7 @@
     {
         "QuestionID": 93,
         "QuestionType": "multiple",
-        "QuestionText": "One of your databases supports an OLTP workload. The default undo tablespace is fixed size with: 1. RETENTION NOGUARANTEE 2. undo_retention is 12 minutes. User scott get this error after a query on the sales table has run for more than 15 minutes: ORA-01555: snapshot too old Which three factors taken separately or in some combination might be the cause?",
+        "QuestionText": "One of your databases supports an OLTP workload. The default undo tablespace is fixed size with:\n 1. RETENTION NOGUARANTEE \n2. undo_retention is 12 minutes. \nUser scott get this error after a query on the sales table has run for more than 15 minutes: ORA-01555: snapshot too old \nWhich three factors taken separately or in some combination might be the cause?",
         "ImageURL": "",
         "Options": [
             {"label": "A", "text": "A committed delete to the sales table was made more than 12 minutes before the query began."},
@@ -1689,7 +1689,7 @@
     {"label": "E", "text": "It appends data from EMP.DAT to EMP"}
   ],
   "CorrectAnswer": ["C", "E"],
-  "Explanation": "SQL*Loader(sqlldr) 可以有三种模式来加载数据：1.INSERT（默认模式）插入数据到表中。如果表已经存在主键冲突，会报错。2.APPEND在现有数据基础上追加数据。3.REPLACE删除表中原有数据，然后加载新数据。如果没有在命令中指定 APPEND 或 REPLACE，默认模式是 INSERT。B.SQL*Loader 默认使用 直接路径（direct path）或常规路径（conventional path）。直接路径加载会绕过数据库缓冲区。常规路径加载会使用 SQL 插入操作，但不等同于直接操作缓存。"
+  "Explanation": "SQL*Loader(sqlldr) 可以有三种模式来加载数据：1.INSERT插入数据到表中。表必须为空，如果表已经存在数据，会报错。2.APPEND（默认模式）在现有数据基础上追加数据。3.REPLACE删除表中原有数据，然后加载新数据。如果没有在命令中指定，默认模式是APPEND。B.SQL*Loader 默认使用 直接路径（direct path）或常规路径（conventional path）。直接路径加载会绕过数据库缓冲区。常规路径加载会使用 SQL 插入操作，但不等同于直接操作缓存。"
 },
 {
   "QuestionID": 112,
@@ -1831,7 +1831,7 @@
   "QuestionID": 121,
   "QuestionType": "multiple",
   "QuestionText": "Which two statements are true? (Choose two.)",
-  "ImageURL": "images/q121",
+  "ImageURL": "images/q121.png",
   "Options": [
     {"label": "A", "text": "The second ROLLBACK command does nothing"},
     {"label": "B", "text": "The second ROLLBACK command replays the delete"},
@@ -1841,6 +1841,313 @@
   ],
   "CorrectAnswer": ["C", "D"],
   "Explanation": "1.初始状态(已提交)100行 → 2.INSERT 101行(未提交) → 3.SAVEPOINT a 101行 → 4.DELETE 0行 → 5.ROLLBACK TO a 101行 → 6.ROLLBACK 100行,最后一个rollback指整个事务回滚"
+},
+{
+  "QuestionID": 122,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about external tables in Oracle 18c and later releases? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "External table files can be used for other external tables in a different database"},
+    {"label": "B", "text": "The ORACLE_LOADER access driver can be used to unload data from a database into an external table"},
+    {"label": "C", "text": "The ORACLE_DATAPUMP access driver can be used to unload data from a database into an external table"},
+    {"label": "D", "text": "They cannot be partitioned"},
+    {"label": "E", "text": "The ORACLE_DATAPUMP access driver can be used to load data into a database from an external table"},
+    {"label": "F", "text": "They support UPDATEs but not INSERTs and DELETEs"}
+  ],
+  "CorrectAnswer": ["A", "C", "E"],
+  "Explanation": "A.外部表只在定义时绑定数据库，实际数据文件可以跨数据库共享。\nB.ORACLE_LOADER 是用于读取文本/CSV 文件作为外部表的驱动，不支持“从数据库导出到外部表”.它只支持 读取（LOAD）文件到查询，而不用于写出（UNLOAD）数据.\nC.ORACLE_DATAPUMP支持 Data Pump 文件的读写。它可以将数据库表数据导出到 Data Pump 文件，从而实现外部表“卸出（unload）数据”.E一样，也可以load\nD.从 12c 开始，外部表是支持分区（partitioned external table）。\nF.外部表本质上是只读的（除非使用特殊的可写外部表），默认 不支持 UPDATE、INSERT、DELETE"
+},
+{
+  "QuestionID": 123,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about the Oracle join and ANSI join syntax? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The Oracle join syntax supports creation of a Cartesian product of two tables"},
+    {"label": "B", "text": "The Oracle join syntax performs better than the SQL:1999 compliant ANSI join syntax"},
+    {"label": "C", "text": "The SQL:1999 compliant ANSI join syntax supports natural joins"},
+    {"label": "D", "text": "The SQL:1999 compliant ANSI join syntax supports creation of a Cartesian product of two tables"},
+    {"label": "E", "text": "The Oracle join syntax only supports right outer joins"},
+    {"label": "F", "text": "The Oracle join syntax supports natural joins"},
+    {"label": "G", "text": "The Oracle join syntax performs less well than the SQL:1999 compliant ANSI join syntax"}
+  ],
+  "CorrectAnswer": ["A", "C", "D"],
+  "Explanation": "Oracle join syntax(旧式):\n1.使用 (+) 表示外连接\n2.可以产生 Cartesian product\n3.不支持 NATURAL JOIN\n4.LEFT/RIGHT OUTER JOIN都支持\nANSI join syntax(SQL-1999):\n1.使用 INNER/LEFT/RIGHT/FULL JOIN ... ON ...\n2.支持 NATURAL JOIN 和 CROSS JOIN\n3.可读性更高,标准 SQL\n4.性能与 Oracle join 语法相同,由优化器决定\n笛卡尔积:\n1.没有连接条件时,表 A 的每行与表 B 的每行组合\n2.行数 = 表 A 行数 × 表 B 行数\nA.如果使用 Oracle 的旧式连接语法（没有 WHERE 条件或 ON 条件），两张表会生成笛卡尔积（Cartesian product）。\nB.现代 Oracle 优化器对 ANSI join 和 Oracle join 的性能几乎一样。性能取决于执行计划，而不是语法本身\nE.Oracle join 语法支持 LEFT OUTER JOIN 和 RIGHT OUTER JOIN，并不仅限于右外连接\nF.NATURAL JOIN 属于ANSI标准语法，而非Oracle传统语法"
+},
+{
+  "QuestionID": 124,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two tasks can you perform using DBCA for databases? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Configure a nonstandard block size for a new database"},
+    {"label": "B", "text": "Register a new database with an available Enterprise Manager Management server"},
+    {"label": "C", "text": "Change the standard block size of an existing database"},
+    {"label": "D", "text": "Configure incremental backups for a new database"},
+    {"label": "E", "text": "Enable flashback database for an existing database"}
+  ],
+  "CorrectAnswer": ["A", "B"],
+  "Explanation": "DBCA（Database Configuration Assistant） 是 Oracle 提供的图形化或命令行工具，用于创建、配置和删除数据库，以及注册数据库到 Oracle Enterprise Manager（OEM）。\nA.DBCA 可以在创建新数据库时配置非标准数据块大小（nonstandard block size），比如 8KB、16KB、32KB 等，满足特定应用需求。标准数据块大小通常是 8KB；\nC.数据库创建完成后，标准块大小无法修改，这是数据库结构的一部分。\nD.DBCA本身不负责配置备份策略。备份需要使用 RMAN（Recovery Manager）进行配置和管理\nE.DBCA可以在创建新数据库时选择启用 Flashback Database，但不支持对已存在的数据库启用，这需要通过SQL命令或RMAN配置。"
+},
+{
+  "QuestionID": 125,
+  "QuestionType": "single",
+  "QuestionText": "You plan to create a database by using the Database Configuration Assistant (DBCA), with the following specifications:\n- Applications will connect to the database via a middle tier.\n- The number of concurrent user connections will be high.\n- The database will have mixed workload, with the execution of complex BI queries scheduled at night.\nWhich DBCA option must you choose to create the database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A General Purpose database template with default memory allocation"},
+    {"label": "B", "text": "A Data Warehouse database template, with the dedicated server mode option and AMM enabled"},
+    {"label": "C", "text": "A General Purpose database template, with the shared server mode option and Automatic Memory Management (AMM) enabled"},
+    {"label": "D", "text": "A default database configuration"}
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "1.中间层连接:\n应用程序不会直接连接数据库,而是通过中间层(Middle Tier)连接。中间层通常使用共享服务器(Shared Server)模式来处理大量并发连接\n2.高并发用户连接:表明数据库可能有成百上千个连接\n3.混合工作负载:白天有OLTP(Online Transaction Processing,联机事务处理操作:插入INSERT、更新UPDATE、删除DELETE、查询SELECT),晚上有复杂BI(Complex Business Intelligence复杂商业智能分析)查询(批量分析/报表).数据库需要灵活的内存管理来适应不同负载\nA.General Purpose模板适合小到中型OLTP应用,默认内存分配通常比较保守。对于高并发和混合负载的情况可能性能不足\nB.Data Warehouse模板适合大规模批量处理和分析(ETL/BI),优化为复杂查询性能。但题目中白天有大量中间层并发用户连接，使用 Dedicated Server 模式会消耗过多资源,不适合高并发OLTP场景。"
+},
+{
+  "QuestionID": 126,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two options can be configured for an existing database by using the Database Configuration Assistant (DBCA)?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Database Resident Connection Pooling"},
+    {"label": "B", "text": "Oracle Suggested Backup Strategy"},
+    {"label": "C", "text": "Database Vault in ORACLE_HOME"},
+    {"label": "D", "text": "Non default block size tablespaces"},
+    {"label": "E", "text": "Configure Label Security"}
+  ],
+  "CorrectAnswer": ["C", "E"],
+  "Explanation": "A.DRCP是Oracle提供的轻量级连接池，用于中间层应用的高并发场景。配置DRCP不能通过DBCA，需要使用SQL/PLSQL或DBMS_CONNECTION_POOL包手动配置。\nB.DBCA不配置备份策略。备份策略需要使用RMAN（Recovery Manager）或其他工具手动配置。\nC.DBCA 可以为现有数据库启用或配置Database Vault（安全策略模块）,Database Vault提供访问控制、管理隔离和多重安全策略。配置路径通常位于 ORACLE_HOME 中。\nD.数据库创建后，标准块大小无法修改."
+},
+{
+  "QuestionID": 127,
+  "QuestionType": "single",
+  "QuestionText": "You execute this query:\nSELECT TO_CHAR(NEXT_DAY(LAST_DAY(SYSDATE), ‘MON’), ‘dd “Monday for” fmMonthrrrr’)\nWhat is the result?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It executes successfully but does not return any result"},
+    {"label": "B", "text": "It returns the date for the first Monday of the next month"},
+    {"label": "C", "text": "It generates an error"},
+    {"label": "D", "text": "It returns the date for the last Monday of the current month"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "LAST_DAY(SYSDATE)返回当前月的最后一天。\n‘dd “Monday for” fmMonthrrrr’ → dd是天，“Monday for”是string不变，fmMonth表示月名全称，fm去掉前导空格rrrr表示年份。例如:03 Monday for November2025"
+},
+{
+  "QuestionID": 128,
+  "QuestionType": "multiple",
+  "QuestionText": "Examine this command:\nCREATE UNDO TABLESPACE undotbs01\nDATAFILE ‘undotbs_01.dbf’\nSIZE 100M\nAUTOEXTEND ON;\nWhich two actions must you take to ensure UNDOTBS01 is used as the default UNDO tablespace? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Add the SEGMENT SPACE MANAGEMENT AUTO clause"},
+    {"label": "B", "text": "Set UNDO_TABLESPACE to UNDOTBS01"},
+    {"label": "C", "text": "Add the NOLOGGING clause"},
+    {"label": "D", "text": "Make certain that the database operates in automatic undo management mode"},
+    {"label": "E", "text": "Add the ONLINE clause"}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "UNDO 表空间用于存储回滚信息（undo data）Oracle 有两种 Undo 管理模式：1.手动 Undo 管理（Manual Undo Management）：通过回滚段（rollback segment）2.自动 Undo 管理（Automatic Undo Management, AUM）：通过UNDO表空间.要使用默认UNDO表空间，数据库必须处于AUM模式\nA.SEGMENT SPACE MANAGEMENT AUTO 是为表空间的段空间管理,提供自动管理功能,对UNDO表空间不是必须的\nC.NOLOGGING 用于减少日志生成，通常用于临时表或大批量导入,对 UNDO 表空间默认选择没有影响\nE.ONLINE 表示表空间立即可用对默认 UNDO 表空间选择不是必须的"
+},
+{
+  "QuestionID": 129,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about views in an Oracle database? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Views can be updated without the need to re-grant privileges on the view"},
+    {"label": "B", "text": "Tables in the defining query of a view must always exist in order to create the view"},
+    {"label": "C", "text": "The WITH CHECK clause prevents certain rows from being displayed when querying the view"},
+    {"label": "D", "text": "Data Manipulation Language (DML) can always be used on views"},
+    {"label": "E", "text": "Inserting one or more rows using a view whose defining query contains a GROUP BY clause will cause an error"},
+    {"label": "F", "text": "Deleting one or more rows using a view whose defining query contains a GROUP BY clause will cause an error"},
+    {"label": "G", "text": "The WITH CHECK clause prevents certain rows from being updated or inserted"}
+  ],
+  "CorrectAnswer": ["E", "F", "G"],
+  "Explanation": "视图（View）虚拟表，不存储数据可基于一个或多个表或视图\n可更新条件（可使用DML）：1.单表视图 2.不含 GROUP BY、DISTINCT、聚合函数 3.不含子查询或连接 \n不可更新视图：聚合视图、复杂连接视图、含 DISTINCT 的视图\nA.如果使用 CREATE OR REPLACE VIEW 修改视图，之前授予的权限会被删除。\nB.如果使用 CREATE VIEW ... FORCE，即使表不存在也能创建视图,默认的 CREATE VIEW ... 需要表存在\nC.WITH CHECK OPTION 并不限制查询结果的显示，它限制 通过视图插入或更新的数据，确保插入/更新的数据符合视图的条件\nD.如果视图包含 GROUP BY、DISTINCT、JOIN、聚合函数等，一般不能直接执行 INSERT/UPDATE/DELETE"
+},
+{
+  "QuestionID": 130,
+  "QuestionType": "single",
+  "QuestionText": "In the SALES database, DEFERRED_SEGMENT_CREATION is TRUE. Examine this command:\nSQL> CREATE TABLE T1(c1 INT PRIMARY KEY, c2 CLOB);\nWhich segment or segments, if any, are created as a result of executing the command?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "T1, an index segment for the primary key, a LOB segment, and a lobindex segment"},
+    {"label": "B", "text": "No segments are created"},
+    {"label": "C", "text": "T1 only"},
+    {"label": "D", "text": "T1 and an index segment created for the primary key only"},
+    {"label": "E", "text": "T1, an index segment for the primary key, and a LOB segment only"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "因为段创建延迟设置为 true，建表时只要没有数据，段是不会创建的。"
+},
+{
+  "QuestionID": 131,
+  "QuestionType": "single",
+  "QuestionText": "Choose the best answer. Which statement is true about database links?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A public database link can be created only by SYS."},
+    {"label": "B", "text": "A database link created in a database allows a connection from that database's instance to the target database's instance, but not vice versa."},
+    {"label": "C", "text": "A public database link can be used by a user connected to the local database instance to connect to any schema in the remote database instance."},
+    {"label": "D", "text": "Private database link creation requires the same user to exist in both the local and the remote databases."},
+    {"label": "E", "text": "A database link can be created only between two Oracle databases."}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "数据库链接DB Link用于在一个数据库实例中访问另一个远程数据库实例的数据\n1.数据库链接类型:Private DB Link只对创建它的用户可见。Public DB Link对所有用户可见。\n2.连接方向DB Link允许从本地数据库访问远程数据库,不自动允许远程数据库访问本地数据库\n3.目标数据库访问权限:用户需要在远程数据库中有对应的账户或使用远程用户名和密码\nA.公共数据库链接必须由拥有CREATE PUBLIC DATABASE LINK权限的用户创建\nB.DB Link使用远程数据库的指定用户名,即使是 Public DB Link，也只能访问该远程用户名有权限访问的对象\nD.私有DB Link不要求本地和远程用户同名。关键是:创建链接时指定远程用户名和密码即可\nE.可以创建指向自已DBLINK连接"
+},
+{
+  "QuestionID": 132,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about views in an Oracle Database? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Rows inserted into a table using a view are retained in the table if the view is dropped."},
+    {"label": "B", "text": "A view can be created that refers to a non-existent table in its defining query."},
+    {"label": "C", "text": "Views have no object number."},
+    {"label": "D", "text": "Views have no segment."},
+    {"label": "E", "text": "A SELECT statement cannot contain a WHERE clause when querying a view containing a WHERE clause in its defining query."},
+    {"label": "F", "text": "Views can join tables only if they belong to the same schema."}
+  ],
+  "CorrectAnswer": ["A", "B", "D"],
+  "Explanation": "A.视图 不存储数据，只是查询定义,通过视图插入的数据最终存储在 底层表 中,如果删除视图，数据仍然保存在表中\nB.CREATE VIEW ... FORCE 可以创建指向不存在表的视图,CREATE VIEW ... 默认要求表必须存在,FORCE 允许先创建视图，稍后再创建表\nC.视图也是数据库对象，在 USER_OBJECTS或ALL_OBJECTS中有OBJECT_ID,所以视图是有对象编号的\nF.视图可以引用不同 schema 的表,使用 schema_name.table_name 即可"
+},
+{
+  "QuestionID": 133,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two tasks can be performed in the NOMOUNT state?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Full database recovery"},
+    {"label": "B", "text": "Re-creating control files"},
+    {"label": "C", "text": "Renaming data files"},
+    {"label": "D", "text": "Creating a database"},
+    {"label": "E", "text": "Enabling online redo log archiving"}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "NOMOUNT 状态特点:SGA 已启动，后台进程已启动,控制文件未装入.适合：1.创建数据库 2.重新创建控制文件 3.修改初始化参数（如 DB_NAME）\nMOUNT 状态特点:控制文件已装入,数据文件未打开. 适合：1.数据库恢复 2.数据文件（重命名，添加数据文件）或日志文件操作3.启用归档模式\nOPEN 状态特点:数据库完全可用,可以执行普通查询、DML、DCL 等"
+},
+{
+  "QuestionID": 134,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about dynamic performance views?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "They are owned by the SYSTEM user. SYS"},
+    {"label": "B", "text": "V$FIXED_TABLE can be queried to display the name of all dynamic performance views."},
+    {"label": "C", "text": "Data displayed by querying dynamic performance views is derived from metadata in the data dictionary."},
+    {"label": "D", "text": "Data displayed by querying dynamic performance views is derived from memory structures."},
+    {"label": "E", "text": "They can be queried only when the database is open."},
+    {"label": "F", "text": "Read consistency is not guaranteed."}
+  ],
+  "CorrectAnswer": ["B", "D", "F"],
+  "Explanation":"动态性能视图（通常以 V$ 开头）用于监控数据库实例的运行状态，提供关于 内存结构、锁、会话、缓冲区、性能统计 等信息。1.数据来源：SGA/PGA 内存结构，而非数据字典表2.用户权限：通常通过 PUBLIC权限访问3.使用场景：数据库性能诊断、调优\nA.动态性能视图实际 物理拥有者是SYS用户,系统中对普通用户开放的是 PUBLIC synonym\nB.V$FIXED_TABLE 是 V$视图的目录视图,可以列出所有动态性能视图及其对应的底层固定表（fixed tables）\nE.V$视图中部分视图在 NOMOUNT 或 MOUNT 状态也可以访问,并非必须数据库 OPEN,例如 V$PARAMETER 可在 NOMOUNT 状态查询初始化参数\nF.动态性能视图反映的是运行时内存状态,数据可能在查询过程中发生变化,因此不保证读一致性"
+},
+{
+  "QuestionID": 135,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are benefits of external tables?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The results of a complex join or aggregating function or both can be unloaded to a file for transportation to another database."},
+    {"label": "B", "text": "They can be queried while the database is in the MOUNT state like dynamic performance views."},
+    {"label": "C", "text": "They support DELETES which transparently deletes records in the file system as if they were table rows."},
+    {"label": "D", "text": "They support UPDATES which transparently updates records in the file system as if they were table rows."},
+    {"label": "E", "text": "They can be queried, transformed, and joined with other tables without having to load the data first."}
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": "E.外部表最大优势之一：无需先把文件数据加载到表中就能用 SQL 查询支持 JOIN、WHERE、GROUP BY、ORDER BY 等操作"
+},
+{
+  "QuestionID": 136,
+  "QuestionType": "multiple",
+  "QuestionText": "DATADIR1 and DATADIR2 are database directory objects. Examine this command:\n[oracle@host01 ~] expdp system/oracle \\\n> FULL=Y \\\n> DUMPFILE=datadir1:full%U.dmp, datadir2:full%U.dmp \\\n> FILESIZE=2G \\\n> PARALLEL=4 \\\n> LOGFILE=datadir1:/expfull.log \\\n> JOB_NAME=expfull\nWhich two statements are true about the expdp operation?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It starts only when four worker processes are available."},
+    {"label": "B", "text": "It fails if the total size of the dump file is more than 2GB."},
+    {"label": "C", "text": "It creates dump files only for objects in the SYSTEM schema."},
+    {"label": "D", "text": "It creates dump files for the entire database."},
+    {"label": "E", "text": "It creates a master table to store details of the export operation."}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation": "使用 Data Pump Export（expdp） 工具导出数据库。\n•用户是 system。\n•FULL=Y → 导出整个数据库。\n•DUMPFILE 指定多个目录和文件模板%U（自动编号：full01.dmp、full02.dmp…）。\n•FILESIZE=2G → 每个转储文件最大 2GB，超过则生成新文件。\n•PARALLEL=4 → 并行 4 个 worker 进程。\n•LOGFILE 指定日志输出文件。\n•JOB_NAME=expfull → 任务名称。A.Oracle Data Pump 会尽量分配并行度（PARALLEL）指定的 worker 数。但如果一开始没有足够 worker，任务也会启动，只是会动态分配或等待。并不是“等 4 个进程都空闲才开始”。\nB.FILESIZE=2G 限制的是 每个文件的最大大小，不是整个导出总量。当文件到达 2GB 时，Data Pump 自动创建下一个文件（full02.dmp, full03.dmp, …）。\nC.FULL=Y 表示导出整个数据库中 所有 schema\nE.每个 Data Pump 任务都会在执行时，在导出用户的 schema 下创建一个 master table（主表）。用于记录导出的元信息（对象名、文件名、进度等）。作业完成后默认删除"
+},
+{
+  "QuestionID": 137,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three actions are ways to apply the principle of least privilege?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Revoking execute privilege on UTL_SMTP, UTL_TCP, UTL_HTTP, and UTL_FILE from the PUBLIC user"},
+    {"label": "B", "text": "Setting the REMOTE_OS_AUTHENT parameter to true"},
+    {"label": "C", "text": "Using Access Control Lists (ACLs)"},
+    {"label": "D", "text": "Enabling Unified Auditing"},
+    {"label": "E", "text": "Revoking execute privilege on UTL_SMTP, UTL_TCP, UTL_HTTP, and UTL_FILE from the SYSTEM user"},
+    {"label": "F", "text": "Setting the 07_DICTIONARY_ACCESSIBILITY parameter to true"}
+  ],
+  "CorrectAnswer": ["A", "C", "D"],
+  "Explanation": "Principle of Least Privilege（最小权限原则） 是数据库安全的基本原则之一：每个用户、进程、应用程序都只能获得完成任务所需的最小权限，不多也不少。\nA.这些包 (UTL_HTTP:HTTP请求,UTL_SMTP:发邮件,UTL_TCP:低层TCP通信,UTL_FILE:操作文件系统)能让 PL/SQL 程序访问外部资源,默认情况下，这些包可能对 PUBLIC（所有用户）可执行。这意味着任何用户都能发HTTP请求、访问文件、甚至外部系统 → 潜在安全风险。所以撤销对 PUBLIC 的 EXECUTE 权限，限制谁能访问这些网络或文件资源，就是典型的“最小权限”做法。\nB.REMOTE_OS_AUTHENT 允许使用 远程操作系统认证。若为 TRUE，则 Oracle 信任来自远程系统的 OS 用户身份（即远程用户可不输入密码直接登录数据库）。这严重削弱安全性，相当于扩大权限而非最小化。\nC.Access Control Lists (ACLs) 可细化控制哪些数据库用户/角色能：发 HTTP 请求;使用 UTL_SMTP、UTL_TCP、UTL_HTTP 等包;访问外部网络资源。通过 ACL，只允许特定用户访问特定主机/端口 → 精确授权 → 完全符合“最小权限原则”。\nD.Unified Auditing 是 Oracle 的统一审计框架。它帮助 DBA 监控谁在用什么权限做什么操作。虽然“审计”本身不是减少权限，但它是实现最小权限原则的重要一环，因为：审计提供监督和可追踪性，帮助发现过度授权并进行调整。审计是最小权限控制的重要辅助手段。\nE.SYSTEM 是 DBA 级别用户，管理数据库必然需要这些访问能力。撤销 SYSTEM 的权限反而会阻止必要的管理操作，不合逻辑。\nF.如果设为 TRUE，则让非-SYS 用户可以直接访问数据字典（SYS schema 下的表视图）。这会 放宽访问控制，导致安全风险增加。"
+},
+{
+  "QuestionID": 138,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the configuration and use of UNDO_RETENTION with no GUARANTEED RETENTION?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Unexpired UNDO is always retained."},
+    {"label": "B", "text": "UNDO_RETENTION specifies for how long Oracle attempts to keep expired and unexpired UNDO."},
+    {"label": "C", "text": "UNDO_RETENTION specifies how long all types of UNDO are retained."},
+    {"label": "D", "text": "Active UNDO is always retained."},
+    {"label": "E", "text": "UNDO_RETENTION specifies for how long Oracle attempts to keep unexpired UNDO."}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation": "UNDO 表空间 保存事务的“旧值”（Undo 数据），主要作用是：回滚未提交事务；支持一致性读（consistent read）；支持闪回查询（flashback）.UNDO_RETENTION:保留undo数据的时间（以秒为单位）。\nA.在 NOGUARANTEE模式下，不一定能保留。如果 undo 空间不够，Oracle 可能覆盖unexpired undo数据。\nB.UNDO_RETENTION 只影响 unexpired undo 的最小保留时间。“expired” undo 已经过期，可以随时重用。\nC.“all types of UNDO” 不准确。1.活跃（active）undo 永远保留直到事务结束。2.过期（expired）undo 可以随时重用。3.未过期（unexpired）undo 是 UNDO_RETENTION 控制的重点。"
+},
+{
+  "QuestionID": 139,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about a full outer join?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It returns only unmatched rows from both tables being joined."},
+    {"label": "B", "text": "It returns matched and unmatched rows from both tables being joined."},
+    {"label": "C", "text": "The Oracle join operator (+) must be used on both sides of the join condition in the WHERE clause."},
+    {"label": "D", "text": "It includes rows that are returned by an inner join."},
+    {"label": "E", "text": "It includes rows that are returned by a Cartesian product."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "FULL OUTER JOIN = LEFT OUTER JOIN + RIGHT OUTER JOIN,它返回两张表中 所有匹配行 + 所有不匹配行.\nC.(+ ) 是 Oracle 的旧式语法（Oracle proprietary join syntax），只支持 左外连接 和 右外连接。Full outer join 不支持 (+ ) 语法，只能使用 ANSI 标准语法\nD.因为 inner join 的结果（匹配行）包含在 full outer join 结果集中\nE.笛卡尔积（Cartesian product） 是没有任何连接条件时的结果（A×B）。full outer join 仍然基于连接条件，只是补齐未匹配的行，不会产生全部组合。"
+},
+{
+  "QuestionID": 140,
+  "QuestionType": "multiple",
+  "QuestionText": "Examine these SQL statements which execute successfully:\nCREATE TABLE emp \n  (emp_no NUMBER(2) CONSTRAINT emp_emp_no_pk PRIMARY KEY, \n  ename VARCHAR2(15), \n  salary NUMBER(8,2), \n  mgr_no NUMBER(2));\nALTER TABLE emp ADD CONSTRAINT emp_mgr_fk \n  FOREIGN KEY (mgr_no) \n  REFERENCES emp (emp_no) \n  ON DELETE SET NULL;\nALTER TABLE emp \n  DISABLE CONSTRAINT emp_emp_no_pk \n  CASCADE;\nALTER TABLE emp \n  ENABLE CONSTRAINT emp_emp_no_pk;\nWhich two statements are true after execution?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The primary key constraint will be enabled and DEFERRED."},
+    {"label": "B", "text": "The primary key constraint will be enabled and IMMEDIATE."},
+    {"label": "C", "text": "The foreign key constraint will be enabled and IMMEDIATE."},
+    {"label": "D", "text": "The foreign key constraint will be disabled."},
+    {"label": "E", "text": "The foreign key constraint will be enabled and DEFERRED."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "主键约束和外键约束默认：1.ENABLED（启用）2.IMMEDIATE（立即检查约束）3.NOT DEFERRABLE（不可延迟）\nDISABLE CASCADE禁用主键时，同时禁用引用该主键的外键约束\nENABLE 不传播 → 启用主键不会自动启用外键"
+},
+{
+  "QuestionID": 141,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about row chaining and row migration done by Oracle database block space management?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Update statements can result in one or more migrated rows."},
+    {"label": "B", "text": "Insert statements can result in a migrated row."},
+    {"label": "C", "text": "A migrated row results in an update to any index on the table to point the rowid in the index to the row's new location."},
+    {"label": "D", "text": "Row pieces of a chained row must always reside in different blocks."},
+    {"label": "E", "text": "Insert statements can result in a chained row."},
+    {"label": "F", "text": "Update statements can result in one or more chained rows."}
+  ],
+  "CorrectAnswer": ["A", "E", "F"],
+  "Explanation": "行迁移（Row Migration）发生条件：UPDATE 导致行在原来所在块无法完全存放,Oracle 会把整行搬到同一表的另一块,原来的数据块只保留一条指向新位置的指针（ROWID）\n行链（Row Chaining）发生条件：INSERT 语句,插入的行太大，无法在一个数据块中存放,或者 分布式数据库 或 多块表空间设置 导致行跨块存储。原始行被拆成多段（row pieces）存放在不同块,ROWID 仍然能指向行的第一段,不仅 UPDATE，INSERT 也会产生行链"
 }
 
 
