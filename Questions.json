@@ -1873,7 +1873,7 @@
     {"label": "G", "text": "The Oracle join syntax performs less well than the SQL:1999 compliant ANSI join syntax"}
   ],
   "CorrectAnswer": ["A", "C", "D"],
-  "Explanation": "Oracle join syntax(旧式):\n1.使用 (+) 表示外连接\n2.可以产生 Cartesian product\n3.不支持 NATURAL JOIN\n4.LEFT/RIGHT OUTER JOIN都支持\nANSI join syntax(SQL-1999):\n1.使用 INNER/LEFT/RIGHT/FULL JOIN ... ON ...\n2.支持 NATURAL JOIN 和 CROSS JOIN\n3.可读性更高,标准 SQL\n4.性能与 Oracle join 语法相同,由优化器决定\n笛卡尔积:\n1.没有连接条件时,表 A 的每行与表 B 的每行组合\n2.行数 = 表 A 行数 × 表 B 行数\nA.如果使用 Oracle 的旧式连接语法（没有 WHERE 条件或 ON 条件），两张表会生成笛卡尔积（Cartesian product）。\nB.现代 Oracle 优化器对 ANSI join 和 Oracle join 的性能几乎一样。性能取决于执行计划，而不是语法本身\nE.Oracle join 语法支持 LEFT OUTER JOIN 和 RIGHT OUTER JOIN，并不仅限于右外连接\nF.NATURAL JOIN 属于ANSI标准语法，而非Oracle传统语法"
+  "Explanation": "Oracle join syntax(旧式):\n-1.使用 (+) 表示外连接\n-2.可以产生 Cartesian product\n-3.不支持 NATURAL JOIN\n-4.LEFT/RIGHT OUTER JOIN都支持\nANSI join syntax(SQL-1999):\n-1.使用 INNER/LEFT/RIGHT/FULL JOIN ... ON ...\n-2.支持 NATURAL JOIN 和 CROSS JOIN\n-3.可读性更高,标准 SQL\n-4.性能与 Oracle join 语法相同,由优化器决定\n笛卡尔积:\n-1.没有连接条件时,表 A 的每行与表 B 的每行组合\n-2.行数 = 表 A 行数 × 表 B 行数\nA.如果使用 Oracle 的旧式连接语法（没有 WHERE 条件或 ON 条件），两张表会生成笛卡尔积（Cartesian product）。\nB.现代 Oracle 优化器对 ANSI join 和 Oracle join 的性能几乎一样。性能取决于执行计划，而不是语法本身\nE.Oracle join 语法支持 LEFT OUTER JOIN 和 RIGHT OUTER JOIN，并不仅限于右外连接\nF.NATURAL JOIN 属于ANSI标准语法，而非Oracle传统语法"
 },
 {
   "QuestionID": 124,
@@ -2032,7 +2032,7 @@
   "QuestionText": "Which three statements are true about dynamic performance views?",
   "ImageURL": "",
   "Options": [
-    {"label": "A", "text": "They are owned by the SYSTEM user. SYS"},
+    {"label": "A", "text": "They are owned by the SYSTEM user."},
     {"label": "B", "text": "V$FIXED_TABLE can be queried to display the name of all dynamic performance views."},
     {"label": "C", "text": "Data displayed by querying dynamic performance views is derived from metadata in the data dictionary."},
     {"label": "D", "text": "Data displayed by querying dynamic performance views is derived from memory structures."},
@@ -2121,7 +2121,7 @@
 {
   "QuestionID": 140,
   "QuestionType": "multiple",
-  "QuestionText": "Examine these SQL statements which execute successfully:\nCREATE TABLE emp \n  (emp_no NUMBER(2) CONSTRAINT emp_emp_no_pk PRIMARY KEY, \n  ename VARCHAR2(15), \n  salary NUMBER(8,2), \n  mgr_no NUMBER(2));\nALTER TABLE emp ADD CONSTRAINT emp_mgr_fk \n  FOREIGN KEY (mgr_no) \n  REFERENCES emp (emp_no) \n  ON DELETE SET NULL;\nALTER TABLE emp \n  DISABLE CONSTRAINT emp_emp_no_pk \n  CASCADE;\nALTER TABLE emp \n  ENABLE CONSTRAINT emp_emp_no_pk;\nWhich two statements are true after execution?",
+  "QuestionText": "Examine these SQL statements which execute successfully:\nCREATE TABLE emp \n  (emp_no NUMBER(2) CONSTRAINT emp_emp_no_pk PRIMARY KEY, \n  ename VARCHAR2(15), \n  salary NUMBER(8,2), \n  mgr_no NUMBER(2));\n\nALTER TABLE emp ADD CONSTRAINT emp_mgr_fk \n  FOREIGN KEY (mgr_no) \n  REFERENCES emp (emp_no) \n  ON DELETE SET NULL;\n\nALTER TABLE emp \n  DISABLE CONSTRAINT emp_emp_no_pk \n  CASCADE;\n\nALTER TABLE emp \n  ENABLE CONSTRAINT emp_emp_no_pk;\n\nWhich two statements are true after execution?",
   "ImageURL": "",
   "Options": [
     {"label": "A", "text": "The primary key constraint will be enabled and DEFERRED."},
@@ -2148,6 +2148,313 @@
   ],
   "CorrectAnswer": ["A", "E", "F"],
   "Explanation": "行迁移（Row Migration）发生条件：UPDATE 导致行在原来所在块无法完全存放,Oracle 会把整行搬到同一表的另一块,原来的数据块只保留一条指向新位置的指针（ROWID）\n行链（Row Chaining）发生条件：INSERT 语句,插入的行太大，无法在一个数据块中存放,或者 分布式数据库 或 多块表空间设置 导致行跨块存储。原始行被拆成多段（row pieces）存放在不同块,ROWID 仍然能指向行的第一段,不仅 UPDATE，INSERT 也会产生行链"
+},
+{
+  "QuestionID": 142,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true regarding Oracle database space management within blocks managed by Automatic Segment Space Management (ASSM)?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Update operations always relocate rows into blocks with free space appropriate to the length of the row being updated."},
+    {"label": "B", "text": "Insert operations always insert new rows into blocks with free space appropriate to the length of the row being inserted."},
+    {"label": "C", "text": "PCTFREE defaults to 10% for all blocks in all segments for all compression methods."},
+    {"label": "D", "text": "The first block with enough free space to accommodate a row being inserted will always be used for that row."},
+    {"label": "E", "text": "ASSM assigns blocks to one of four fullness categories based on what percentage of the block is allocated for rows."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "ASSM 的核心作用：自动跟踪哪些块有多少可用空间,自动决定新行要插入哪个块,提升并发性能(多个会话可同时插入),每当执行 INSERT 或 UPDATE，Oracle 都会：查找对应“空闲空间组”的位图（bitmap）；自动选择一个合适的块来放新行或更新后的行\nA.UPDATE 并不会总是搬移行。如果当前块仍有足够空间 → 就地更新；如果空间不够 → 才会行迁移（row migration）\nC.在未指定 PCTFREE 时，Oracle 默认值是 10%。表示每个块预留 10% 空间给 UPDATE 使用。无论是否压缩（compression），PCTFREE 默认都为 10%。可手动改为其他值（如 PCTFREE 20）。\nE.四个“满度等级”fullness categories:full,75%full,50%full,empty/25%full"
+},
+{
+  "QuestionID": 143,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the PMON background process?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It registers database services with all local and remote listeners known to the database instance."},
+    {"label": "B", "text": "It frees resources held by abnormally terminated processes."},
+    {"label": "C", "text": "It frees unused temporary segments."},
+    {"label": "D", "text": "It rolls back transactions when a process fails."},
+    {"label": "E", "text": "It records checkpoint information in the control file."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "PMON(Process Monitor)清理异常终止的用户进程，回滚未提交事务，释放锁和资源。清理失败进程的内存。会话异常终止时自动回滚。\nSMON(System Monitor)实例恢复（crash recovery），合并空闲区（coalescing free space），清理临时段。\nLREG(Listener Registration Process)向本地和远程监听器注册实例和服务信息。\nCKPT(Checkpoint)更新控制文件和数据文件头中的 checkpoint 信息。不负责写数据块（写数据的是 DBWR）。负责同步 checkpoint 位置。"
+},
+{
+  "QuestionID": 144,
+  "QuestionType": "multiple",
+  "QuestionText": "A script abc.sql must be executed to perform a certain task. User HR with password HR exists in the target database and the account is unlocked. The TNSNAMES.ORA file is up to date. Examine this command attempted by the user:\n\n$ sqlplus hr/hr@orc1 @abc\n\nWhat will happen and why?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The command succeeds and HR will be connected to the orcl database instance, and the abc script will be executed."},
+    {"label": "B", "text": "The command fails because the script must refer to the full path name."},
+    {"label": "C", "text": "The command succeeds and HR will be connected to the orcl database and after logging out to the abc database."},
+    {"label": "D", "text": "The command succeeds and HR will be connected to the orcl database instance, and the abc script will be executed."},
+    {"label": "E", "text": "The command fails and reports an error because @ is used twice."}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 145,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about global temporary tables?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Backup and recovery operations are available for these tables."},
+    {"label": "B", "text": "Their data is always stored in the default temporary tablespace of the user who created them."},
+    {"label": "C", "text": "If the ON COMMIT clause is transaction specific, all rows in the table are deleted after each COMMIT or ROLLBACK."},
+    {"label": "D", "text": "Indexes can be created on them."},
+    {"label": "E", "text": "They can be created only by a user with the DBA role, but can be accessed by all users who can create a session."},
+    {"label": "F", "text": "If the ON COMMIT clause is session specific, the table is dropped when the session is terminated."}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": "全局临时表GTT:表结构是永久的，但数据是临时的。数据只对当前会话（session）可见，不同会话的数据相互隔离。适合存储临时计算结果、会话级数据等。\nON COMMIT DELETE ROWS（事务级Transaction-specific）每次 COMMIT 或 ROLLBACK 都会清空该会话中的表数据数据只在 事务内有效\nON COMMIT PRESERVE ROWS（会话级Session-specific）数据在 事务提交后仍然保留,直到会话结束才删除表数据\nA.GTT 的数据是临时的，不参与常规备份和恢复。\nB.数据确实存放在临时表空间（TEMP tablespace），但可以显式指定表空间，不一定是默认的。\nE.普通用户只要有 CREATE TABLE 权限 就可以创建自己的 GTT"
+},
+{
+  "QuestionID": 146,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about GLOBAL TEMPORARY TABLES?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A GLOBAL TEMPORARY TABLE cannot have PUBLIC SYNONYM."},
+    {"label": "B", "text": "A GLOBAL TEMPORARY TABLE can have multiple indexes."},
+    {"label": "C", "text": "A GLOBAL TEMPORARY TABLE can be referenced in the defining query of a view."},
+    {"label": "D", "text": "Data Manipulation Language (DML) on GLOBAL TEMPORARY TABLES generates no REDO."},
+    {"label": "E", "text": "A GLOBAL TEMPORARY TABLE can have only one index."},
+    {"label": "F", "text": "A trigger can be created on a GLOBAL TEMPORARY TABLE."}
+  ],
+  "CorrectAnswer": ["B", "C", "F"],
+  "Explanation": "A.GTT 可以创建 PUBLIC SYNONYM，让其他用户通过同一个名字访问表结构（但访问的数据依然是各自会话的）。\nB.全局临时表跟普通表一样，可以创建索引、视图、触发器等等，dml 操作同样也会产生 redo"
+},
+{
+  "QuestionID": 147,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about GLOBAL TEMPORARY TABLES?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "GLOBAL TEMPORARY TABLE space allocation occurs at session start."},
+    {"label": "B", "text": "A GLOBAL TEMPORARY TABLE's definition is available to multiple sessions."},
+    {"label": "C", "text": "A DELETE command on a GLOBAL TEMPORARY TABLE cannot be rolled back."},
+    {"label": "D", "text": "A TRUNCATE command issued in a session causes all rows in a GLOBAL TEMPORARY TABLE for the issuing session to be deleted."},
+    {"label": "E", "text": "GLOBAL TEMPORARY TABLE rows inserted by a session are available to any other session whose user has been granted SELECT on the table."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "A.普通表进行第一次DML 操作时，会为表段分配空间;临时表则在创建临时表空间分配"
+},
+{
+  "QuestionID": 148,
+  "QuestionType": "multiple",
+  "QuestionText": "You execute these commands successfully:\n\nCREATE GLOBAL TEMPORARY TABLE invoices_gtt (\ncustomer_id INTEGER,\ninvoice_total NUMBER(10,2)\n) ON COMMIT PRESERVE ROWS;\nINSERT INTO invoices_gtt VALUES (1, 100);\nCOMMIT;\n\nWhich two are true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "To drop the table in this session, you must first truncate it."},
+    {"label": "B", "text": "When you terminate your session, the row will be deleted."},
+    {"label": "C", "text": "Other sessions can view the committed row."},
+    {"label": "D", "text": "You can add a foreign key to the table."},
+    {"label": "E", "text": "You can add a column to the table in this session."}
+  ],
+  "CorrectAnswer": ["A", "B"],
+  "Explanation": "A.会话级 GTT 的表存在会话级数据。为了 DROP TABLE，必须先删除该会话的数据（通常通过 TRUNCATE）。\nD.外键是跨表约束，需要保证数据一致性,GTT 数据是临时的，跨会话不可见，无法保证约束的完整性.GTT 表结构修改前，确保表中无数据；索引可以，但外键不允许；事务级数据提交后消失，会话级数据存在期间不能修改表。\nE.表结构修改（ALTER TABLE ADD COLUMN） 对 GTT 是 永久的，作用于表定义对当前会话生效与否不相关，题目选项的表述不正确ALTER TABLE 可以增加列，但不是“只在本会话生效"
+},
+{
+  "QuestionID": 149,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about GLOBAL TEMPORARY TABLES?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A DELETE command on GLOBAL TEMPORARY TABLE cannot be rolled back."},
+    {"label": "B", "text": "GLOBAL TEMPORARY TABLE rows inserted by a session are available to any other session whose user has been granted SELECT on the table."},
+    {"label": "C", "text": "Any GLOBAL TEMPORARY TABLE rows existing at session termination will be deleted."},
+    {"label": "D", "text": "A GLOBAL TEMPORARY TABLE's definition is available to multiple sessions."},
+    {"label": "E", "text": "GLOBAL TEMPORARY TABLE space allocation occurs at session start."},
+    {"label": "F", "text": "A TRUNCATE command issued in a session causes all rows in a GLOBAL TEMPORARY TABLE for the issuing session to be deleted."}
+  ],
+  "CorrectAnswer": ["C", "D", "F"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 150,
+  "QuestionType": "single",
+  "QuestionText": "Examine these statements and results:\n\nSQL> SELECT COUNT(*) FROM emp;\nCOUNT (*)\n--------------------\n14\nSQL> CREATE GLOBAL TEMPORARY TABLE t_emp AS SELECT * FROM emp;\nTable created.\nSQL> INSERT INTO t_emp SELECT * FROM emp;\n14 rows created.\nSQL> COMMIT;\nCommit complete.\nSQL> INSERT INTO t_emp SELECT * FROM emp;\n14 rows created.\nSQL> SELECT COUNT(*) FROM t_emp;\n\nHow many rows are retrieved by the last query?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "0"},
+    {"label": "B", "text": "14"},
+    {"label": "C", "text": "28"},
+    {"label": "D", "text": "42"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "GTT 默认是事务级（transaction-specific）只有显式指定 ON COMMIT PRESERVE ROWS 才是会话级（session-specific）"
+},
+{
+  "QuestionID": 151,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about Enterprise Manager Database Express?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The same port number can be used for Database Express configurations for databases on different hosts."},
+    {"label": "B", "text": "It can be used to switch a database into ARCHIVELOG MODE."},
+    {"label": "C", "text": "It can be used to perform database recovery when the database is mounted."},
+    {"label": "D", "text": "The same port number can be used for multiple Database Express configurations for multiple databases on the same host."},
+    {"label": "E", "text": "It can be used to perform database recovery when the database is opened."},
+    {"label": "F", "text": "It is available only when the database is open."}
+  ],
+  "CorrectAnswer": ["A", "F"],
+  "Explanation": "Enterprise Manager Database Express（简称 EM Express）:轻量级 Web 管理工具,内嵌在数据库中，无需额外安装,用于单实例数据库的管理和监控\n主要功能：启动/关闭数据库,性能监控,用户管理,配置数据库参数\n访问方式：浏览器通过 HTTPS（默认端口 5500）访问\nEMDE 就是一个阉割版的 oem(Oracle Enterprise Manager)，很多功能都没有，但是使用起来很方便，只能做为简单的监视作用。\nB.EM Express 无法进行数据库模式切换（ARCHIVELOG / NOARCHIVELOG）这些操作需要 SQL*Plus 或 RMAN 执行\nC.EM Express 不能进行恢复操作"
+},
+{
+  "QuestionID": 152,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the Oracle Data Dictionary?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "All data dictionary view join base tables to dynamic performance views."},
+    {"label": "B", "text": "Data dictionary base tables can be queried directly."},
+    {"label": "C", "text": "It is owned by the SYS user."},
+    {"label": "D", "text": "It is owned by the SYSTEM user."},
+    {"label": "E", "text": "Data dictionary views are always created with queries that join two or more base tables."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "数据字典（Data Dictionary）：是 Oracle 数据库内部管理数据库对象的元数据集合,包含数据库结构信息，如表、索引、用户、视图、约束等,存储在SYS schema下的表中,通过数据字典视图（Data Dictionary Views） 访问，不直接操作底层数据字典表.数据字典基表可以直接查询，并且属于基表，只能够在数据库 open 的时候看到\nA.动态性能视图是虚拟表,存在于SGA中,数据字典视图是基于基表,以ALL_,USER_,DBA_开头\nE.数据字典视图只查询 一张 SYS 表，不一定要join多张表"
+},
+{
+  "QuestionID": 153,
+  "QuestionType": "multiple",
+  "QuestionText": "You execute this command:\n\nCREATE SMALLFILE TABLESPACE sales\nDATAFILE '/u01/app/oracle/sales01.dbf'\nSIZE 5G\nSEGMENT SPACE MANAGEMENT AUTO;\n\nWhich two statements are true about the SALES tablespace?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is a locally managed tablespace."},
+    {"label": "B", "text": "It must be smaller than the smallest BIGFILE tablespace."},
+    {"label": "C", "text": "Free space is managed using freelists."},
+    {"label": "D", "text": "It uses the database default blocksize."},
+    {"label": "E", "text": "Any data files added to the tablespace must have a size of 5 gigabytes."}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "A.默认创建 SMALLFILE 表空间时为 LMT（Locally Managed Tablespace使用位图（bitmap）管理空闲区，效率高，支持自动扩展和大表空间）\nE.SIZE 5G 只是 初始数据文件大小以后添加数据文件可以指定任意大小，或者使用 AUTOEXTEND ON 自动增长"
+},
+{
+  "QuestionID": 154,
+  "QuestionType": "multiple",
+  "QuestionText": "One of your database instances was shut down normally and then started in NOMOUNT state. You then executed this command:\n\nALTER DATABASE MOUNT;\n\nWhich two of these actions are performed?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Online redo logs are opened."},
+    {"label": "B", "text": "Oracle background processes are started."},
+    {"label": "C", "text": "The initialization parameter file is read."},
+    {"label": "D", "text": "Control files are read."},
+    {"label": "E", "text": "Online data files are opened."},
+    {"label": "F", "text": "Oracle shared memory structures are allocated."},
+    {"label": "G", "text": "The alert log has instance startup details written to it."}
+  ],
+  "CorrectAnswer": ["D", "G"],
+  "Explanation": "MOUNT 阶段主要做两件事：1.读取控制文件2.记录 alert log 中实例启动信息"
+},
+{
+  "QuestionID": 155,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about advanced connection options supported by Oracle Net for connection to Oracle Database instances?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Source Routing requires the use of encrypted connections."},
+    {"label": "B", "text": "Connect Time Failover requires the use of Transparent Application Failover (TAF)."},
+    {"label": "C", "text": "Connect Time Failover requires the connect string to have two or more listener addresses configured."},
+    {"label": "D", "text": "Load Balancing requires the use of a name server."},
+    {"label": "E", "text": "Load Balancing can balance the number of connections to dispatchers when using a Shared Server configuration."}
+  ],
+  "CorrectAnswer": ["C", "E"],
+  "Explanation": "A.源路由：你自己画好路线图 → Source Routing,与加密无关，不要求加密连接.普通路由：出门随便走，网络自动选最优路线 → TCP/IP 默认路由.\nB.Connect Time Failover (CTF)在客户端连接数据库时，如果第一个监听器不可用，可以尝试第二个监听器，实现连接的高可用性,只在建立连接时生效,不依赖 TAF（Transparent Application Failover）,需要在connect string 中配置多个 listener地址.Transparent Application Failover (TAF)主要用于已经建立的会话,如果会话所在实例失败，TAF 可以尝试在另一个实例上重建会话与Connect Time Failover不同，CTF 是在连接阶段生效，TAF是在会话运行阶段生效\nD.Load Balancing (负载均衡)在使用 RAC 或共享服务器（Shared Server）时，将客户端连接请求分配到多个实例或多个 dispatcher,可以在 Shared Server 模式下对 dispatcher 连接数进行均衡,不依赖 name server(DNS 也可用),与 TAF 无关"
+},
+{
+  "QuestionID": 156,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about external tables in Oracle 18c and later releases?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The ORACLE_LOADER access driver can be used to unload data from a database into an external table."},
+    {"label": "B", "text": "External table files can be used for other external tables in a different database."},
+    {"label": "C", "text": "They cannot be partitioned."},
+    {"label": "D", "text": "The ORACLE_DATAPUMP access driver can be used to unload data from a database into an external table."},
+    {"label": "E", "text": "They support UPDATEs but not INSERTs and DELETEs."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "A.ORACLE_LOADER从文本文件（CSV、固定宽度等）读取数据到外部表,只能读取.ORACLE_DATAPUMP使用 Data Pump dump 文件进行数据导入/导出,可以读写，即可以用来unload数据到外部表或load数据到数据库\nC.Oracle 18c及以后，外部表支持分区。\nE.外部表通常 不支持 DML，即 INSERT/UPDATE/DELETE 都不行"
+},
+{
+  "QuestionID": 157,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about single-row functions?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "They return a single result row per table."},
+    {"label": "B", "text": "They can be used only in the WHERE clause of a SELECT statement."},
+    {"label": "C", "text": "They can accept only one argument."},
+    {"label": "D", "text": "The argument can be a column name, variable, literal, or an expression."},
+    {"label": "E", "text": "The data type returned can be different from the data type of the argument."}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation": "A.单行函数 每行返回一个值,如果表有 10 行，函数执行 10 次，返回 10 个结果,聚合函数（SUM, AVG）才是 每表一行\nB.单行函数可以用在 SELECT、WHERE、ORDER BY、GROUP BY 等子句\nC.单行函数可以接受多个参数,如decode,nvl2等函数\nD.单行函数参数可以是：列名：UPPER(ename)变量：ROUND(:sal,2)字面值：TO_DATE('2025-10-25','YYYY-MM-DD')表达式：ROUND(salary*1.1,0)\nE.如to_char()"
+},
+{
+  "QuestionID": 158,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true regarding single row subqueries?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "They can be used in the WHERE clause."},
+    {"label": "B", "text": "They must be placed on the right side of the comparison operator or condition."},
+    {"label": "C", "text": "They must return a row to prevent errors in the SQL statement."},
+    {"label": "D", "text": "They must be placed on the left side of the comparison operator or condition."},
+    {"label": "E", "text": "A SQL statement may have multiple single row subquery blocks."},
+    {"label": "F", "text": "They can be used in the HAVING clause."}
+  ],
+  "CorrectAnswer": ["A", "E", "F"],
+  "Explanation": "B.单行子查询通常放在 比较符号右边，但也可以用在 FROM 列表、SELECT 列表，或与 IN、EXISTS 等组合\nB.单行子查询可以返回 NULL（零行）返回零行不会报错，但如果使用 = 比较符号，结果可能是空集,单行子查询只允许返回一行，返回多行才会报错"
+},
+{
+  "QuestionID": 159,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about single-row functions?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "They can accept only one argument."},
+    {"label": "B", "text": "They can be nested to any level."},
+    {"label": "C", "text": "They return a single result row per table."},
+    {"label": "D", "text": "The data type returned can be different from the data type of the argument."},
+    {"label": "E", "text": "The argument can be a column name, variable, literal, or an expression."},
+    {"label": "F", "text": "They can be used only in the WHERE clause of a SELECT statement."}
+  ],
+  "CorrectAnswer": ["B", "D", "E"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 160,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the Automatic Diagnostic Repository (ADR)?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It supports diagnostics for Automatic Storage Management (ASM)."},
+    {"label": "B", "text": "It supports diagnostics for Oracle Clusterware."},
+    {"label": "C", "text": "It is held inside an Oracle database schema."},
+    {"label": "D", "text": "It supports diagnostics for Oracle based applications."},
+    {"label": "E", "text": "It is held in an Oracle database data dictionary."}
+  ],
+  "CorrectAnswer": ["A", "B"],
+  "Explanation": "ADR（Automatic Diagnostic Repository）集中存储 Oracle 数据库和相关组件的诊断信息.\n存储内容：\n1.日志文件（alert log、trace files）\n2.Dump 文件\n3.栈跟踪信息（stack traces）\n4.健康报告（Health Monitor）\n5.incident 信息\n特点：\n1.独立于数据库schema\n2.目录结构在文件系统上，而不是存储在数据库内部\n3.可通过工具访问：ADRCI、Enterprise Manager\nADR支持的组件:\n1.数据库实例\n2.SM（Automatic Storage Management）ASM的trace文件、alert log 都存储在ADR中\n3.Oracle Clusterware:集群的 CRS（Cluster Ready Services）日志也可以存放在 ADR.\nD.ADR 主要用于数据库和集群组件的诊断，不直接存储应用日志，数据库/集群日志关注系统健康，应用日志关注业务操作\nE.数据字典只存数据库对象元数据，ADR是文件系统目录"
+},
+{
+  "QuestionID": 161,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the Automatic Diagnostic Repository (ADR)?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The ADR base is shared across multiple instances."},
+    {"label": "B", "text": "The ADR base keeps all diagnostic information in binary format."},
+    {"label": "C", "text": "The ADR can be used to store statspack snapshots to diagnose database performance issues."},
+    {"label": "D", "text": "The ADR can be used for problem diagnosis even when the database instance is down."},
+    {"label": "E", "text": "The ADR is used to store Automatic Workload Repository (AWR) snapshots."}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "A.ADR base是一个主目录，可以被同一主机上的多个数据库实例共享,每个实例有自己的 ADR home，但都存放在同一个ADR base下\nB.ADR 中大部分信息是 文本格式（alert log、trace）也有部分 dump 或 incident 文件是二进制，但不是全部\nC.Statspack 是传统性能诊断工具,Statspack snapshot 存在 数据库表空间，不是 ADR 文件系统\nD.ADR 是文件系统目录，诊断文件可在数据库关闭时访问,使用工具：adrci\nE.AWR snapshots存储在数据库表空间中的SYSAUX(SYSTEM辅助表空间（Auxiliary Tablespace）) ，不在ADR,ADR 可辅助分析AWR相关问题，但不存AWR数据"
 }
 
 

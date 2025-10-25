@@ -7,13 +7,13 @@ body {
     text-align: center;
 }
 
-h1 {
+h1, h2 {
     margin-top: 40px;
     margin-bottom: 20px;
 }
 
-/* 登录页输入框 */
-input[type="text"] {
+/* 输入框 */
+input[type="text"], input[type="number"] {
     width: 300px;
     padding: 10px;
     font-size: 16px;
@@ -25,31 +25,45 @@ input[type="text"] {
     margin-right: auto;
 }
 
-/* 登录按钮 */
+/* 通用按钮样式 */
+.quiz-btn {
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 2px solid #007BFF;
+    background-color: #ffffff;
+    color: #007BFF;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.quiz-btn:hover {
+    background-color: #007BFF;
+    color: #ffffff;
+}
+
+/* 登录页按钮 */
 #loginPage button {
     width: 300px;
-    margin: 0 auto;
     display: block;
+    margin: 0 auto;
     background-color: #4CAF50;
     color: white;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
     border: none;
     cursor: pointer;
 }
 
-/* 科目按钮行 */
+/* 科目页面 */
 .subject-buttons {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 5px; /* 紧密排列 */
     flex-wrap: wrap;
     margin-top: 10px;
 }
 
 .subject-buttons button {
-    width: 120px;
+    width: 120px;  /* 小一点，四个按钮可紧密排列 */
     background-color: #007BFF;
     color: white;
     border-radius: 5px;
@@ -58,7 +72,31 @@ input[type="text"] {
     cursor: pointer;
 }
 
-/* 做题页面容器 */
+/* 顺序做题开始页面（sequence_start.html） */
+#jumpControls {
+    max-width: 300px;
+    margin: 20px auto;
+    padding: 15px;
+    text-align: center;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+#jumpControls label {
+    display: block;
+    text-align: left; /* 跳到题号文字靠左 */
+    margin-bottom: 5px;
+}
+/* 输入框和按钮上下排列、居中 */
+#jumpControls input, 
+#jumpControls #jumpBtn,
+#jumpControls #continueBtn {
+    width: 150px;
+    display: block;
+    margin: 8px auto;
+}
+
+/* quiz页面容器 */
 #quizContainer {
     max-width: 600px;
     margin: 20px auto;
@@ -66,10 +104,24 @@ input[type="text"] {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    text-align: left;
+    text-align: center; /* 居中题目和提交按钮 */
 }
 
-/* 图片自适应 */
+#questionText {
+    margin-bottom: 15px;
+    font-size: 18px;
+    text-align: left; /* 题目靠左 */
+}
+#progress {
+    margin-bottom: 10px;
+    text-align: left; /* 题号靠左 */
+}
+
+#explanation {
+    text-align: left;
+    margin-top: 10px; /* 与题目/选项间隔开 */
+}
+
 #questionImage {
     max-width: 90%;
     height: auto;
@@ -77,78 +129,55 @@ input[type="text"] {
     margin: 10px auto;
 }
 
-/* 选项样式 */
 #options label {
     display: block;
     margin: 10px 0;
     padding: 5px;
     border-radius: 5px;
     cursor: pointer;
+    text-align: left; /* 选项左对齐 */
 }
 
-/* 正确/错误标色 */
 .correct-option { background-color: #d4edda; }
 .wrong-option { background-color: #f8d7da; }
 
-/* 做题导航按钮 */
+/* quiz页面底部按钮（上一题 下一题 主界面）并排居中 */
+#navigation {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
 #navigation button {
-    margin: 5px;
-    padding: 8px 12px;
-    border-radius: 5px;
-    border: none;
-    background-color: #6c757d;
+    flex: 1;
+    max-width: 120px;
+    background-color: #6c757d; /* 保持灰色 */
     color: white;
-    cursor: pointer;
-}
-/* 做题页面按钮统一样式（白色边框按钮） */
-.quiz-btn {
-    padding: 10px 20px;           /* 按钮大小 */
-    margin: 5px;
+    border: none; /* 去掉边框 */
     border-radius: 5px;
-    border: 2px solid #007BFF;    /* 蓝色边框 */
-    background-color: #ffffff;     /* 白色背景 */
-    color: #007BFF;                /* 文字颜色 */
-    cursor: pointer;
-    font-size: 16px;
+}
+#navigation button:hover {
+    background-color: #5a6268;
+    color: white;
 }
 
-/* 鼠标悬停效果 */
-.quiz-btn:hover {
-    background-color: #007BFF;
-    color: #ffffff;
-}
-/* ================== 响应式布局 ================== */
-
-/* iPad 和小平板 */
+/* 响应式布局 */
 @media (max-width: 768px) {
-    input[type="text"], #loginPage button, .subject-buttons button, .quiz-btn {
+    input[type="text"], input[type="number"], #loginPage button, .subject-buttons button, .quiz-btn {
         font-size: 15px;
         padding: 10px;
     }
-    #quizContainer {
-        padding: 15px;
-    }
+    #quizContainer { padding: 15px; }
 }
 
-/* 手机 */
 @media (max-width: 480px) {
-    input[type="text"], #loginPage button, .subject-buttons button, .quiz-btn {
+    input[type="text"], input[type="number"], #loginPage button, .subject-buttons button, .quiz-btn {
         font-size: 14px;
         padding: 8px;
         width: 95%;
     }
-
-    #quizContainer {
-        width: 95%;
-        padding: 10px;
-    }
-
-    #questionText {
-        font-size: 14px;
-    }
-
-    #options label {
-        font-size: 14px;
-        padding: 5px;
-    }
+    #quizContainer { width: 95%; padding: 10px; }
+    #questionText { font-size: 14px; }
+    #options label { font-size: 14px; padding: 5px; }
 }

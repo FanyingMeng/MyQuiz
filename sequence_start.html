@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>顺序做题 - 开始</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div id="quizContainer">
+        <h2>顺序做题</h2>
+
+        <!-- 跳转与继续 -->
+        <div id="jumpControls" style="margin-top: 20px;">
+            <label for="jumpInput">跳到题号：</label>
+            <input type="number" id="jumpInput" min="1">
+            <button class="quiz-btn" id="jumpBtn">跳转</button>
+            <button class="quiz-btn" id="continueBtn">继续上次进度</button>
+        </div>
+
+        <!-- 底部导航 -->
+        <div id="navigation" style="margin-top: 40px; text-align: center;">
+            <button class="quiz-btn" id="homeBtn">主界面</button>
+        </div>
+    </div>
+
+    <script>
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return { subjectID: parseInt(params.get("subjectID")) };
+        }
+
+        function userKey(base) {
+            const username = localStorage.getItem("username") || "guest";
+            return `${base}_${username}`;
+        }
+
+        const { subjectID } = getUrlParams();
+        const progressData = JSON.parse(localStorage.getItem(userKey("progress")) || "{}");
+
+        document.getElementById("jumpBtn").onclick = () => {
+            const input = document.getElementById("jumpInput").value;
+            let target = parseInt(input);
+            if(isNaN(target) || target < 1) return alert("请输入大于等于1的数字");
+            window.location.href = `quiz.html?subjectID=${subjectID}&mode=sequence&startIndex=${target-1}`;
+        };
+
+        document.getElementById("continueBtn").onclick = () => {
+            let startIndex = progressData[subjectID] || 0;
+            window.location.href = `quiz.html?subjectID=${subjectID}&mode=sequence&startIndex=${startIndex}`;
+        };
+
+        document.getElementById("homeBtn").onclick = () => {
+            window.location.href = "subject.html";
+        };
+    </script>
+</body>
+</html>

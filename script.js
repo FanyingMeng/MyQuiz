@@ -9,12 +9,11 @@ function login() {
 }
 
 function logout() {
-    // 仅移除登录状态，不删除用户数据
     localStorage.removeItem("username");
     window.location.href = "index.html"; 
 }
 
-// 当前用户辅助方法
+// 当前用户信息
 function getCurrentUser() {
     return localStorage.getItem("username") || "guest";
 }
@@ -27,17 +26,16 @@ function userKey(base) {
 // 科目页面逻辑
 // ==========================
 async function loadSubjects() {
-    // 加时间戳防缓存
     const res = await fetch(`./Questions.json?t=${Date.now()}`);
     const data = await res.json();
-    let container = document.getElementById("subjects");
+    const container = document.getElementById("subjects");
 
     data.subjects.forEach(sub => {
         container.innerHTML += `
         <div style="margin-bottom:20px;">
             <h3>${sub.SubjectName}</h3>
             <div class="subject-buttons">
-                <button onclick="startQuiz(${sub.SubjectID}, 'sequence')">顺序做题</button>
+                <button onclick="startSequence(${sub.SubjectID})">顺序做题</button>
                 <button onclick="startQuiz(${sub.SubjectID}, 'random')">随机做题</button>
                 <button onclick="startQuiz(${sub.SubjectID}, 'mistake')">错题重做</button>
                 <button onclick="clearMistakes(${sub.SubjectID})">清除错题</button>
@@ -46,11 +44,17 @@ async function loadSubjects() {
     });
 }
 
-function startQuiz(subjectID, mode) {
-    window.location.href = `quiz.html?subjectID=${subjectID}&mode=${mode}`;
+// 跳转到顺序做题第一页
+function startSequence(subjectID){
+    window.location.href = `sequence_start.html?subjectID=${subjectID}`;
 }
 
-// 清除科目错题（按用户）
+// 跳转到正式做题页
+function startQuiz(subjectID, mode, startIndex = 0) {
+    window.location.href = `quiz.html?subjectID=${subjectID}&mode=${mode}&startIndex=${startIndex}`;
+}
+
+// 清除错题
 function clearMistakes(subjectID) {
     if(confirm("确定要清除该科目的错题吗？")) {
         let userMistakes = JSON.parse(localStorage.getItem(userKey("mistakes")) || "{}");
@@ -64,49 +68,68 @@ function clearMistakes(subjectID) {
     }
 }
 
-// DOM 加载完成后调用科目逻辑
-document.addEventListener("DOMContentLoaded", () => {
-    if(document.getElementById("subjects")) loadSubjects();
-});
+
+// ==========================
+// 顺序做题起始页逻辑（第一页）
+// ==========================
+function loadSequenceStart() {
+    const params = new URLSearchParams(window.location.search);
+    const subjectID = parseInt(params.get("subjectID"));
+    const progressData = JSON.parse(localStorage.getItem(userKey("progress")) || "{}");
+
+    document.getElementById("jumpBtn").onclick = () => {
+        const input = document.getElementById("jumpInput").value;
+        let target = parseInt(input);
+        if(isNaN(target) || target < 1){
+            return alert("请输入大于等于1的数字");
+        }
+        startQuiz(subjectID, 'sequence', target - 1);
+    };
+
+    document.getElementById("continueBtn").onclick = () => {
+        let startIndex = progressData[subjectID] || 0;
+        startQuiz(subjectID, 'sequence', startIndex);
+    };
+
+    document.getElementById("backBtn").onclick = () => {
+        window.location.href = "subject.html";
+    };
+}
 
 
 // ==========================
-// 做题逻辑
+// 做题逻辑（第二页起）
 // ==========================
 let questions = [];
 let currentIndex = 0;
-let userMistakes = JSON.parse(localStorage.getItem(userKey("mistakes")) || "{}");
-let progressData = JSON.parse(localStorage.getItem(userKey("progress")) || "{}");
+let userMistakes = {};
+let progressData = {};
 
-// 加载做题
+// 加载题目
 async function loadQuiz() {
-    // 每次进入 quiz 页面都重新读取最新数据
     userMistakes = JSON.parse(localStorage.getItem(userKey("mistakes")) || "{}");
     progressData = JSON.parse(localStorage.getItem(userKey("progress")) || "{}");
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const subjectID = parseInt(urlParams.get("subjectID"));
-    const mode = urlParams.get("mode");
+    const params = new URLSearchParams(window.location.search);
+    const subjectID = parseInt(params.get("subjectID"));
+    const mode = params.get("mode");
+    const startIndex = parseInt(params.get("startIndex"));
 
-    // 同样加时间戳防缓存
     const res = await fetch(`./Questions.json?t=${Date.now()}`);
     const data = await res.json();
-
-    // 找到科目
     let subject = data.subjects.find(s => s.SubjectID === subjectID);
     questions = subject.questions.map(q => ({ ...q, SubjectID: subjectID }));
 
     if(mode === 'random') questions.sort(() => Math.random() - 0.5);
     if(mode === 'mistake') questions = userMistakes[subjectID] || [];
 
-    // 顺序模式恢复进度
-    if(mode === 'sequence' && progressData[subjectID] !== undefined) {
-        currentIndex = Math.min(progressData[subjectID], Math.max(0, questions.length - 1));
-    } else {
-        currentIndex = 0;
-    }
-
+    currentIndex = !isNaN(startIndex) ? startIndex : 0;
     showQuestion();
+
+    document.getElementById("submitBtn").onclick = submitAnswer;
+    document.getElementById("prevBtn").onclick = prevQuestion;
+    document.getElementById("nextBtn").onclick = nextQuestion;
+    document.getElementById("homeBtn").onclick = goHome;
 }
 
 // 显示题目
@@ -134,14 +157,13 @@ function showQuestion() {
         </label>`;
     });
     document.getElementById("options").innerHTML = optionsHtml;
-    document.getElementById("options").className = "";
     document.getElementById("explanation").innerText = "";
     document.getElementById("progress").innerText = `第 ${currentIndex+1} / ${questions.length} 题`;
 
-    // 保存进度（顺序模式）
-    const urlParams = new URLSearchParams(window.location.search);
-    const subjectID = parseInt(urlParams.get("subjectID"));
-    const mode = urlParams.get("mode");
+    // 保存进度
+    const params = new URLSearchParams(window.location.search);
+    const subjectID = parseInt(params.get("subjectID"));
+    const mode = params.get("mode");
     if(mode === 'sequence') {
         progressData[subjectID] = currentIndex;
         localStorage.setItem(userKey("progress"), JSON.stringify(progressData));
@@ -171,7 +193,7 @@ function submitAnswer() {
     }
 }
 
-// 添加错题（按用户）
+// 添加错题
 function addMistake(q) {
     let subjectID = q.SubjectID;
     userMistakes = JSON.parse(localStorage.getItem(userKey("mistakes")) || "{}");
@@ -180,7 +202,7 @@ function addMistake(q) {
     localStorage.setItem(userKey("mistakes"), JSON.stringify(userMistakes));
 }
 
-// 删除错题（按用户）
+// 删除错题
 function removeMistake(q) {
     let subjectID = q.SubjectID;
     userMistakes = JSON.parse(localStorage.getItem(userKey("mistakes")) || "{}");
@@ -190,7 +212,7 @@ function removeMistake(q) {
     }
 }
 
-// 上一题 / 下一题
+// 翻页控制
 function prevQuestion() {
     if(currentIndex > 0) currentIndex--;
     showQuestion();
@@ -205,7 +227,12 @@ function goHome() {
     window.location.href = "subject.html";
 }
 
-// 页面加载
+
+// ==========================
+// 页面加载入口控制
+// ==========================
 document.addEventListener("DOMContentLoaded", () => {
-    if(document.getElementById("quizContainer")) loadQuiz();
+    if(document.getElementById("subjects")) loadSubjects();
+    if(document.getElementById("jumpControls")) loadSequenceStart();
+    if(document.getElementById("quizContainer") && document.getElementById("submitBtn")) loadQuiz();
 });

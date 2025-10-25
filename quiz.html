@@ -10,21 +10,21 @@
     <div id="quizContainer">
         <div id="progress"></div>
         <div id="questionText"></div>
-        <img id="questionImage">
+        <img id="questionImage" style="display:none;">
         <div id="options"></div>
         
-        <!-- 提交答案按钮 -->
+        <!-- 提交答案 -->
         <div style="text-align:center; margin:10px 0;">
-            <button class="quiz-btn" onclick="submitAnswer()">提交答案</button>
+            <button class="quiz-btn" id="submitBtn">提交答案</button>
         </div>
 
         <div id="explanation"></div>
 
         <!-- 导航按钮 -->
         <div id="navigation">
-            <button class="quiz-btn" onclick="prevQuestion()">上一题</button>
-            <button class="quiz-btn" onclick="nextQuestion()">下一题</button>
-            <button class="quiz-btn" onclick="goHome()">主界面</button>
+            <button class="quiz-btn" id="prevBtn">上一题</button>
+            <button class="quiz-btn" id="nextBtn">下一题</button>
+            <button class="quiz-btn" id="homeBtn">主界面</button>
         </div>
     </div>
 
