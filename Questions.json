@@ -2455,6 +2455,308 @@
   ],
   "CorrectAnswer": ["A", "D"],
   "Explanation": "A.ADR base是一个主目录，可以被同一主机上的多个数据库实例共享,每个实例有自己的 ADR home，但都存放在同一个ADR base下\nB.ADR 中大部分信息是 文本格式（alert log、trace）也有部分 dump 或 incident 文件是二进制，但不是全部\nC.Statspack 是传统性能诊断工具,Statspack snapshot 存在 数据库表空间，不是 ADR 文件系统\nD.ADR 是文件系统目录，诊断文件可在数据库关闭时访问,使用工具：adrci\nE.AWR snapshots存储在数据库表空间中的SYSAUX(SYSTEM辅助表空间（Auxiliary Tablespace）) ，不在ADR,ADR 可辅助分析AWR相关问题，但不存AWR数据"
+},
+{
+  "QuestionID": 162,
+  "QuestionType": "multiple",
+  "QuestionText": "Which are two of the account management capabilities that can be configured using Oracle profiles?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The maximum amount of CPU time allowed for a user's sessions before their account is locked."},
+    {"label": "B", "text": "The number of days for which an account may be inactive before it is locked."},
+    {"label": "C", "text": "The maximum number of sessions permitted for a user before the password must be changed."},
+    {"label": "D", "text": "The ability to prevent a password from ever being reused."},
+    {"label": "E", "text": "The number of days for which an account may be logged in to one or more sessions before it is locked."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation":"账户管理能力Account Management:\n1. 密码管理Password Management\n--PASSWORD_LIFE_TIME:密码有效期(多少天后必须更改密码)\n--PASSWORD_REUSE_MAX:防止密码重复使用\n--PASSWORD_VERIFY_FUNCTION:密码复杂度\n--FAILED_LOGIN_ATTEMPTS:失败登录尝试次数\n2.账户锁定/失效策略Account Lock / Expiry\n--PASSWORD_GRACE_TIME:密码过期前的宽限期\n--INACTIVE_ACCOUNT_TIME:账户在多少天不被使用后被锁定\n\nProfile 参与 Resource Limit:它定义了限制规则实际执行 Resource Limit:由数据库内核Kernel在运行时强制"
+},
+{
+  "QuestionID": 163,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about SQL*Loader Express Mode in an Oracle 12c database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It can load data in parallel."},
+    {"label": "B", "text": "No data file needs to be specified."},
+    {"label": "C", "text": "It loads data faster than conventional SQL*Loader."},
+    {"label": "D", "text": "It loads data more efficiently than conventional SQL*Loader."},
+    {"label": "E", "text": "It requires Enterprise Manager Express to be configured."}
+  ],
+  "CorrectAnswer": ["A", "B"],
+  "Explanation": "Oracle SQL*Loader 有两种主要加载模式:\n1.Conventional Path（传统路径）:将数据逐行解析并插入表。适合小量或复杂的数据转换。\n2.Express Mode（快速加载/Express 模式）主要特点是无需提供控制文件，自动识别数据文件和目标表。使用方式更简单，适合快速、轻量级的数据加载任务。\n\nCD.不一定总是比传统 SQL*Loader 快。Express Mode 的设计目标是简化操作，而不是绝对性能优化。对于大规模数据，传统路径（conventional path）或者直接路径（direct path）可能更快\nF.Express Mode 完全独立于 Enterprise Manager Express,可以在命令行直接使用 sqlldr 命令启动 Express Mode"
+},
+{
+  "QuestionID": 164,
+  "QuestionType": "multiple",
+  "QuestionText": "On your Oracle 19c database, you invoke SQL*Loader to load data into the employees table in the HR schema by issuing the command:\n\n$> sqlldr hr/hr@pdb table=employees\n\nWhich two statements are true about the command?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It succeeds with default settings if the employees table exists in the HR schema."},
+    {"label": "B", "text": "It fails because no SQL*Loader data file location is specified."},
+    {"label": "C", "text": "It fails if the HR user does not have the CREATE ANY DIRECTORY privilege."},
+    {"label": "D", "text": "It fails because no SQL*Loader control file location is specified."},
+    {"label": "E", "text": "It succeeds and creates the employees table in the HR schema."}
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": "SQL*Loader 有 Express Mode。在 Express Mode 下：只需指定表名 (table=employees)。\n默认情况下:\n--数据文件会默认在当前目录下，文件名为 <table>.csv 或 <table>.dat\n--控制文件不需要显式提供，系统会自动生成控制逻辑。\n所以命令可以工作 前提条件是:\n--1.表 employees已存在\n--2.用户有访问数据文件的权限。\n--3.对外部目录的访问权限符合要求。\n\nC.SQL*Loader 在后台需要创建临时目录对象来读取数据文件。如果用户没有 CREATE ANY DIRECTORY 权限，Express Mode 会报错"
+},
+{
+  "QuestionID": 165,
+  "QuestionType": "multiple",
+  "QuestionText": "In an Oracle 12c database, you attempt to load data into the HR.EMPLOYEES table in a pluggable database (PDB):\n\n$> sqlldr hr/hr@pdb table=employees\n\nWhich three are true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It creates the HR.EMPLOYEES table in the PDB and loads data into it if the table does not exist in the PDB to which HR connects."},
+    {"label": "B", "text": "It loads data into HR.EMPLOYEES if the table exists in CDB$ROOT."},
+    {"label": "C", "text": "It succeeds if HR is a local user in the PDB to which HR connects."},
+    {"label": "D", "text": "It succeeds if HR is a common user."},
+    {"label": "E", "text": "It loads data into HR.EMPLOYEES if the table exists in the PDB to which HR connects."}
+  ],
+  "CorrectAnswer": ["C", "D", "E"],
+  "Explanation": "在 Oracle 12c 的多租户架构中:\n--1.Common User（通用用户）:在 CDB$ROOT 创建，可以访问所有 PDB。用户名前通常有 C## 前缀（如果使用默认设置）。\n--2.Local User（本地用户）:只存在于某个 PDB 内。只能访问创建所在 PDB 的对象\n一个容器数据库（CDB, Container Database） 可以包含 多个可插拔数据库（PDB, Pluggable Database）.CDB$ROOT = 容器数据库的核心“根”，主要存储系统和管理信息。PDB = 独立的可插拔数据库，用于存放具体业务数据。数据加载工具（如 SQL*Loader）只作用于你连接的 PDB，而不是 CDB$ROOT，除非你用 common user 并在 CDB$ROOT 执行管理操作"
+},
+{
+  "QuestionID": 166,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about table data storage in an Oracle Database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Data block free space is always contiguous in the middle of the block."},
+    {"label": "B", "text": "A table row can be chained across several database blocks."},
+    {"label": "C", "text": "Multiple row pieces from the same row may be stored in same database blocks."},
+    {"label": "D", "text": "Index block free space is always contiguous in the middle of the block."},
+    {"label": "E", "text": "Multiple row pieces from the same row must be stored in different database blocks."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 167,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about views?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Views can be updated without the need to re-grant privileges on the view."},
+    {"label": "B", "text": "Views can be indexed."},
+    {"label": "C", "text": "A view must only refer to tables in its defining query."},
+    {"label": "D", "text": "The WITH CHECK clause prevents certain rows from being displayed when querying the view."},
+    {"label": "E", "text": "The WITH CHECK clause prevents certain rows from being updated or inserted in the underlying table through the view."}
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": "B.普通视图（普通 SELECT）不能直接建立索引。只有物化视图（Materialized View） 才能建立索引，以提高查询性能"
+},
+{
+  "QuestionID": 168,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about views?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Views can be updated without the need to re-grant privileges on the view."},
+    {"label": "B", "text": "Views can be indexed."},
+    {"label": "C", "text": "The WITH CHECK clause prevents certain rows from being updated or inserted in the underlying table through the view."},
+    {"label": "D", "text": "The WITH CHECK clause prevents certain rows from being displayed when querying the view."},
+    {"label": "E", "text": "Tables in the defining query of a view must always exist in order to create the view."}
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 169,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about undo segments and the use of undo by transactions in an Oracle database instance?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A single transaction may use multiple undo segments simultaneously."},
+    {"label": "B", "text": "Undo segments can wrap around to the first extent when a transaction fills the last extent of the undo segment."},
+    {"label": "C", "text": "Undo segments can extend when a transaction fills the last extent of the undo segment."},
+    {"label": "D", "text": "Undo segments can be stored in the SYSTEM tablespace."},
+    {"label": "E", "text": "Undo segments can be stored in the SYSAUX tablespace."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "Undo Segment（撤销段） 是 Oracle 用来：实现 事务回滚（ROLLBACK）；支持 读一致性（Read Consistency）；支持 闪回查询（Flashback Query）。每个事务在开始时，会被分配一个 undo segment，用于存储该事务的撤销信息（undo records）。\n\nBC.如果能循环利用 → wrap around；如果不能 → 自动扩展新的 extent。\nDE.撤销段应存放在 独立的 UNDO 表空间"
+},
+{
+  "QuestionID": 170,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about date/time functions in a session where NLS_DATE_FORMAT is set to DD-MON-YYYY HH24:MI:SS?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "SYSDATE can be queried only from the DUAL table."},
+    {"label": "B", "text": "SYSDATE and CURRENT_DATE return the current date and time set for the operating system of the client."},
+    {"label": "C", "text": "CURRENT_TIMESTAMP returns the same date and time as SYSDATE with additional details of fractional seconds."},
+    {"label": "D", "text": "CURRENT_DATE returns the current date and time as per the session time zone."},
+    {"label": "E", "text": "SYSDATE can be used in expressions only if the default date format is DD-MON-RR."},
+    {"label": "F", "text": "CURRENT_TIMESTAMP returns the same date as CURRENT_DATE."}
+  ],
+  "CorrectAnswer": ["D", "F"],
+  "Explanation": "A.SYSDATE 可以在任何 SQL 表达式或查询中使用，不限于 DUAL"
+},
+{
+  "QuestionID": 171,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the tools used to configure Oracle Net Services?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The lsnrctl utility requires a listener.ora file to exist before it is started."},
+    {"label": "B", "text": "Enterprise Manager Cloud Control can be used to centrally configure net service names for any database server target."},
+    {"label": "C", "text": "The Oracle Net Configuration Assistant is only used when running the Oracle installer."},
+    {"label": "D", "text": "Oracle Net Manager can be used to locally configure naming methods on a database server."},
+    {"label": "E", "text": "Oracle Net Manager can be used to centrally configure listeners on any database server target."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation":"Oracle Net Services 负责客户端与数据库服务器之间的网络通信，主要配置内容包括:\n--Listener（监听器）：监听客户端连接请求\n--TNS名称解析（Naming methods）\n--Service Name / SID 映射\nOracle 提供了几种配置工具：\n--Oracle Net Manager (netmgr):图形化配置监听器、命名方法、服务名称等(本地);本地配置服务器网络参数\n--Oracle Net Configuration Assistant (netca):向导式配置（安装时或独立运行）;安装数据库时或后续手动配置\n--lsnrctl命令行控制监听器（启动/停止/状态）;管理监听器\n--Enterprise Manager (EM Cloud Control)集中式图形化管理多个数据库的网络配置;企业集中管理\n\nA.lsnrctl 可以在没有 listener.ora 文件时启动默认监听器，默认名称是LISTENER，默认端口1521。→ 如果 listener.ora 不存在，它会使用默认配置启动监听器。"
+},
+{
+  "QuestionID": 172,
+  "QuestionType": "multiple",
+  "QuestionText": "You currently have an active transaction in your session and have been granted SELECT access to V$TRANSACTION.\nExecuting: \n\nSELECT xid, status FROM v$transaction; \n\nin your session returns: \n\nXID                   STATUS \n--------------------------- --------------\n 0A0007000A070000        ACTIVE \n\nIn which three situations will re-executing this query still return a row but with a different XID, indicating a new transaction has started?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "after successfully executing a CREATE TABLE AS SELECT statement followed by a SELECT FOR UPDATE statement"},
+    {"label": "B", "text": "after successfully executing a COMMIT or ROLLBACK followed by a DML statement"},
+    {"label": "C", "text": "after successfully executing a TRUNCATE statement followed by a DML statement"},
+    {"label": "D", "text": "after successfully executing a DML statement following a failed DML statement"},
+    {"label": "E", "text": "after successfully executing a COMMIT or ROLLBACK followed by a SELECT statement"},
+    {"label": "F", "text": "after successfully executing a CREATE TABLE statement followed by a CREATE INDEX statement"}
+  ],
+  "CorrectAnswer": ["A", "B", "C"],
+  "Explanation": "XID (Transaction ID) 全称是 Transaction Identifier（事务标识符），是 Oracle 数据库为每个活动事务（active transaction）分配的一个唯一编号，新事务的开始 才会导致XID变化\n事务开始与结束:\n--DML（INSERT/UPDATE/DELETE/MERGE）启动事务;不结束\n--COMMIT / ROLLBACK结束事务\n--SELECT不启动、不结束\n--CREATE TABLE / CREATE INDEX（DDL）自动启动事务;自动提交（结束）\n--TRUNCATE自动启动事务;自动提交（结束）\n\nA.CREATE TABLE AS SELECT是一个 DDL，会启动一个事务并自动提交;结束后事务已结束（没有活动事务）。SELECT FOR UPDATE是一个特殊的 SELECT，会锁定行，启动一个新的事务。\n"
+},
+{
+  "QuestionID": 173,
+  "QuestionType": "single",
+  "QuestionText": "What is true about non-equijoin statement performance?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The BETWEEN condition used with a non-equijoin always performs better than when using the >= and <= conditions."},
+    {"label": "B", "text": "The join syntax used makes no difference to performance."},
+    {"label": "C", "text": "The BETWEEN condition used with a non-equijoin sometimes performs better than using the >= and <= conditions."},
+    {"label": "D", "text": "The Oracle join syntax performs less well than the SQL:1999 compliant ANSI join syntax."},
+    {"label": "E", "text": "The Oracle join syntax performs better than the SQL:1999 compliant ANSI join syntax."}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 174,
+  "QuestionType": "multiple",
+  "QuestionText": "You want to apply the principle of Least Privilege in all your live databases. One of your requirements is to revoke unnecessary privileges from all users who have them using Privilege Analysis.\n Which two are types of analyses that can be done using the DBMS_PRIVILEGE_CAPTURE package?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "analysis of privileges granted indirectly to a role that are then used by a user who has been granted that role"},
+    {"label": "B", "text": "analysis of privileges that a user has on other schema's objects"},
+    {"label": "C", "text": "analysis of privileges that a user has on their own schema objects"},
+    {"label": "D", "text": "analysis of privileges granted directly to a role that are then used by a user who has been granted that role"},
+    {"label": "E", "text": "analysis of all privileges used by the SYS user."}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "DBMS_PRIVILEGE_CAPTURE 是Oracle提供的一个包，用于：收集用户和角色使用的权限情况;分析哪些权限被真正使用，哪些权限没用;帮助安全团队撤销冗余权限，实现最小权限原则\nB.Privilege Capture主要分析用户使用的权限，不局限schema\nC.用户对自己 schema 的权限一般不需要分析（因为默认拥有）\nE.SYS 是超级用户，权限永远被使用，不适合分析最小权限，也不在 Privilege Capture 的范围"
+},
+{
+  "QuestionID": 175,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true regarding indexes?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The RECYCLE BIN never contains indexes."},
+    {"label": "B", "text": "An update to a table can result in updates to any or all of the table's indexes."},
+    {"label": "C", "text": "A non-unique index can be altered to be unique."},
+    {"label": "D", "text": "An update to a table can result in no updates to any of the table's indexes."},
+    {"label": "E", "text": "A table belonging to one user cannot have an index that belongs to a different user."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "C.要从非唯一变为唯一，必须：删除非唯一索引;创建一个新的唯一索引.不能直接 ALTER INDEX 改变唯一性。\nE.索引必须属于与表相同的用户"
+},
+{
+  "QuestionID": 176,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true concerning logical and physical database structures?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A segment might have only one extent."},
+    {"label": "B", "text": "A segment's blocks can be of different sizes."},
+    {"label": "C", "text": "Segments can span multiple tablespaces."},
+    {"label": "D", "text": "All tablespaces may have one or more data files."},
+    {"label": "E", "text": "A segment can span multiple data files in some tablespaces."}
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 177,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the Oracle join and ANSI join syntax?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The Oracle join syntax performs less well than the SQL:1999 compliant ANSI join syntax."},
+    {"label": "B", "text": "The Oracle join syntax supports creation of a Cartesian product of two tables."},
+    {"label": "C", "text": "The Oracle join syntax lacks the ability to do outer joins."},
+    {"label": "D", "text": "The SQL:1999 compliant ANSI join syntax supports creation of a Cartesian product of two tables."},
+    {"label": "E", "text": "The Oracle join syntax performs better than the SQL:1999 compliant ANSI join syntax."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "A.Oracle join 语法支持 外连接，通过 (+) 实现"
+},
+{
+  "QuestionID": 178,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three relationships between instances and Oracle databases are possible without using Multi-tenant?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "One instance on one server that has no database mounted."},
+    {"label": "B", "text": "One instance on one server mounting and opening one database."},
+    {"label": "C", "text": "One instance on one server mounting and opening multiple databases."},
+    {"label": "D", "text": "Two or more instances on separate servers all mounting and opening the same database."},
+    {"label": "E", "text": "One instance on one server mounting multiple databases."}
+  ],
+  "CorrectAnswer": ["A", "B", "D"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 179,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true?",
+  "ImageURL": "images/q179.png",
+  "Options": [
+    {"label": "A", "text": "SALES1 is created with 55,000 rows."},
+    {"label": "B", "text": "SALES1 is created with no rows."},
+    {"label": "C", "text": "SALES1 has NOT NULL constraints on any selected columns which had those constraints in the SALES table."},
+    {"label": "D", "text": "SALES1 has PRIMARY KEY and UNIQUE constraints on any selected columns which had those constraints in the SALES table."},
+    {"label": "E", "text": "SALES1 is created with 1 row."}
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": "A.WHERE 1 = 1对所有行都成立，所以SELECT会选中SALES的所有55,000行\nC.CTAS会继承 NOT NULL 约束。但是CTAS不会继承PRIMARY KEY、UNIQUE、FOREIGN KEY等约束，也不会继承索引"
+},
+{
+  "QuestionID": 180,
+  "QuestionType": "multiple",
+  "QuestionText": "Examine this query: \n\nSELECT * FROM bricks, colors;\n\n Which two statements are true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "You can add a WHERE clause with filtering criteria."},
+    {"label": "B", "text": "It returns the same rows as SELECT * FROM bricks CROSS JOIN colors;."},
+    {"label": "C", "text": "You can add a USING clause with a join condition."},
+    {"label": "D", "text": "It returns the number of rows in BRICKS plus the number of rows in COLORS."},
+    {"label": "E", "text": "You can add an ON clause with a join condition."}
+  ],
+  "CorrectAnswer": ["A", "B"],
+  "Explanation": " Oracle的旧式逗号连接语法（comma join）如果没有 WHERE 条件，它会生成 笛卡尔积（Cartesian product）笛卡尔积的结果行数 = bricks 表的行数 × colors 表的行数\nA.旧式逗号连接允许在WHERE子句中添加条件,进行过滤或模拟连接,相当于INNER JOIN\nC.USING是ANSI join（JOIN … ON / JOIN … USING）语法 的一部分,逗号旧式连接不能直接用USING\nE.ON 也是 ANSI join（JOIN … ON） 的语法,旧式逗号连接只能用 WHERE"
+},
+{
+  "QuestionID": 181,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about unused columns?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "You can query the data dictionary to see the names of unused columns."},
+    {"label": "B", "text": "CASCADE CONSTRAINTS must be specified when setting a column to unused if that column is referenced in a constraint on another column."},
+    {"label": "C", "text": "Setting an indexed column to unused results in an error."},
+    {"label": "D", "text": "If you set all the columns of a table to unused, the table is automatically dropped."},
+    {"label": "E", "text": "You can specify multiple column names in an ALTER TABLE... SET UNUSED statement."}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "A.只能看见计数\nB.如果列被约束（例如 FOREIGN KEY 或 CHECK 约束）引用，必须使用 CASCADE CONSTRAINTS,这样会自动删除引用该列的约束，否则会报错\nD.设置所有列为 UNUSED 只是标记列未使用，表仍然存在;需要显式执行 DROP TABLE 或 DROP UNUSED COLUMNS 来物理删除"
 }
 
 
