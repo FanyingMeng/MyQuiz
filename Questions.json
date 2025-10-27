@@ -2757,7 +2757,308 @@
   ],
   "CorrectAnswer": ["B", "E"],
   "Explanation": "A.只能看见计数\nB.如果列被约束（例如 FOREIGN KEY 或 CHECK 约束）引用，必须使用 CASCADE CONSTRAINTS,这样会自动删除引用该列的约束，否则会报错\nD.设置所有列为 UNUSED 只是标记列未使用，表仍然存在;需要显式执行 DROP TABLE 或 DROP UNUSED COLUMNS 来物理删除"
+},
+{
+  "QuestionID": 182,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about virtual columns?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "They can be referenced in the WHERE clause of an UPDATE or DELETE statement."},
+    {"label": "B", "text": "They cannot have a data type explicitly specified."},
+    {"label": "C", "text": "They can be indexed."},
+    {"label": "D", "text": "They can be referenced in the SET clause of an UPDATE statement as the name of the column to be updated."},
+    {"label": "E", "text": "They can be referenced in the column expression of another virtual column."}
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": "虚拟列是表中不实际存储数据的列，它的值是由表达式计算得到的,可以像普通列一样使用（但不能直接更新），虚拟列可以用在 select，update，delete 语句的where条件中，但是不能用于DML语句;可以基于虚拟列来做分区;可以在虚拟列上建索引。可以在虚拟列上建约束\nA.虚拟列只是参与筛选WHERE，而不是被更新的目标\nB.虚拟列可以显式指定数据类型\nD.虚拟列是只读的，不能被更新\nE.一个虚拟列不能引用另一个虚拟列，否则会导致依赖循环问题"
+},
+{
+  "QuestionID": 183,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are SQL features?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "providing graphical capabilities"},
+    {"label": "B", "text": "providing variable definition capabilities (PL/SQL)"},
+    {"label": "C", "text": "providing database transaction control"},
+    {"label": "D", "text": "processing sets of data"},
+    {"label": "E", "text": "providing update capabilities for data in external files"}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": "SQL 是一种声明式语言declarative language,用于:\n--定义数据结构DDL(Data Definition Language):CREATE TABLE ...ALTER TABLE ...DROP TABLE ...TRUNCATE TABLE ...RENAME;\n--操作和查询数据DML(Data Manipulation Language):SELECT ...INSERT INTO ...UPDATE ...DELETE ...MERGE ...;\n--控制事务TCL(Transaction Control Language):COMMIT;ROLLBACK;SAVEPOINT;SET TRANSACTION;\n--控制访问DCL(Data Control Language):GRANT ...REVOKE .... \n它不会编程逻辑、不会做图形显示，也不是像 PL/SQL 那样的过程语言\nB.变量定义、控制语句(如 IF、LOOP)属于 PL/SQL(过程语言)的特性,而纯 SQL 不支持变量定义\nD.SQL 的核心思想是基于集合（set-based）处理数据"
+},
+{
+  "QuestionID": 184,
+  "QuestionType": "single",
+  "QuestionText": "Choose the best answer.\nExamine this statement:\nSELECT 1 AS id, 'John' AS first_name, NULL AS commission FROM DUAL\nINTERSECT\nSELECT 1, 'John', NULL FROM DUAL\nORDER BY 3;\nWhat is returned upon execution?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "2 rows"},
+    {"label": "B", "text": "1 row"},
+    {"label": "C", "text": "0 rows"},
+    {"label": "D", "text": "an error"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "INTERSECT 运算符返回两个查询结果中完全相同的行（即交集）；会自动去除重复行（与 DISTINCT 类似）。\nNULL 的比较:在 SQL 中，NULL 不等于 NULL（NULL = NULL 为 UNKNOWN）。如果换成 WHERE 比较,SELECT 1 WHERE NULL = NULL;就不会返回结果（因为 NULL ≠ NULL）。但在 INTERSECT 里就会视作相等。但是，在集合操作（INTERSECT / UNION / MINUS）中,Oracle 把两个 NULL 当作相等的 来处理。"
+},
+{
+  "QuestionID": 185,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements will do an implicit conversion?",
+  "ImageURL": "images/q185.png",
+  "Options": [
+    {"label": "A", "text": "SELECT * FROM customers WHERE customer_id = '0001';"},
+    {"label": "B", "text": "SELECT * FROM customers WHERE TO_CHAR(customer_id) = '0001';"},
+    {"label": "C", "text": "SELECT * FROM customers WHERE customer_id = 0001;"},
+    {"label": "D", "text": "SELECT * FROM customers WHERE insert_date = '01-JAN-19';"},
+    {"label": "E", "text": "SELECT * FROM customers WHERE insert_date = DATE '2019-01-01';"}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 186,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about CURRENT_TIMESTAMP?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The time is in the time zone of DBTIMEZONE."},
+    {"label": "B", "text": "It always returns the same value as SYSTIMESTAMP."},
+    {"label": "C", "text": "The date is in the time zone of DBTIMEZONE."},
+    {"label": "D", "text": "The value varies depending on the setting of SESSIONTIMEZONE."},
+    {"label": "E", "text": "It returns the same date as CURRENT_DATE."},
+    {"label": "F", "text": "It returns a value of data type TIMESTAMP."}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation":"F.CURRENT_TIMESTAMP 返回 TIMESTAMP WITH TIME ZONE，而不是普通的 TIMESTAMP。"
+},
+{
+  "QuestionID": 187,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two queries will result in an error?",
+  "ImageURL": "images/q187.png",
+  "Options": [
+    {"label": "A", "text": "SELECT first_name last_name FROM employees;"},
+    {"label": "B", "text": "SELECT first_name, last_name FROM employees;"},
+    {"label": "C", "text": "SELECT last_name, 12 * salary AS annual_salary FROM employees WHERE annual_salary > 100000 ORDER BY 12 * salary;"},
+    {"label": "D", "text": "SELECT last_name, 12 * salary AS annual_salary FROM employees WHERE annual_salary > 100000 ORDER BY annual_salary;"},
+    {"label": "E", "text": "SELECT last_name, 12 * salary AS annual_salary FROM employees WHERE 12 * salary > 100000 ORDER BY annual_salary;"},
+    {"label": "F", "text": "SELECT last_name, 12 * salary AS annual_salary FROM employees WHERE 12 * salary > 100000 ORDER BY 12 * salary;"}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": "WHERE 子句无法直接使用 SELECT 中定义的列别名。ORDER BY子句可以使用列别名、表达式或者列序号"
+},
+{
+  "QuestionID": 188,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true?",
+  "ImageURL": "images/q188.png",
+  "Options": [
+    {"label": "A", "text": "The PROD_NAME column cannot have a DEFAULT clause added to it."},
+    {"label": "B", "text": "The EXPIRY_DATE column data type can be changed to TIMESTAMP."},
+    {"label": "C", "text": "The PROD_ID column can be renamed."},
+    {"label": "D", "text": "The PROD_ID column data type can be changed to VARCHAR2(2)."},
+    {"label": "E", "text": "The EXPIRY_DATE column cannot be dropped."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "A.在 Oracle 中，可以给已有列添加默认值\nD.主键列或者已有数据的列，如果缩小长度，可能导致数据截断。如果 PROD_ID 当前是数字类型或长度大于 2 的 VARCHAR2，直接改成 VARCHAR2(2) 会报错。所以一般不能直接缩小长度\nE.除非列上有约束（比如主键或外键），一般列都是可以删除的"
+},
+{
+  "QuestionID": 189,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about transactions in the Oracle Database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "An uncommitted transaction is automatically committed when the user exits SQL*Plus."},
+    {"label": "B", "text": "A DDL statement issued by a session with an uncommitted transaction automatically commits that transaction."},
+    {"label": "C", "text": "DDL statements automatically commit only data dictionary updates caused by executing the DDL."},
+    {"label": "D", "text": "A session can see uncommitted updates made by the same user in a different session."},
+    {"label": "E", "text": "DML statements always start new transactions."}
+  ],
+  "CorrectAnswer": ["A", "B"],
+  "Explanation": "事务通常由 DML 语句（INSERT、UPDATE、DELETE、MERGE）开始;提交（COMMIT）将事务的修改写入数据库，使其他会话可见;DDL（CREATE、ALTER、DROP）在执行时，会 自动提交当前事务\nA.如果有未提交的事务并正常退出（EXIT 或 QUIT），Oracle 会自动提交未提交的事务。如果使用 EXIT ROLLBACK，则会回滚\nC.DDL 不只提交数据字典更新，它也会提交当前事务的 DML 修改，所以不只是“数据字典\nE.DML 会 加入当前未提交事务，而不是每条 DML 都新建事务。一个事务可能包含多条 DML"
+},
+{
+  "QuestionID": 190,
+  "QuestionType": "single",
+  "QuestionText": "Choose the best answer.\nExamine these statements:\nCREATE TABLE alter_test (\nc1 VARCHAR2(10),\nc2 NUMBER(10));\nINSERT INTO alter_test VALUES ('123', 123);\nCOMMIT;\nWhich is true about modifying the columns in ALTER_TEST?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "C1 can be changed to NUMBER(10) but C2 cannot be changed to VARCHAR2(10)."},
+    {"label": "B", "text": "C1 can be changed to VARCHAR2(5) and C2 can be changed to NUMBER(12,2)."},
+    {"label": "C", "text": "C1 can be changed to NUMBER(10) and C2 can be changed to VARCHAR2(10)."},
+    {"label": "D", "text": "C2 can be changed to VARCHAR2(10) but C1 cannot be changed to NUMBER(10)."},
+    {"label": "E", "text": "C2 can be changed to NUMBER(5) but C1 cannot be changed to VARCHAR2(5)."}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 191,
+  "QuestionType": "single",
+  "QuestionText": "Choose the best answer.\nExamine this statement which returns the name of each employee and their manager:\nSELECT e.last_name AS emp, m.last_name AS mgr\nFROM employees e\nJOIN managers m\nON e.manager_id = m.employee_id\nORDER BY emp;\nYou want to extend the query to include employees with no manager. \nWhat must you add before JOIN to do this?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "LEFT OUTER"},
+    {"label": "B", "text": "RIGHT OUTER"},
+    {"label": "C", "text": "CROSS"},
+    {"label": "D", "text": "FULL OUTER"}
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "左表全保留 → LEFT OUTER；右表全保留 → RIGHT OUTER；全保留 → FULL OUTER。\nINNER JOIN：只保留有匹配的行"
+},
+{
+  "QuestionID": 192,
+  "QuestionType": "single",
+  "QuestionText": "Choose the best answer.\nExamine this statement, which executes successfully:\nSELECT d.department_name, ROUND(AVG(NULLIF(e.salary,0))) AS avgsal, MAX(e.salary) AS maxsal\nFROM employees e\nJOIN departments d\nON (e.department_id = d.department_id)\nGROUP BY d.department_name\nORDER BY 2;\nIn which order are the rows displayed?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "sorted by DEPARTMENT_NAME"},
+    {"label": "B", "text": "sorted by MAXSAL"},
+    {"label": "C", "text": "sorted by DEPARTMENT_NAME and AVGSAL"},
+    {"label": "D", "text": "sorted by DEPARTMENT_NAME and MAXSAL"},
+    {"label": "E", "text": "sorted by AVGSAL"}
+  ],
+  "CorrectAnswer": ["E"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 193,
+  "QuestionType": "single",
+  "QuestionText": "Choose the best answer.\nYou have the privileges to create any type of synonym.\nWhich statement will create a synonym called EMP for the HCM.EMPLOYEE_RECORDS table that is accessible to all users?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "CREATE SYNONYM PUBLIC.emp FOR hcm.employee_records;"},
+    {"label": "B", "text": "CREATE PUBLIC SYNONYM emp FOR hcm.employee_records;"},
+    {"label": "C", "text": "CREATE GLOBAL SYNONYM emp FOR hcm.employee_records;"},
+    {"label": "D", "text": "CREATE SYNONYM SYS.emp FOR hcm.employee_records;"},
+    {"label": "E", "text": "CREATE SYNONYM emp FOR hcm.employee_records;"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "正确语法 CREATE PUBLIC SYNONYM <name> FOR <object>."
+},
+{
+  "QuestionID": 194,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two queries will execute successfully?",
+  "ImageURL": "images/q194.png",
+  "Options": [
+    {"label": "A", "text": "SELECT dept_id, MAX(SUM(salary)) FROM employees GROUP BY dept_id;"},
+    {"label": "B", "text": "SELECT AVG(MAX(salary)) FROM employees GROUP BY salary;"},
+    {"label": "C", "text": "SELECT dept_id, AVG(MAX(salary)) FROM employees GROUP BY dept_id, salary;"},
+    {"label": "D", "text": "SELECT dept_id, SUM(salary) FROM employees WHERE hire_date > '01-JAN-19' GROUP BY dept_id;"},
+    {"label": "E", "text": "SELECT dept_id, AVG(MAX(salary)) FROM employees GROUP BY dept_id HAVING hire_date > '01-JAN-19';"}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "Oracle 不允许直接在同一级 SELECT 中嵌套聚合函数→ 用子查询解决\nA.跨组聚合,因为sum()产生了一组新的数值,MAX()要在这组新的数值进行聚合,属于跨组聚合,需要子查询\nB.GROUP BY salary,然后MAX(),其实还是原来的salary的数值,AVG()聚合还属于同组，所以合法"
+},
+{
+  "QuestionID": 195,
+  "QuestionType": "single",
+  "QuestionText": "Which statement increases each employee's SALARY by the minimum SALARY for their DEPARTMENT_ID?",
+  "ImageURL": "images/q195.png",
+  "Options": [
+    {"label": "A", "text": "UPDATE employees e1 SET salary = salary + (SELECT MIN(salary) FROM employees e2);"},
+    {"label": "B", "text": "UPDATE employees e1 SET salary = (SELECT e2.salary + MIN(e2.salary) FROM employees e2 WHERE e1.department_id = e2.department_id GROUP BY e2.department_id);"},
+    {"label": "C", "text": "UPDATE employees e1 SET salary = salary + (SELECT MIN(e1.salary) FROM employees e2 WHERE e1.department_id = e2.department_id);"},
+    {"label": "D", "text": "UPDATE employees e1 SET salary = (SELECT e1.salary + MIN(e2.salary) FROM employees e2 WHERE e1.department_id = e2.department_id);"}
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "B.UPDATE子查询必须返回 单个值"
+},
+{
+  "QuestionID": 196,
+  "QuestionType": "multiple",
+  "QuestionText": "In which three situations will re-executing this query still return a row but with a different XID, indicating a new transaction has started?",
+  "ImageURL": "images/q196.png",
+  "Options": [
+    {"label": "A", "text": "after successfully executing a DML statement following a failed DML statement"},
+    {"label": "B", "text": "after successfully executing a CREATE TABLE statement followed by a CREATE INDEX statement"},
+    {"label": "C", "text": "after successfully executing a TRUNCATE statement followed by a DML statement"},
+    {"label": "D", "text": "after successfully executing a CREATE TABLE AS SELECT statement followed by a SELECT FOR UPDATE statement"},
+    {"label": "E", "text": "after successfully executing a COMMIT or ROLLBACK followed by a SELECT statement"},
+    {"label": "F", "text": "after successfully executing a COMMIT or ROLLBACK followed by a DML statement"}
+  ],
+  "CorrectAnswer": ["C", "D", "F"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 197,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about indexes and their administration in an Oracle database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The same table column can be part of a unique and non-unique index."},
+    {"label": "B", "text": "If a query filters on an indexed column then it will always be used during execution of the query."},
+    {"label": "C", "text": "A descending index is a type of function-based index."},
+    {"label": "D", "text": "An INVISIBLE index is not maintained when DML is performed on its underlying table."},
+    {"label": "E", "text": "An UNUSABLE index is maintained when DML is performed on its underlying table."},
+    {"label": "F", "text": "An index can be created as part of a CREATE TABLE statement."}
+  ],
+  "CorrectAnswer": ["A", "C", "F"],
+  "Explanation": "索引就像书的目录，可以快速找到数据，而不必全表扫描;DML（INSERT/UPDATE/DELETE）会更新索引，除非索引是 UNUSABLE;INVISIBLE 索引仍然被维护，只是不被优化器默认使用\n查询优化器（Optimizer）是 Oracle 的“大脑”，决定 SQL 如何执行,作用\n--选择访问路径（Access Path）：全表扫描、索引扫描、位图索引等\n--选择连接方法（Join Method）：嵌套循环、哈希连接、排序合并\n--决定执行顺序和是否使用索引\n\nA.Oracle 允许一个列同时在唯一索引（UNIQUE INDEX） 和非唯一索引（NON-UNIQUE INDEX） 中出现\nB.Oracle 优化器会决定是否使用索引,并不是索引列每次都一定被用,如果表很小或索引选择性低，可能全表扫描更快\nC.降序索引DESCENDING INDEX:索引列按降序存储Oracle 内部实现类似函数索引（存储排序信息），可以视为特殊类型的 function-based inde\nD.INVISIBLE INDEX 只是查询优化器默认不使用,DML（INSERT/UPDATE/DELETE）仍然会维护索引\nF.在创建表时，可以直接创建索引"
+},
+{
+  "QuestionID": 198,
+  "QuestionType": "single",
+  "QuestionText": "If LOCALTIMESTAMP was selected at the same time, what would it return?",
+  "ImageURL": "images/q198.png",
+  "Options": [
+    {"label": "A", "text": "11-JUL-2019 6.00.00.00000000 AM"},
+    {"label": "B", "text": "11-JUL-2019 11.00.00.00000000 AM"},
+    {"label": "C", "text": "11-JUL-2019 11.00.00.0000000 AM -05:00"},
+    {"label": "D", "text": "11-JUL-2019 6.00.00.00000000 AM -05:00"}
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 199,
+  "QuestionType": "single",
+  "QuestionText": "Which queries generate the same output?",
+  "ImageURL": "images/q199.png",
+  "Options": [
+    {"label": "A", "text": "2 and 3"},
+    {"label": "B", "text": "1 and 2"},
+    {"label": "C", "text": "1 and 3"},
+    {"label": "D", "text": "1, 2, and 3"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "ANY = OR，IN = OR → 同义；ALL = AND → 全部匹配，单列永远难满足。"
+},
+{
+  "QuestionID": 200,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "LAST_DAY returns the date of the last day of the month for the date argument passed to the function."},
+    {"label": "B", "text": "CEIL returns the largest integer less than or equal to a specified number."},
+    {"label": "C", "text": "LAST_DAY returns the date of the last day of the current month only."},
+    {"label": "D", "text": "LAST_DAY returns the date of the last day of the previous month only."},
+    {"label": "E", "text": "ADD_MONTHS adds a number of calendar months to a date."},
+    {"label": "F", "text": "CEIL requires an argument which is a numeric data type."}
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 201,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about scalar subquery expressions?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "You must enclose them in parentheses."},
+    {"label": "B", "text": "You cannot correlate them with a table in the parent statement."},
+    {"label": "C", "text": "They can return at most one row."},
+    {"label": "D", "text": "They can return two columns."},
+    {"label": "E", "text": "You can use them as a default value for a column."}
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": "标量子查询Scalar Subquery是返回单个值的子查询，用于在 SELECT、WHERE、或者表达式中;特点:\n--1.必须用圆括号括起来\n--2.只能返回一行一列\n--3.可以与外层查询关联（correlated subquery）\nE.列默认值是指在创建表时，如果插入数据时没有为某个列提供值，就自动使用的默认值;可以是常量（数字、字符串、日期）;可以是函数（如 SYSDATE、SYSTIMESTAMP）;不能是子查询或 SELECT 语句"
 }
+
 
 
       ]
