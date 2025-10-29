@@ -2408,7 +2408,7 @@
     {"label": "F", "text": "They can be used in the HAVING clause."}
   ],
   "CorrectAnswer": ["A", "E", "F"],
-  "Explanation": "B.单行子查询通常放在 比较符号右边，但也可以用在 FROM 列表、SELECT 列表，或与 IN、EXISTS 等组合\nB.单行子查询可以返回 NULL（零行）返回零行不会报错，但如果使用 = 比较符号，结果可能是空集,单行子查询只允许返回一行，返回多行才会报错"
+  "Explanation": "B.单行子查询通常放在 比较符号右边，但也可以用在 FROM 列表、SELECT 列表，或与 IN、EXISTS 等组合\nC.单行子查询可以返回 NULL（零行）返回零行不会报错，但如果使用 = 比较符号，结果可能是空集,单行子查询只允许返回一行，返回多行才会报错"
 },
 {
   "QuestionID": 159,
@@ -3364,6 +3364,313 @@
   ],
   "CorrectAnswer": ["B", "E", "F"],
   "Explanation": "Connection string就是用来告诉客户端如何连接到数据库的一串信息。数据库的地址（host/IP）端口号（port，Oracle 默认 1521）服务名或 SID（指定要连接哪个数据库实例）有时还包括用户名和密码（可选）\n在 Oracle 中，连接数据库有两种常用方式：1.使用 SID：直接指定某个实例的系统标识符（SID）。2.使用 Service Name：更灵活，允许一个实例提供多个服务或支持 RAC 环境。\nB.在 RAC（Real Application Clusters） 环境下，一个 service name 可以对应多个实例。\nD.服务名由数据库实例通过动态注册或静态配置（listener.ora）提供给监听器，而非由监听器创建。"
+},
+{
+  "QuestionID": 222,
+  "QuestionType": "multiple",
+  "QuestionText": "Examine this command:\n\nSQL> ALTER TABLE ORDERS SHRINK SPACE COMPACT\n\nWhich two statements are true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The high-water mark (HWM) of ORDERS is adjusted."},
+    {"label": "B", "text": "Only queries are allowed on ORDERS while the SHRINK is executing."},
+    {"label": "C", "text": "Dependent indexes become UNUSABLE."},
+    {"label": "D", "text": "The SHRINK operation causes rows to be moved to empty space starting from the beginning of the ORDERS segment."},
+    {"label": "E", "text": "Queries and DML statements are allowed on ORDERS while the SHRINK is executing."},
+    {"label": "F", "text": "The SHRINK operation causes rows to be moved to empty space starting toward the end of the ORDERS segment."}
+  ],
+  "CorrectAnswer": ["E", "F"],
+  "Explanation": "A.使用 COMPACT 只是压缩数据，不会立即调整 HWM。HWM 只有在执行 SHRINK SPACE（不加 COMPACT）或者执行 SHRINK SPACE 后的第二步时才会下降;SHRINK SPACE COMPACT = “先压缩，不回收”;SHRINK SPACE= “压缩 + 回收空间（降低 HWM）”\nB.SHRINK SPACE COMPACT 允许查询和DML，所以不仅仅是查询。\nC.SHRINK SPACE对索引是透明的，表的索引不会被破坏，也不会变为不可用，你不需要对索引做任何额外操作；SHRINK SPACE 会移动表里的数据行（从段尾向前压缩空闲空间），但 Oracle 会自动维护索引指向行的 OWID，保证索引依然正确指向对应的行。SHRINK SPACE CASCADE索引段也收缩，释放空间\nD.行是从 段的末尾往前移动，以压缩尾部空闲空间\n"
+},
+{
+  "QuestionID": 223,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about Database Instances and Real Application Clusters (RAC)?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A RAC database can have instances on separate servers."},
+    {"label": "B", "text": "A RAC database must have two or more instances."},
+    {"label": "C", "text": "A RAC database must have three or more instances."},
+    {"label": "D", "text": "A RAC database can have one instance."},
+    {"label": "E", "text": "Two RAC databases can share their instances."}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "A.RAC 的核心就是 多实例、多节点，每个实例运行在不同的服务器上，但访问同一个数据库（共享存储）。\nE.一个实例只能属于一个数据库，不同 RAC 数据库不能共享实例。"
+},
+{
+  "QuestionID": 224,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about Deferred Segment Creation in Oracle databases?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is supported for Index Organized Tables (IOTs) contained in locally managed tablespaces."},
+    {"label": "B", "text": "It is supported for sys-owned tables contained in locally managed tablespaces."},
+    {"label": "C", "text": "Sessions may dynamically switch back and forth from DEFERRED to IMMEDIATE segment creation."},
+    {"label": "D", "text": "It is the default behavior for tables and indexes."},
+    {"label": "E", "text": "Indexes inherit the DEFERRED or IMMEDIATE segment creation attribute from their parent table."}
+  ],
+  "CorrectAnswer": ["C", "D", "E"],
+  "Explanation": "延迟段创建不支持的表类型包括：\n① 索引组织表（Index-Organized Tables）、簇表（Clustered Tables）、全局临时表（Global Temporary Tables）、会话级临时表（Session-Specific TemporaryTables）、内部表（Internal Tables）、Typed表（Typed Tables）、AQ表（AQ Tables）和外部表（External Tables）。\n② 用户SYS、SYSTEM、PUBLIC、OUTLN和XDB下的表不支持延迟段创建。\n③ 延迟段创建不支持位图连接索引（Bitmap Join Indexes）和域索引（DomainIndexes）。\n④ 延迟段创建不支持字典管理表空间（Dictionary-Managed Tablespace，DMT）。\n⑤ 延迟段创建不支持SYSTEM表空间。\n⑥ 延迟段创建从Oracle 11.2.0.2版本开始才开始支持分区和子分区。\n\nC.ALTER SESSION SET deferred_segment_creation = FALSE(TRUE → 默认 DEFERRED;FALSE → 默认 IMMEDIATE)\nD.从 Oracle 12c 开始，延迟段创建是 新表和索引的默认行为。\nE.索引在创建时会继承父表的段创建策略，除非显式指定。"
+},
+{
+  "QuestionID": 225,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about the Automatic Diagnostic Repository (ADR)?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is a file-based repository held outside any database."},
+    {"label": "B", "text": "It is held inside an Oracle database schema."},
+    {"label": "C", "text": "The ADR base is specified in the DIAGNOSTIC_DEST database parameter."},
+    {"label": "D", "text": "It is only used for Oracle Database diagnostic information."},
+    {"label": "E", "text": "It can be used for problem diagnosis of a database when that database's instance is down."}
+  ],
+  "CorrectAnswer": ["A", "C", "E"],
+  "Explanation": "ADR 是 Oracle 用来存储诊断信息（如 警报日志、跟踪文件、核心转储）的统一文件系统仓库。ADR独立于数据库，不在数据库schema 内。ADR 支持数据库实例即使未启动时的故障诊断；ADR根目录 = DIAGNOSTIC_DEST，每个实例一个子目录，里面有 alert log、trace、incident 等\nD.ADR 还可以存储 Oracle ASM、Listener等其他Oracle 产品的诊断信息。"
+},
+{
+  "QuestionID": 226,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about User Authentication in an Oracle Database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Password File authentication is supported for any type of database user."},
+    {"label": "B", "text": "REMOTE_LOGIN_PASSWORDFILE must be set to exclusive to permit password changes for system-privileged administrative users."},
+    {"label": "C", "text": "Operating System authentication may be used for system-privileged administrative users."},
+    {"label": "D", "text": "Password authentication must be used for system-privileged administrative users."},
+    {"label": "E", "text": "Password File authentication must be used for system-privileged administrative users."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "Oracle 数据库支持几种认证方式：\n--1.Password File Authentication（密码文件认证）:用于远程管理员连接（如 SYSDBA、SYSOPER）;需要 REMOTE_LOGIN_PASSWORDFILE 参数配置;只支持系统管理员用户（SYSDBA、SYSOPER），普通数据库用户不能通过密码文件认证;\n--2.Operating System Authentication（操作系统认证）:通过操作系统用户身份验证数据库管理员;适用于本地登录（如 / as sysdba）\n--3.Database Password Authentication（数据库密码认证）:数据库内部用户使用自己的密码登录\nB.只有 EXCLUSIVE 模式允许系统管理员用户更新密码并管理密码文件。\nD.系统管理员可以使用 操作系统认证 或 密码文件认证，不一定非要数据库密码。"
+},
+{
+  "QuestionID": 227,
+  "QuestionType": "single",
+  "QuestionText": "Which set operator generates the required output?",
+  "ImageURL": "images/q227.png",
+  "Options": [
+    {"label": "A", "text": "SUBTRACT"},
+    {"label": "B", "text": "UNION ALL"},
+    {"label": "C", "text": "INTERSECT"},
+    {"label": "D", "text": "UNION"},
+    {"label": "E", "text": "MINUS"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 228,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three resource limits can be configured using Oracle profiles?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "limiting connect time for user sessions"},
+    {"label": "B", "text": "limiting CPU used by a user"},
+    {"label": "C", "text": "limiting idle time for user sessions only when blocking other sessions"},
+    {"label": "D", "text": "limiting idle time for user sessions only when not blocking other sessions"},
+    {"label": "E", "text": "limiting idle time for user sessions"},
+    {"label": "F", "text": "limiting CPU used by a session"}
+  ],
+  "CorrectAnswer": ["A", "E", "F"],
+  "Explanation": "IDLE_TIME → 只看会话空闲时间，不关心是否阻塞其他会话。"
+},
+{
+  "QuestionID": 229,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about unexpired undo?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is required when a transaction issues a ROLLBACK statement."},
+    {"label": "B", "text": "It is the first type of UNDO overwritten when trying to avoid out-of-space errors."},
+    {"label": "C", "text": "It may be used to support flashback queries."},
+    {"label": "D", "text": "It is retained if possible for the time specified in UNDO_RETENTION."},
+    {"label": "E", "text": "It consists of UNDO only for uncommitted transactions."}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": "A.ROLLBACK当事务发现错误;需要撤销自己做的修改;只能撤销当前事务未提交的修改,依赖active undo;FLASHBACK回溯历史数据，修复已提交的数据错误;可以查看表、行在某一时间点的状态;不影响其他会话事务,依赖Unexpired Undo / Flashback日志\nB.Oracle 优先覆盖 Expired Undo，而不是未过期 Undo\nC.Flashback 查询依赖 未过期 Undo 来重建过去的表数据。"
+},
+{
+  "QuestionID": 230,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are benefits of using temp UNDO when performing DML on global temporary tables?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It reduces I/Os to the SYSTEM tablespace."},
+    {"label": "B", "text": "It reduces the amount of redo generated."},
+    {"label": "C", "text": "It reduces the amount of UNDO stored in the UNDO tablespace."},
+    {"label": "D", "text": "It permits DML on Global temporary tables even if the database is opened read only."},
+    {"label": "E", "text": "It reduces I/Os to the SYSAUX tablespace."}
+  ],
+  "CorrectAnswer": ["B", "C", "D"],
+  "Explanation": "A.GTT数据和临时Undo不涉及SYSTEM表空间\nB.对临时表的DML通常不会生成redo（或只生成最少 redo），提高性能\nC.使用临时Undo，GTT的DML不占用普通Undo表空间。、D.当temp UNDO被启用时，在物理备用数据库（standby）场景下，对GTT的DML是允许的。\nE.SYSAUX 表空间和GTT临时Undo无关"
+},
+{
+  "QuestionID": 231,
+  "QuestionType": "multiple",
+  "QuestionText": "You start your database instance in NOMOUNT state. Which two actions are performed?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The control files are opened."},
+    {"label": "B", "text": "Memory is allocated for the SGA."},
+    {"label": "C", "text": "SYS can access the database."},
+    {"label": "D", "text": "All required background processes are started."},
+    {"label": "E", "text": "The consistency of the database is checked."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 232,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about UNDO and REDO?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "UNDO is used for some flashback operations."},
+    {"label": "B", "text": "Both REDO and UNDO can be multiplexed."},
+    {"label": "C", "text": "UNDO is used for read consistency."},
+    {"label": "D", "text": "REDO is used for ROLLBACK."},
+    {"label": "E", "text": "REDO is used for read consistency."},
+    {"label": "F", "text": "REDO is used for instance recovery."}
+  ],
+  "CorrectAnswer": ["A", "C", "F"],
+  "Explanation": "B.只有 Redo Log 可以 multiplex（多路复用，多份备份、同时写入多个文件），即保存多份副本来防止丢失。"
+},
+{
+  "QuestionID": 233,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about Resumable Space Allocation in Oracle databases?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "All sessions must have the same timeout value when waiting for resumable space allocations."},
+    {"label": "B", "text": "A user's session may be suspended and resumed multiple times."},
+    {"label": "C", "text": "A user's session may be suspended even if the user has the UNLIMITED TABLESPACE system privilege."},
+    {"label": "D", "text": "Resumable space allocation is only possible with locally managed tablespaces."},
+    {"label": "E", "text": "The AFTER SUSPEND event trigger can itself be suspended due to space conditions."},
+    {"label": "F", "text": "Resumable space allocation may be enabled for some sessions and not others."}
+  ],
+  "CorrectAnswer": ["B", "C", "F"],
+  "Explanation": "Resumable Space Allocation可恢复空间分配:就是 Oracle 在执行 DML 时，遇到“空间不够”的情况不会立刻报错中断，而是暂停（suspend）一会儿，等你处理完问题（比如加表空间）再自动继续执行（resume）。\nA.超时值（TIMEOUT）通过 ALTER SESSION 单独设置，各会话可不同\nB.同一个会话可能在不同时间点多次暂停再恢复。比如：1.第一次空间满了 → 暂停 → DBA 加表空间 → 恢复。2.过一会儿又满了 → 再次暂停 → 再加空间 → 又恢复。\nC.就算用户有 UNLIMITED TABLESPACE（无限表空间权限），也可能因为其他资源（比如临时表空间 temp、UNDO 表空间）满了而被暂停。所以这个 privilege 不保证永远不会suspend。\nD.可恢复空间分配与表空间管理方式无关，支持字典管理和本地管理表空间。\nE.该触发器执行时若空间不足，会直接失败（报错），而非被暂停\nF.这个特性是按会话启用的，不是全局强制"
+},
+{
+  "QuestionID": 234,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about Private Temporary Tables (PTTs) in an Oracle Database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Concurrent sessions may have PTTS with the same name and the same column definitions."},
+    {"label": "B", "text": "It is possible to preserve the private table definition but remove the rows when a session with a PTT issues a COMMIT."},
+    {"label": "C", "text": "Creating a PTT is DDL and commits any active transaction for the session."},
+    {"label": "D", "text": "Concurrent sessions may have PTTS with the same name but different column definitions."},
+    {"label": "E", "text": "Concurrent sessions may have PTTS with different names but same column definitions."}
+  ],
+  "CorrectAnswer": ["A", "D", "E"],
+  "Explanation": "Private Temporary Table (PTT)只对创建它的会话可见（Session-private）;结构在 会话结束后自动消失;数据存储在 临时表空间，使用类似 Global Temporary Table 的机制;允许同一个数据库不同会话创建 同名或不同名的 PTT，互不干扰;PTT 是 DDL 操作（CREATE TABLE），但它在会话结束时自动消失，不需要手动 DROP\nB.PTT的数据行为取决于 ON COMMIT 子句，但和 GTT 有点不同：ON COMMIT PRESERVE DEFINITION（默认行为）:表结构会保留,数据也会保留,COMMIT 后表依然存在，数据不丢失; ON COMMIT DROP DEFINITION:表结构和数据都会在事务 COMMIT 时消失相当于提交就自动 DROP\nC.PTT 确实是 DDL，但在 Oracle 中 CREATE PRIVATE TEMPORARY TABLE 不会提交当前事务，这与普通 CREATE TABLE 不同（普通 CREATE TABLE 会隐式提交）。"
+},
+{
+  "QuestionID": 235,
+  "QuestionType": "single",
+  "QuestionText": "Choose the best answer. Why would you use the TNSPING hr command?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "to verify if a requested service is available"},
+    {"label": "B", "text": "to determine if the listener for the HR net service name can be reached"},
+    {"label": "C", "text": "to verify if the HR database instance is up"},
+    {"label": "D", "text": "to check and list multiple ORACLE_HOME locations on the server"},
+    {"label": "E", "text": "to validate the network connectivity between a client and the database instance"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "TNSPING 是 Oracle 提供的一个网络诊断工具，用来检查 Oracle Net 服务是否可达。它不会尝试连接数据库实例，只检查 Listener是否可以访问。常用于排查网络问题或Listener 配置问题"
+},
+{
+  "QuestionID": 236,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the UNLIMITED TABLESPACE system privilege and space quotas?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is overridden by a space quota specified for the user."},
+    {"label": "B", "text": "It allows a user to have unlimited space in any tablespace in the database."},
+    {"label": "C", "text": "By default, users have no quota on their default permanent tablespace."},
+    {"label": "D", "text": "It allows a user to have unlimited space only in their default permanent tablespace."},
+    {"label": "E", "text": "It allows a role to have unlimited space in any tablespace in the database."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "UNLIMITED TABLESPACE 系统权限用于控制用户在数据库中能使用的空间量。空间配额（space quota） 用于限制用户在某个特定表空间中能使用的空间。\nC.默认情况下，如果没有显式分配配额，用户在默认永久表空间 没有配额限制。注意：这并不是“无限”，只是“未分配配额”，可能依赖于表空间剩余空间\nE.UNLIMITED TABLESPACE是授予用户的权限，不是直接授予角色的"
+},
+{
+  "QuestionID": 237,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three files are used by conventional path SQL*Loader when the TABLE option is not specified?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "password files"},
+    {"label": "B", "text": "dump files"},
+    {"label": "C", "text": "input files"},
+    {"label": "D", "text": "control files"},
+    {"label": "E", "text": "bad files"}
+  ],
+  "CorrectAnswer": ["C", "D", "E"],
+  "Explanation": "SQL*Loader 是 Oracle 提供的 批量加载工具，用来把外部数据文件（比如 CSV、文本文件）快速导入数据库表。它主要有两种路径:\n--1.Conventional Path：使用 INSERT 语句逐行加载数据，适用于大多数情况。\n--2.Direct Path：直接将数据写入数据文件，绕过 SQL 层，更快，但有一些限制。\nconventional path会生成大量INSERT语句，每条都走SQL引擎。Direct path 直接把数据写入表数据块，不走SQL语句。\n\nC.就是你要加载的数据文件。例如：data.csv 或 data.txt\nD.告诉 SQL*Loader 如何解析数据文件和插入数据的规则\nE.记录加载失败的行（格式错误、违反约束等）。默认生成：*.bad 文件，用于排查错误"
+},
+{
+  "QuestionID": 238,
+  "QuestionType": "multiple",
+  "QuestionText": "Which four activities can be performed using SQL Developer?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It must be configured to allow SQLcl to be used."},
+    {"label": "B", "text": "It can be used to develop server-side java programs."},
+    {"label": "C", "text": "It can be used to back up and recover databases using RMAN."},
+    {"label": "D", "text": "It can be used to administer database security."},
+    {"label": "E", "text": "It can run SQL statements and SQL scripts."},
+    {"label": "F", "text": "It can be used to debug PL/SQL programs."},
+    {"label": "G", "text": "It can be used to develop client-side java programs."}
+  ],
+  "CorrectAnswer": ["C", "D", "E", "F"],
+  "Explanation": "A.SQLcl是 Oracle的命令行SQL工具，可以和SQL Developer配合，但SQL Developer本身不依赖 SQLcl。\nB.SQL Developer的 Java 功能主要是 客户端辅助工具，而不是完整的服务器端开发环境。\nC.SQL Developer可以集成RMAN（Recovery Manager），允许可视化地执行备份和恢复任务。\nD.通过 SQL Developer 管理用户、角色、权限和安全策略"
+},
+{
+  "QuestionID": 239,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about Enterprise Manager Cloud Control?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is available to manage a database only when that database is open."},
+    {"label": "B", "text": "It is integrated with My Oracle Support."},
+    {"label": "C", "text": "It provides management for Oracle middleware."},
+    {"label": "D", "text": "It provides management for Oracle-engineered systems."},
+    {"label": "E", "text": "It uses a web-based console built into the Oracle database using XML DB."}
+  ],
+  "CorrectAnswer": ["B", "C", "D"],
+  "Explanation": "A.EM可以管理 开/关状态的数据库，但通常只能监控已打开的数据库实例\nB.EM Cloud Control 内置与 My Oracle Support (MOS) 集成;可以直接在控制台查看补丁信息、错误单、建议等\nC.EM可以管理 Oracle 中间件产品（如 WebLogic、Fusion Middleware、SOA 等;中间件 = 应用程序和操作系统/数据库之间的“中间层”软件,连接前端和后端：比如 Web 页面（前端）要访问数据库（后端），中间件负责传输请求和结果;提供公共服务：事务管理、安全认证、消息队列、负载均衡等;让应用开发更方便：开发者不用每次都从零处理网络通信、数据库连接、事务管理等\nE.EM Cloud Control 使用独立的 Web 控制台,通常部署在OMS:Oracle Management Server 上），不是内置在数据库里。内置 XML DB 控制台属于 Database Express (DB Express)，与 Cloud Control 不同。"
+},
+{
+  "QuestionID": 240,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are types of segments in an Oracle Database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "tables"},
+    {"label": "B", "text": "stored procedures"},
+    {"label": "C", "text": "sequences"},
+    {"label": "D", "text": "views"},
+    {"label": "E", "text": "undo"},
+    {"label": "F", "text": "clusters"}
+  ],
+  "CorrectAnswer": ["A", "E", "F"],
+  "Explanation": "常见的 Segment 类型：\n--1.表段（Table Segment）：存储表数据\n--2.索引段（Index Segment）：存储索引数据\n--3.Undo 段（Undo Segment）：存储撤销信息（用于事务回滚）\n--4.集群段（Cluster Segment）：多个表共享的数据块\n--5.临时段（Temporary Segment）：临时表或排序操作使用\n段是数据库中 物理存储的最小单位之一，与表、索引等对象密切相关。"
+},
+{
+  "QuestionID": 241,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true regarding indexes?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A table belonging to one user cannot have an index that belongs to a different user."},
+    {"label": "B", "text": "When a table is dropped and is moved to the RECYCLE BIN, all indexes built on that table are permanently dropped."},
+    {"label": "C", "text": "An update to a table can result in updates to any or all of the table's indexes."},
+    {"label": "D", "text": "An update to a table can result in no updates to any of the table's indexes."},
+    {"label": "E", "text": "A UNIQUE index can be altered to be non-unique."}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": ""
 }
 
 
