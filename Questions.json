@@ -2780,7 +2780,7 @@
   "ImageURL": "",
   "Options": [
     {"label": "A", "text": "providing graphical capabilities"},
-    {"label": "B", "text": "providing variable definition capabilities (PL/SQL)"},
+    {"label": "B", "text": "providing variable definition capabilities"},
     {"label": "C", "text": "providing database transaction control"},
     {"label": "D", "text": "processing sets of data"},
     {"label": "E", "text": "providing update capabilities for data in external files"}
@@ -2959,10 +2959,10 @@
   "QuestionText": "Which statement increases each employee's SALARY by the minimum SALARY for their DEPARTMENT_ID?",
   "ImageURL": "images/q195.png",
   "Options": [
-    {"label": "A", "text": "UPDATE employees e1 SET salary = salary + (SELECT MIN(salary) FROM employees e2);"},
-    {"label": "B", "text": "UPDATE employees e1 SET salary = (SELECT e2.salary + MIN(e2.salary) FROM employees e2 WHERE e1.department_id = e2.department_id GROUP BY e2.department_id);"},
-    {"label": "C", "text": "UPDATE employees e1 SET salary = salary + (SELECT MIN(e1.salary) FROM employees e2 WHERE e1.department_id = e2.department_id);"},
-    {"label": "D", "text": "UPDATE employees e1 SET salary = (SELECT e1.salary + MIN(e2.salary) FROM employees e2 WHERE e1.department_id = e2.department_id);"}
+    {"label": "A", "text": "UPDATE employees e1 \nSET salary = salary + \n(SELECT MIN(salary) \nFROM employees e2);"},
+    {"label": "B", "text": "UPDATE employees e1 \nSET salary = \n(SELECT e2.salary + MIN(e2.salary) \nFROM employees e2 \nWHERE e1.department_id = e2.department_id \nGROUP BY e2.department_id);"},
+    {"label": "C", "text": "UPDATE employees e1 \nSET salary = salary + \n(SELECT MIN(e1.salary) \nFROM employees e2 \nWHERE e1.department_id = e2.department_id);"},
+    {"label": "D", "text": "UPDATE employees e1 \nSET salary = \n(SELECT e1.salary + MIN(e2.salary) \nFROM employees e2 \nWHERE e1.department_id = e2.department_id);"}
   ],
   "CorrectAnswer": ["D"],
   "Explanation": "B.UPDATE子查询必须返回 单个值"
@@ -3300,7 +3300,7 @@
     {"label": "F", "text": "Local naming can be used if Connect-Time Failover is required."}
   ],
   "CorrectAnswer": ["A", "B", "F"],
-  "Explanation": "Local Naming:使用 tnsnames.ora 文件，客户端解析服务名;可支持Connect-Time Failover;需要配置 tnsnames.ora\nDirectory Naming:使用 LDAP（Oracle Internet Directory, OID）存储服务名;可支持Connect-Time Failover;需要客户端指向 LDAP，设置 TNS_ADMIN / LDAP_ADMIN\nEasy Connect:简单方式，直接用 hostname:port/service_name;不支持复杂 Connect-Time Failover;无需 tnsnames.ora; Easy Connect 主要是 TCP/IP 直连，不原生支持SSL(Secure Sockets Layer是一种安全传输协议)\nExternal Naming:OS 级别名称解析;可选Connect-Time Failover;依赖操作系统\nConnect-Time Failover（在客户端重试另一节点）只有 Local Naming 和 Directory Naming 支持\n\nB.使用 Easy Connect，客户端无需 tnsnames.ora 或 LDAP，即可通过\nD.TNS_ADMIN 是可选的，用于指定 tnsnames.ora 的位置，如果放在默认路径下（$ORACLE_HOME/network/admin），不必设置"
+  "Explanation": "--Local Naming:使用 tnsnames.ora 文件，客户端解析服务名;可支持Connect-Time Failover;需要配置 tnsnames.ora\n--Directory Naming:使用 LDAP（Oracle Internet Directory, OID）存储服务名;可支持Connect-Time Failover;需要客户端指向 LDAP，设置 TNS_ADMIN / LDAP_ADMIN\n--Easy Connect:简单方式，直接用 hostname:port/service_name;不支持复杂 Connect-Time Failover;无需 tnsnames.ora; Easy Connect 主要是 TCP/IP 直连，不原生支持SSL(Secure Sockets Layer是一种安全传输协议)\n--External Naming:OS 级别名称解析;可选Connect-Time Failover;依赖操作系统\nConnect-Time Failover（在客户端重试另一节点）只有 Local Naming 和 Directory Naming 支持\n\nB.使用 Easy Connect，客户端无需 tnsnames.ora 或 LDAP，即可通过\nD.TNS_ADMIN 是可选的，用于指定 tnsnames.ora 的位置，如果放在默认路径下（$ORACLE_HOME/network/admin），不必设置"
 },
 {
   "QuestionID": 218,
@@ -3356,7 +3356,7 @@
   "ImageURL": "",
   "Options": [
     {"label": "A", "text": "A connection string must include the SID of a database instance."},
-    {"label": "B", "text": "A single connection string can refer to multiple database instances (RAC environment)."},
+    {"label": "B", "text": "A single connection string can refer to multiple database instances."},
     {"label": "C", "text": "A connection string including a service name must be defined in the tnsnames.ora file."},
     {"label": "D", "text": "A service name is created by a listener."},
     {"label": "E", "text": "Different connection strings in the same tnsnames.ora file can contain the same service name, host and port parameters."},
@@ -3670,6 +3670,312 @@
     {"label": "E", "text": "A UNIQUE index can be altered to be non-unique."}
   ],
   "CorrectAnswer": ["C", "D"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 242,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements about Oracle SQL functions are true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "INSTR finds the offset within a character string, starting from position 0."},
+    {"label": "B", "text": "FLOOR returns the largest integer less than or equal to a specified number."},
+    {"label": "C", "text": "CONCAT joins two or more character strings together."},
+    {"label": "D", "text": "INSTR finds the offset within a string of a single character only."},
+    {"label": "E", "text": "FLOOR returns the largest positive integer less than or equal to a specified number."},
+    {"label": "F", "text": "CONCAT joins two character strings together."}
+  ],
+  "CorrectAnswer": ["B", "F"],
+  "Explanation": "A.SELECT INSTR('HELLO WORLD', 'O', 1, 2) FROM DUAL;第2个'O'出现在第8个字符位置(空格也算位置)。INSTR 函数是从位置 1 开始计数的\nC. CONCAT 函数 只能连接两个字符串，如果要连接多个字符串，需要嵌套使用 CONCAT SELECT CONCAT(CONCAT('Hello', ' '), 'World') AS result FROM DUAL;或者用 || 运算符:SELECT 'Hello' || ' ' || 'World' || '!' AS result FROM DUAL;\nD.也可以多个字符"
+},
+{
+  "QuestionID": 243,
+  "QuestionType": "single",
+  "QuestionText": "Examine this schema information:\n1.EMPLOYEES.DEPARTMENT_ID has a foreign key referencing \nDEPARTMENTS.DEPARTMENT_ID.\n2.EMP_VIEW is based on the EMPLOYEES and DEPARTMENTS tables.\n3.EMP_VIEW has columns EMPLOYEE_ID, EMPLOYEE_NAME and DEPARTMENT_NAME.\nYou must add a new column, MANAGER_ID, from the EMPLOYEES table, to the view, showing each employee's manager.\nWhich statement will do this?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "CREATE OR REPLACE VIEW emp_view AS \nSELECT employee_id, employee_name, department_name, manager_id \nFROM employees e, departments d \nWHERE e.department_id = d.department_id;"},
+    {"label": "B", "text": "ALTER VIEW emp_view ADD (employee.manager_id);"},
+    {"label": "C", "text": "ALTER VIEW emp_view MODIFY \n(SELECT employee_id, employee_name, department_name, manager_id \nFROM employees e, departments d \nWHERE e.department_id = d.department_id);"},
+    {"label": "D", "text": "ALTER VIEW emp_view ADD (SELECT manager_id FROM employees);"}
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "视图不能进行 alter，只能重建。"
+},
+{
+  "QuestionID": 244,
+  "QuestionType": "multiple",
+  "QuestionText": "",
+  "ImageURL": "images/q244.png",
+  "Options": [
+    {"label": "A", "text": "SELECT customer_name FROM customers WHERE customer_name LIKE 'Ma*';"},
+    {"label": "B", "text": "SELECT customer_name FROM customers WHERE customer_name LIKE '%a%';"},
+    {"label": "C", "text": "SELECT customer_name FROM customers WHERE UPPER(customer_name) LIKE 'MA%';"},
+    {"label": "D", "text": "SELECT customer_name FROM customers WHERE customer_name LIKE '*Ma*';"},
+    {"label": "E", "text": "SELECT customer_name FROM customers WHERE customer_name LIKE 'Ma%';"},
+    {"label": "F", "text": "SELECT customer_name FROM customers WHERE UPPER(customer_name) LIKE 'MA*';"},
+    {"label": "G", "text": "SELECT customer_name FROM customers WHERE customer_name = '*Ma*';"}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 245,
+  "QuestionType": "single",
+  "QuestionText": "Choose the best answer.\nYou need to allow user ANDREW to:\n1. Modify the TITLE and ADDRESS columns of your CUSTOMERS table.\n2. GRANT that permission to other users.\nWhich statement will do this?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "GRANT UPDATE ON customers.title, customers.address TO andrew;"},
+    {"label": "B", "text": "GRANT UPDATE (title, address) ON customers TO andrew WITH GRANT OPTION;"},
+    {"label": "C", "text": "GRANT UPDATE ON customers.title, customers.address TO andrew WITH ADMIN OPTION;"},
+    {"label": "D", "text": "GRANT UPDATE ON customers.title, customers.address TO andrew WITH GRANT OPTION;"},
+    {"label": "E", "text": "GRANT UPDATE (title, address) ON customers TO andrew;"},
+    {"label": "F", "text": "GRANT UPDATE (title, address) ON customers TO andrew WITH ADMIN OPTION;"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "对象权限允许授权只能用WITH GRANT OPTION）系统权限允许授权可用with admin option"
+},
+{
+  "QuestionID": 246,
+  "QuestionType": "single",
+  "QuestionText": "Choose the best answer.\nWhich statement is true about TRUNCATE and DELETE?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "You can never TRUNCATE a table if foreign key constraints would be violated."},
+    {"label": "B", "text": "You can DELETE rows from a table with referential integrity constraints."},
+    {"label": "C", "text": "For tables with multiple indexes and triggers, DELETE is faster than TRUNCATE."},
+    {"label": "D", "text": "For large tables, DELETE is faster than TRUNCATE."}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "A.如果该表是被其他表通过外键 “引用”的（即它是parent表），而这些外键约束是启用状态的，那么不能直接TRUNCATE。你必须先禁用(或者删除)那些引用该表的外键约束，或者使用TRUNCATE … CASCADE,并且那些外键必须支持ON DELETE CASCADE才行。\nB.DELETE 可以删除有外键约束的表中的数据，只要删除不会违反referential integrity（参照完整性），就可以。\nCD.DELETE 会逐行删除，大表操作很慢；TRUNCATE直接释放数据块，非常快"
+},
+{
+  "QuestionID": 247,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about constraints?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "All constraints can be defined at the table or column level."},
+    {"label": "B", "text": "A constraint can be disabled even if the constrained column contains data."},
+    {"label": "C", "text": "A column with a FOREIGN KEY constraint can never contain a NULL value."},
+    {"label": "D", "text": "A column with a UNIQUE constraint can contain a NULL value."},
+    {"label": "E", "text": "Constraints are enforced only during INSERT operations."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "A.Not Null仅仅能定义在列级别\nC.外键列是允许 NULL 的，表示该行没有关联到 parent 表的任何记录\nD.UNIQUE约束允许列中存在NULL，并且多个NULL被视为不同值，所以不会违反唯一性\nE.约束不仅在INSERT时检查，也在UPDATE 时检查，甚至可能在DELETE时触发（如外键约束）"
+},
+{
+  "QuestionID": 248,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about privileges?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "All schema objects have associated object privileges."},
+    {"label": "B", "text": "Schema owners can grant any object privilege on any object in their schema to any other user or role."},
+    {"label": "C", "text": "A combination of object and system privileges can be granted to a role."},
+    {"label": "D", "text": "Object privileges granted on a table automatically apply to all synonyms for that table."},
+    {"label": "E", "text": "Only users with the GRANT ANY PRIVILEGE privilege can grant and revoke system privileges from other users."},
+    {"label": "F", "text": "Only users with the DBA role can create roles."}
+  ],
+  "CorrectAnswer": ["A", "B", "D"],
+  "Explanation": "C.角色（role） 可以被授予 对象权限 或 系统权限，但不能同时授予系统权限和对象权限的组合（必须分别授予）\nE.并非只有拥有 GRANT ANY PRIVILEGE 的用户才能授予系统权限；拥有某个系统权限的用户，如果带有 WITH ADMIN OPTION，也可以授予该权限给其他用户\nF.创建角色（CREATE ROLE）需要CREATE ROLE系统权限，并非必须是DBA角色"
+},
+{
+  "QuestionID": 249,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about dropping views?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Read only views cannot be dropped."},
+    {"label": "B", "text": "Views referencing a dropped view become invalid."},
+    {"label": "C", "text": "CASCADE CONSTRAINTS must be specified when referential integrity constraints on other objects refer to primary or unique keys in the view to be dropped."},
+    {"label": "D", "text": "Data selected by a view's defining query is deleted from its underlying tables when the view is dropped."},
+    {"label": "E", "text": "The creator of a view to be dropped must have the DROP ANY VIEW privilege."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "A.只读视图read-only view可以正常被DROP\nE.	视图的创建者自己可以直接DROP VIEW view_name;，不需要DROP ANY VIEW权限。DROP ANY VIEW是为了删除别人的视图"
+},
+{
+  "QuestionID": 250,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true?",
+  "ImageURL": "images/q250.png",
+  "Options": [
+    {"label": "A", "text": "The MGR column in the DEPT table will not be able to contain NULL values."},
+    {"label": "B", "text": "Both foreign key constraint definitions must be removed from the CREATE TABLE statements, and be added with ALTER TABLE statements once both tables are created, for the two CREATE TABLE statements to execute successfully in the order shown."},
+    {"label": "C", "text": "The CREATE TABLE EMP statement must precede the CREATE TABLE DEPT statement for all three statements to execute successfully."},
+    {"label": "D", "text": "The DEPTNO column in the EMP table will be able to contain NULL values."},
+    {"label": "E", "text": "All three statements execute successfully in the order shown."},
+    {"label": "F", "text": "The DEPT_FKEY constraint definition must be removed from the CREATE TABLE DEPT statement, and be added with an ALTER TABLE statement once both tables are created, for the two CREATE TABLE statements to execute successfully in the order shown."}
+  ],
+  "CorrectAnswer": ["D", "F"],
+  "Explanation": "这里有两个约束涉及外键:\n1.EMP.DEPTNO 外键指向 DEPT.DEPTNO\n2.DEPT.MGR 外键指向 EMP.EMPNO\n这就是所谓的 循环依赖（circular reference），也叫双向外键。\nA.外键列默认可以包含 NULL（除非显式加 NOT NULL）\nB.第一步创建DEPT时，Oracle会检查外键DEPT_FKEY，它引用EMP.EMPNO。但是EMP还没创建，所以这个外键会报错,不完全需要去掉两个外键; DEPT.MGR外键必须延后用ALTER TABLE添加，因为它引用的 EMP 还不存在。另一个外键可以正常创建;EMP.DEPTNO外键引用 DEPT，DEPT已经创建，可以直接在CREATE TABLE 时定义\n"
+},
+{
+  "QuestionID": 251,
+  "QuestionType": "single",
+  "QuestionText": "Choose the best answer.\nTable HR.EMPLOYEES contains a row where the EMPLOYEE_ID is 109.\nUser ALICE has no privileges to access HR.EMPLOYEES.\nUser ALICE starts a session.\nUser HR starts a session and successfully executes these statements:\nGRANT DELETE ON employees TO alice;\nUPDATE employees SET salary = 24000 WHERE employee_id = 109;\nIn her existing session ALICE then executes:\nDELETE FROM hr.employees WHERE employee_id = 109;\nWhat is the result?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The DELETE command will immediately delete the row."},
+    {"label": "B", "text": "The DELETE command will immediately return an error."},
+    {"label": "C", "text": "The DELETE command will wait for HR's transaction to end then delete the row."},
+    {"label": "D", "text": "The DELETE command will wait for HR's transaction to end then return an error."}
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Hr 用户修改了行数据，改行就被锁住了，其它事务只有等待"
+},
+{
+  "QuestionID": 252,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements about roles are true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Roles are assigned to roles using the ALTER ROLE statement."},
+    {"label": "B", "text": "A role is a named group of related privileges that can only be assigned to a user."},
+    {"label": "C", "text": "A single role can be assigned to multiple users."},
+    {"label": "D", "text": "A single user can be assigned multiple roles."},
+    {"label": "E", "text": "Privileges are assigned to a role using the ALTER ROLE statement."},
+    {"label": "F", "text": "Privileges are assigned to a role using the GRANT statement."},
+    {"label": "G", "text": "Roles are assigned to users using the ALTER USER statement."}
+  ],
+  "CorrectAnswer": ["C", "D", "F"],
+  "Explanation": "A.角色不能赋给角色，角色只能赋给用户。ALTER ROLE 用于修改角色属性（比如密码、默认角色），不能用来分配角色。分配角色:GRANT role_name TO user_name [WITH ADMIN OPTION];\nB.角色确实是一组权限的集合，但是它不仅可以分配给用户，还可以分配给 其他角色;在Oracle 12c+中支持角色继承\nC.角色的权限是通过 GRANT 语句分配的;GRANT CREATE TABLE, CREATE VIEW TO READ_ONLY;"
+},
+{
+  "QuestionID": 253,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three actions can you perform only with system privileges?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Access flat files via a database, which are stored in an operating system directory."},
+    {"label": "B", "text": "Execute a procedure in another schema."},
+    {"label": "C", "text": "Log in to a database instance."},
+    {"label": "D", "text": "Create stored procedures, functions and packages."},
+    {"label": "E", "text": "Use the WITH GRANT OPTION clause."},
+    {"label": "F", "text": "Query any table in a database."}
+  ],
+  "CorrectAnswer": ["C", "D", "F"],
+  "Explanation": "系统权：登录数据库、建表/存储过程、跨库查询、授权给他人 → 需要系统权限\n对象权：操作自己表、执行自己/别人存储过程 → 对象权限足够\n\nA.Oracle中访问文件需要CREATE DIRECTORY 权限以及 READ/WRITE 权限，属于对象权限/目录权限，不是标准系统权限\nB.执行其他 schema 的存储过程需要 对象权限（EXECUTE ON schema.proc），不是系统权限\nE.WITH GRANT OPTION 是 对象权限 的扩展，用于授予权限给其他用户，不属于系统权限"
+},
+{
+  "QuestionID": 254,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about an Oracle database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A NUMBER column without data has a zero value."},
+    {"label": "B", "text": "A table can have multiple foreign keys."},
+    {"label": "C", "text": "A VARCHAR2 column without data has a NULL value."},
+    {"label": "D", "text": "A table can have multiple primary keys."},
+    {"label": "E", "text": "A column definition can specify multiple data types."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 255,
+  "QuestionType": "single",
+  "QuestionText": "Which statement satisfies all the requirements?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "SELECT last_name, hire_date, \n(CASE WHEN (SYSDATE - TO_YMINTERVAL('15-0')) >= hire_date THEN '15+ years of service' \nWHEN (SYSDATE - TO_YMINTERVAL('10-0')) >= hire_date THEN '10+ years of service' \nWHEN (SYSDATE - TO_YMINTERVAL('5-0')) >= hire_date THEN '5+ years of service' \nELSE '<5 years of service' \nEND) AS years \nFROM employees \nORDER BY hire_date;"},
+    {"label": "B", "text": "SELECT last_name, hire_date, \n(CASE WHEN (SYSDATE - hire_date) >= TO_YMINTERVAL('5-0') THEN '5+ years of service' \nWHEN (SYSDATE - hire_date) >= TO_YMINTERVAL('10-0') THEN '10+ years of service' \nWHEN (SYSDATE - hire_date) >= TO_YMINTERVAL('15-0') THEN '15+ years of service' \nELSE '<5 years of service' \nEND) AS years \nFROM employees \nORDER BY hire_date;"},
+    {"label": "C", "text": "SELECT last_name, hire_date, \n(CASE WHEN (SYSDATE - TO_YMINTERVAL('5-0')) >= hire_date THEN '5+ years of service' \nWHEN (SYSDATE - TO_YMINTERVAL('10-0')) >= hire_date THEN '10+ years of service' \nWHEN (SYSDATE - TO_YMINTERVAL('15-0')) >= hire_date THEN '15+ years of service' \nELSE '<5 years of service' \nEND) AS years \nFROM employees \nORDER BY hire_date;"},
+    {"label": "D", "text": "SELECT last_name, hire_date, \n(CASE WHEN (SYSDATE - hire_date) >= TO_YMINTERVAL('15-0') THEN '15+ years of service' \nWHEN (SYSDATE - hire_date) >= TO_YMINTERVAL('10-0') THEN '10+ years of service' \nWHEN (SYSDATE - hire_date) >= TO_YMINTERVAL('5-0') THEN '5+ years of service' \nELSE '<5 years of service' \nEND) AS years \nFROM employees \nORDER BY hire_date;"}
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "TO_YMINTERVAL 是 Oracle SQL 的一个函数，用于 将字符串或数字转换为 INTERVAL YEAR TO MONTH 类型，即表示“年-月”间隔的数据类型\nBD.(SYSDATE - hire_date) >= TO_YMINTERVAL('15-0');SYSDATE - hire_date 返回的是 天数（NUMBER 类型）;TO_YMINTERVAL('15-0') 是 INTERVAL YEAR TO MONTH 类型"
+},
+{
+  "QuestionID": 256,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about external tables?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "They can be used in queries containing joins."},
+    {"label": "B", "text": "Their metadata is stored in the database."},
+    {"label": "C", "text": "They can be temporary tables."},
+    {"label": "D", "text": "They can be indexed."},
+    {"label": "E", "text": "They can be used in queries containing sorts."},
+    {"label": "F", "text": "DML statements can modify them."}
+  ],
+  "CorrectAnswer": ["A", "B", "E"],
+  "Explanation": "A.外部表External Tables本质上是 Oracle 数据库中的表定义，只不过数据存储在操作系统的外部文件里（如 CSV、文本文件）。可以像普通表一样在 SELECT 查询中做JOIN\nB.外部表的表结构（列名、数据类型等）存储在数据库的数据字典中，而数据本身在外部文件\nC.外部表 不支持 TEMPORARY，不能像GLOBAL TEMPORARY TABLE那样只在会话或事务内存在\nD.外部表不能创建索引，因为数据不在数据库内部，Oracle 无法直接维护索引\nF.外部表只读，不支持INSERT、UPDATE 或 DELETE"
+},
+{
+  "QuestionID": 257,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two will execute successfully?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "SELECT NVL('DATE', SYSDATE) FROM DUAL;"},
+    {"label": "B", "text": "SELECT COALESCE('DATE', SYSDATE) FROM DUAL;"},
+    {"label": "C", "text": "SELECT COALESCE('DATE', SYSDATE) FROM (SELECT NULL AS \"DATE\" FROM DUAL);"},
+    {"label": "D", "text": "SELECT COALESCE(0, SYSDATE) FROM DUAL;"},
+    {"label": "E", "text": "SELECT NVL('DATE', 200) FROM (SELECT NULL AS \"DATE\" FROM DUAL);"}
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": "NVL要求两个参数的数据类型必须一致，或者第二个参数可以被隐式转换为第一个参数的类型;COALESCE两个参数的数据类型必须一致"
+},
+{
+  "QuestionID": 258,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the data dictionary?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The data dictionary does not store metadata in tables."},
+    {"label": "B", "text": "The data dictionary is accessible when the database is closed."},
+    {"label": "C", "text": "Views with the prefix ALL_, DBA_ and USER_ are not all available for every type of metadata."},
+    {"label": "D", "text": "Views with the prefix ALL_ display metadata for objects to which the current user has access."},  
+    {"label": "E", "text": "Views with the prefix DBA_ display only metadata for objects in the SYS schema."}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": "A.Oracle的数据字典元数据是存储在系统表中的。只是访问方式通常通过视图，而不是直接操作这些表\nB.数据字典是数据库的一部分，当数据库 关闭时，无法访问\nC.并非所有元数据类型都有三种视图（USER_ / ALL_ / DBA_）。\nD.ALL_ 视图显示:当前用户拥有的对象;以及当前用户被授权访问的对象\nE.DBA_ 视图显示整个数据库中所有用户的对象，不仅仅是SYS。但前提是你必须拥有SELECT ANY DICTIONARY或DBA权限"
+},
+{
+  "QuestionID": 259,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about external tables that use the ORACLE_DATAPUMP access driver?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "When creating an external table, data can be selected only from a table whose rows are stored in database blocks."},
+    {"label": "B", "text": "Creating an external table creates a directory object."},
+    {"label": "C", "text": "When creating an external table, data can be selected from another external table or from a table whose rows are stored in database blocks."},
+    {"label": "D", "text": "Creating an external table creates a dump file that can be used only by an external table in the same database."},
+    {"label": "E", "text": "Creating an external table creates a dump file that can be used by an external table in the same or a different database."}
+  ],
+  "CorrectAnswer": ["C", "E"],
+  "Explanation": "B.创建外部表必须提前创建目录,不会自动创建目录\nD.Oracle 明确表示不仅可用于同一个数据库，还 可以用于 不同数据库。也就是说：可以跨数据库使用这些 dump 文件"
+},
+{
+  "QuestionID": 260,
+  "QuestionType": "single",
+  "QuestionText": "Which will execute successfully?",
+  "ImageURL": "images/q260.png",
+  "Options": [
+    {"label": "A", "text": "1 only"},
+    {"label": "B", "text": "1, 2 and 3"},
+    {"label": "C", "text": "2, 3 and 4"},
+    {"label": "D", "text": "2 and 3 only"}
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "CREATE ANY TABLE 可建他人表，表属他人手中拿；建者无权插删查，OWNER 才能任意花。\n4.CREATE SYNONYM 需要 CREATE SYNONYM 权限。SCOTT 只有 CREATE TABLE，没有 CREATE SYNONYM"
+},
+{
+  "QuestionID": 261,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about using constraints?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "PRIMARY KEY and FOREIGN KEY constraints can be specified at the column and at the table level."},
+    {"label": "B", "text": "A table can have multiple PRIMARY KEY and multiple FOREIGN KEY constraints."},
+    {"label": "C", "text": "A table can have only one PRIMARY KEY but may have multiple FOREIGN KEY constraints."},
+    {"label": "D", "text": "NOT NULL can be specified at the column and at the table level."},
+    {"label": "E", "text": "A FOREIGN KEY column in a child table and the referenced PRIMARY KEY column in the parent table must have the same names."},
+    {"label": "F", "text": "A table can have only one PRIMARY KEY and one FOREIGN KEY constraint."}
+  ],
+  "CorrectAnswer": ["A", "C"],
   "Explanation": ""
 }
 
