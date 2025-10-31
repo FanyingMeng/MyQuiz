@@ -3793,7 +3793,7 @@
     {"label": "E", "text": "The creator of a view to be dropped must have the DROP ANY VIEW privilege."}
   ],
   "CorrectAnswer": ["B", "C"],
-  "Explanation": "A.只读视图read-only view可以正常被DROP\nE.	视图的创建者自己可以直接DROP VIEW view_name;，不需要DROP ANY VIEW权限。DROP ANY VIEW是为了删除别人的视图"
+  "Explanation": "A.只读视图read-only view可以正常被DROP\nE.视图的创建者自己可以直接DROP VIEW view_name;，不需要DROP ANY VIEW权限。DROP ANY VIEW是为了删除别人的视图"
 },
 {
   "QuestionID": 250,
