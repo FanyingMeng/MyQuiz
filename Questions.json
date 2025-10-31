@@ -83,7 +83,7 @@
   {
     "QuestionID": 6,
     "QuestionType": "single",
-    "QuestionText": "You have been tasked to create a table for a banking application. One of the columns must meet three requirements: 1.Be stored in a format supporting date arithmetic without using conversion functions. 2.Store a loan period of up to 10 years 3.Be used for calculating interest for the number of days the loan remains unpaid. Which data type should you use?",
+    "QuestionText": "You have been tasked to create a table for a banking application. One of the columns must meet three requirements: \n1.Be stored in a format supporting date arithmetic without using conversion functions. \n2.Store a loan period of up to 10 years 3.Be used for calculating interest for the number of days the loan remains unpaid. \nWhich data type should you use?",
     "ImageURL": "",
     "Options": [
       { "label": "A", "text": "INTERVAL YEAR TO MONTH" },
@@ -98,7 +98,7 @@
   {
     "QuestionID": 7,
     "QuestionType": "single",
-    "QuestionText": "In the spfile of a single instance database, LOCAL_LISTENER is set to LISTENER_1. The TNSNAMES.ORA file in $ORACLE_HOME/network/admin in the database home contains:",
+    "QuestionText": "Which statement is true?\nIn the spfile of a single instance database, LOCAL_LISTENER is set to LISTENER_1. The TNSNAMES.ORA file in $ORACLE_HOME/network/admin in the database home contains:",
     "ImageURL": "images/q7.png",
     "Options": [
       { "label": "A", "text": "Dynamic service registration cannot be used for this database instance" },
@@ -402,7 +402,7 @@
   {
     "QuestionID": 27,
     "QuestionType": "multiple",
-    "QuestionText": "Valuate the following SQL statement: SQL> select cust_id, cust_last_name \"Last name\" FROM customers WHERE country_id = 10 UNION SELECT cust_id CUST_NO, cust_last_name FROM customers WHERE country_id = 30 Identify three ORDER BY clauses either one of which can complete the query.",
+    "QuestionText": "Valuate the following SQL statement: \nSQL> select cust_id, cust_last_name \"Last name\" \nFROM customers \nWHERE country_id = 10 \nUNION \nSELECT cust_id CUST_NO, cust_last_name \nFROM customers \nWHERE country_id = 30\nIdentify three ORDER BY clauses either one of which can complete the query.",
     "ImageURL": "",
     "Options": [
       { "label": "A", "text": "ORDER BY 'Last name'" },
@@ -443,7 +443,7 @@
       { "label": "D", "text": "Password management using profiles is always enabled" }
     ],
     "CorrectAnswer": ["D"],
-    "Explanation": "Resource_limit 是 parameter，不是在 profile 里设置的，所以 A 错；一个 profile 文件可以指定给多个用户，所以 B 错；任何 oracle 用户必然属于某一个 profile，未指定的话则属于 default，所以 C 错。D 是正确的，profile 里密码管理策略总是 enable 的"
+    "Explanation": "Oracle 必须设置 RESOURCE_LIMIT = TRUE，资源限制才会生效；一个 profile 文件可以指定给多个用户，所以 B 错；任何 oracle 用户必然属于某一个 profile，未指定的话则属于 default，所以 C 错。D 是正确的，profile 里密码管理策略总是 enable 的"
   },
   {
     "QuestionID": 30,
@@ -1431,7 +1431,7 @@
             {"label": "E", "text": "The same port number can be used for multiple Database Express configurations for multiple databases on the same host"}
         ],
         "CorrectAnswer": ["A","C"],
-        "Explanation": "1. EM Express 只管理单个数据库实例。 2. 需要数据库 OPEN 才能访问。 3. 端口号是访问入口，不同主机可以重复，相同主机不能重复。"
+        "Explanation": "1. EM Express 只管理单个数据库实例。\n2. 需要数据库 OPEN 才能访问。\n3. 端口号是访问入口，不同主机可以重复，相同主机不能重复。"
     },
     {
         "QuestionID": 95,
@@ -3856,7 +3856,7 @@
     {"label": "F", "text": "Query any table in a database."}
   ],
   "CorrectAnswer": ["C", "D", "F"],
-  "Explanation": "系统权：登录数据库、建表/存储过程、跨库查询、授权给他人 → 需要系统权限\n对象权：操作自己表、执行自己/别人存储过程 → 对象权限足够\n\nA.Oracle中访问文件需要CREATE DIRECTORY 权限以及 READ/WRITE 权限，属于对象权限/目录权限，不是标准系统权限\nB.执行其他 schema 的存储过程需要 对象权限（EXECUTE ON schema.proc），不是系统权限\nE.WITH GRANT OPTION 是 对象权限 的扩展，用于授予权限给其他用户，不属于系统权限"
+  "Explanation": "系统权：登录数据库、建表/存储过程、跨库查询、WITH ADMIN OPTION → 需要系统权限\n对象权：操作自己表、执行自己/别人存储过程、WITH GRANT OPTION → 对象权限足够\n\nA.Oracle中访问文件需要CREATE DIRECTORY 权限以及 READ/WRITE 权限，属于对象权限/目录权限，不是标准系统权限\nB.执行其他 schema 的存储过程需要 对象权限（EXECUTE ON schema.proc），不是系统权限\nE.WITH GRANT OPTION 是 对象权限 的扩展，用于授予权限给其他用户，不属于系统权限"
 },
 {
   "QuestionID": 254,
@@ -3877,7 +3877,7 @@
   "QuestionID": 255,
   "QuestionType": "single",
   "QuestionText": "Which statement satisfies all the requirements?",
-  "ImageURL": "",
+  "ImageURL": "images/q255.png",
   "Options": [
     {"label": "A", "text": "SELECT last_name, hire_date, \n(CASE WHEN (SYSDATE - TO_YMINTERVAL('15-0')) >= hire_date THEN '15+ years of service' \nWHEN (SYSDATE - TO_YMINTERVAL('10-0')) >= hire_date THEN '10+ years of service' \nWHEN (SYSDATE - TO_YMINTERVAL('5-0')) >= hire_date THEN '5+ years of service' \nELSE '<5 years of service' \nEND) AS years \nFROM employees \nORDER BY hire_date;"},
     {"label": "B", "text": "SELECT last_name, hire_date, \n(CASE WHEN (SYSDATE - hire_date) >= TO_YMINTERVAL('5-0') THEN '5+ years of service' \nWHEN (SYSDATE - hire_date) >= TO_YMINTERVAL('10-0') THEN '10+ years of service' \nWHEN (SYSDATE - hire_date) >= TO_YMINTERVAL('15-0') THEN '15+ years of service' \nELSE '<5 years of service' \nEND) AS years \nFROM employees \nORDER BY hire_date;"},
@@ -3977,11 +3977,315 @@
   ],
   "CorrectAnswer": ["A", "C"],
   "Explanation": ""
+},
+{
+  "QuestionID": 262,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two queries can be used?",
+  "ImageURL": "images/q262.png",
+  "Options": [
+    {"label": "A", "text": "SELECT book_title \nFROM books WHERE (price < 500 OR price > 1000) \nAND (purchase_date < '17-JAN-2007') \nORDER BY purchase_date DESC;"},
+    {"label": "B", "text": "SELECT book_title \nFROM books WHERE (price < 500 OR > 1000) \nAND (purchase_date < '17-JAN-2007') \nORDER BY purchase_date DESC;"},
+    {"label": "C", "text": "SELECT book_title \nFROM books WHERE (price IN (500, 1000)) \nAND (purchase_date < '17-JAN-2007') \nORDER BY purchase_date ASC;"},
+    {"label": "D", "text": "SELECT book_title \nFROM books WHERE (price NOT BETWEEN 500 \nAND 1000) AND (purchase_date < '17-JAN-2007') \nORDER BY purchase_date DESC;"},
+    {"label": "E", "text": "SELECT book_title \nFROM books WHERE (price BETWEEN 500 AND 1000) \nAND (purchase_date < '17-JAN-2007') \nORDER BY purchase_date;"}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 263,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true regarding indexes?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "When a table is dropped and is moved to the RECYCLE BIN, all indexes built on that table are permanently dropped."},
+    {"label": "B", "text": "A UNIQUE index can be altered to be non-unique."},
+    {"label": "C", "text": "An update to a table can result in updates to any or all of the table's indexes."},
+    {"label": "D", "text": "An update to a table can result in no updates to any of the table's indexes."},
+    {"label": "E", "text": "A table belonging to one user cannot have an index that belongs to a different user."}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 264,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "CONCAT joins two or more character strings together."},
+    {"label": "B", "text": "FLOOR returns the largest integer less than or equal to a specified number."},
+    {"label": "C", "text": "CONCAT joins two character strings together."},
+    {"label": "D", "text": "INSTR finds the offset within a character string, starting from position 0."},
+    {"label": "E", "text": "FLOOR returns the largest positive integer less than or equal to a specified number."},
+    {"label": "F", "text": "INSTR finds the offset within a string of a single character only."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 265,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements will list only the employees who have been working with the company for more than five years?",
+  "ImageURL": "images/q265.png",
+  "Options": [
+    {"label": "A", "text": "SELECT employee_name FROM employees WHERE (CURRENT_DATE - hire_date)/12 > 5;"},
+    {"label": "B", "text": "SELECT employee_name FROM employees WHERE (SYSDATE - hire_date) / 12 > 5;"},
+    {"label": "C", "text": "SELECT employee_name FROM employees WHERE (SYSDATE - hire_date) / 365 > 5;"},
+    {"label": "D", "text": "SELECT employee_name FROM employees WHERE (SYSTIMESTAMP - hire_date) / 365 > INTERVAL '1825' DAY;"},
+    {"label": "E", "text": "SELECT employee_name FROM employees WHERE (SYSTIMESTAMP - hire_date) / 12 > INTERVAL '5' YEAR;"},
+    {"label": "F", "text": "SELECT employee_name FROM employees WHERE (CURRENT_DATE - hire_date)/365 > 5;"}
+  ],
+  "CorrectAnswer": ["C", "F"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 266,
+  "QuestionType": "single",
+  "QuestionText": "Which statement will compute the total annual compensation for each employee?",
+  "ImageURL": "images/q266.png",
+  "Options": [
+    {"label": "A", "text": "SELECT last_name, (monthly_salary * 12) + (monthly_salary * 12 * NVL(monthly_commission_pct, 0)) AS annual_comp FROM employees;"},
+    {"label": "B", "text": "SELECT last_name, (monthly_salary + monthly_commission_pct) * 12 AS annual_comp FROM employees;"},
+    {"label": "C", "text": "SELECT last_name, (monthly_salary * 12) + (monthly_salary * 12 * monthly_commission_pct) AS annual_comp FROM employees;"},
+    {"label": "D", "text": "SELECT last_name, (monthly_salary * 12) + (monthly_commission_pct * 12) AS annual_comp FROM employees;"}
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 267,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about queries using set operators (UNION, UNION ALL, INTERSECT and MINUS)?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "None of the set operators can be used when selecting CLOB columns."},
+    {"label": "B", "text": "The FOR UPDATE clause cannot be specified."},
+    {"label": "C", "text": "The name of each column in the first SELECT list must match the name of the corresponding column in each subsequent SELECT list."},
+    {"label": "D", "text": "Each SELECT statement in the query can have an ORDER BY clause."},
+    {"label": "E", "text": "There must be an equal number of columns in each SELECT list."}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "A.UNION、INTERSECT、MINUS 确实 不支持 CLOB / BLOB 列 的比较。UNION ALL 可以用\nB.在使用 UNION / UNION ALL / INTERSECT / MINUS 时，不能使用FOR UPDATE。FOR UPDATE 只用于单个 SELECT 来锁定行，而集合操作符返回的是组合后的结果集，不允许加FOR UPDATE\nC.列名不要求完全相同。Oracle只要求列的数据类型可兼容,并且数量相等。返回结果的列名,默认使用第一个 SELECT的列名\nD."
+},
+{
+  "QuestionID": 268,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two join conditions in a FROM clause are non-equijoins?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "table1 JOIN table2 ON (table1.column BETWEEN table2.column1 AND table2.column2)"},
+    {"label": "B", "text": "table1 JOIN table2 ON (table1.column = table2.column) WHERE table2.column LIKE 'A%'"},
+    {"label": "C", "text": "table1 NATURAL JOIN table2"},
+    {"label": "D", "text": "table1 JOIN table2 ON (table1.column >= table2.column)"},
+    {"label": "E", "text": "table1 JOIN table2 USING (column1, column2)"}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "C.NATURAL JOIN 默认基于相同列做等值连接\nE.USING 是等值连接的简写"
+},
+{
+  "QuestionID": 269,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two queries return the highest salary in the table?",
+  "ImageURL": "images/q269.png",
+  "Options": [
+    {"label": "A", "text": "SELECT MAX(salary) \nFROM employees \nGROUP BY department_id;"},
+    {"label": "B", "text": "SELECT MAX(salary) \nFROM employees;"},
+    {"label": "C", "text": "SELECT MAX(salary) \nFROM employees \nGROUP BY department_id HAVING MAX(salary) = MAX(MAX(salary));"},
+    {"label": "D", "text": "SELECT department_id, MAX(salary) \nFROM employees \nGROUP BY department_id;"},
+    {"label": "E", "text": "SELECT MAX(MAX(salary)) \nFROM employees \nGROUP BY department_id;"}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "C.Oracle 不允许在同一级别的 HAVING 里嵌套 MAX(MAX(...))\n"
+},
+{
+  "QuestionID": 270,
+  "QuestionType": "single",
+  "QuestionText": "Which statement is true about using functions in WHERE and HAVING?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Using aggregate functions in the HAVING clause requires a subquery."},
+    {"label": "B", "text": "Using single-row functions in the WHERE clause requires a subquery."},
+    {"label": "C", "text": "Using single-row functions in the HAVING clause requires a subquery."},
+    {"label": "D", "text": "Using aggregate functions in the WHERE clause requires a subquery."}
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "WHERE 先行，不能聚合；HAVING 分组，聚合随意。"
+},
+{
+  "QuestionID": 271,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true?",
+  "ImageURL": "images/q271.png",
+  "Options": [
+    {"label": "A", "text": "It skips only tables that exist in both ORCL:SH and TESTDB:HR."},
+    {"label": "B", "text": "It drops and re-creates tables that exist in both ORCL:SH and TESTDB:HR."},
+    {"label": "C", "text": "It skips only indexes that exist in both ORCL:SH and TESTDB:HR."},
+    {"label": "D", "text": "It drops and re-creates indexes that exist in both ORCL:SH and TESTDB:HR."},
+    {"label": "E", "text": "It skips all indexes of ORCL:SH and ORCL:OE."}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "SCHEMAS=sh,oe →导入 sh 和 oe 两个模式\nREMAP_SCHEMA=sh:hr→将源模式 sh 的对象导入到目标模式 hr"
+},
+{
+  "QuestionID": 272,
+  "QuestionType": "multiple",
+  "QuestionText": "TBS1 is a permanent user-defined tablespace. \nOracle Managed Files (OMF) is not used in this database. \nExamine this command: \n\nDROP TABLESPACE tbs1; \n\nWhich two will ensure that TBS1 is dropped and its datafiles are deleted from the file system?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "TBS1 must not contain any temp files."},
+    {"label": "B", "text": "TBS1 must be altered READ ONLY."},
+    {"label": "C", "text": "There must be no uncommitted transactions involving segments stored in TBS1."},
+    {"label": "D", "text": "TBS1 must be READ WRITE."},
+    {"label": "E", "text": "The INCLUDING CONTENTS AND DATAFILES clause must be added to the command."}
+  ],
+  "CorrectAnswer": ["C", "E"],
+  "Explanation": "TBS1是永久用户定义表空间;与临时表空间不同,永久表空间存储数据段（表、索引等）\nC.DROP TABLESPACE 会删除表空间中的段，如果有 未提交事务 占用表空间，会报错。确保没有活跃事务，才能成功删除表空间及其数据段\nE.INCLUDING CONTENTS → 删除表空间内的对象（表、索引等）INCLUDING DATAFILES → 同时删除文件系统上的数据文件（非 OMF 时必需）"
+},
+{
+  "QuestionID": 273,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about a dedicated server configuration?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A dedicated server process can be spawned without a listener when using local clients."},
+    {"label": "B", "text": "A dedicated server process may be reused by a new session after the session using that process terminates."},
+    {"label": "C", "text": "Each dedicated server process has its own dispatcher process."},
+    {"label": "D", "text": "A dedicated server process can be spawned by the listener when using local clients."},
+    {"label": "E", "text": "A dedicated server process communicates directly with a client or middle tier process once the session is established."},
+    {"label": "F", "text": "The DBA configures the maximum number of dedicated server processes that can share the same dispatcher process."}
+  ],
+  "CorrectAnswer": ["A", "D", "E"],
+  "Explanation": "A.本地连接（bequeath connection） 不需要 Listener，Oracle 可以直接在操作系统上创建专用服务器进程\nB.专用服务器进程:专用于当前会话，会话结束后，进程也终止或等待，但不会被新的会话重用（这是共享服务器的特点）\nC.Dispatcher 仅在 共享服务器（Shared Server） 中使用，专用服务器配置不需要 dispatcher"
+},
+{
+  "QuestionID": 274,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about time zones, date data types, and timestamp data types in an Oracle database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The DATE datatype returns data with time zone information."},
+    {"label": "B", "text": "A TIMESTAMP WITH LOCAL TIME ZONE data type column is stored in the database using the time zone of the session that inserted the row."},
+    {"label": "C", "text": "The CURRENT_TIMESTAMP function returns data without time zone information."},
+    {"label": "D", "text": "The DBTIMEZONE function can return an offset from Universal Coordinated Time (UTC)."},
+    {"label": "E", "text": "The SESSIONTIMEZONE function can return an offset from Universal Coordinated Time (UTC)."}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "D.如果数据库时区设置为区域名称，DBTIMEZONE返回的不是偏移量，而是名称。 这意味着在某些配置下，它无法返回偏移量。"
+},
+{
+  "QuestionID": 275,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about UNDO and UNDO tablespaces?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "An instance will crash if the active undo tablespace is lost."},
+    {"label": "B", "text": "UNDO segments are owned by SYSTEM."},
+    {"label": "C", "text": "There can be only one UNDO tablespace created in a database."},
+    {"label": "D", "text": "An UNDO tablespace may be owned by only one instance."},
+    {"label": "E", "text": "UNDO segments are owned by SYSBACKUP."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "A.如果 active undo tablespace 突然丢失，实例不会立即 crash，但会报错事务失败或 ORA-01555 等\nB.SYS\nC.一个数据库可以创建多个 undo tablespace，但每个实例一次只能使用一个\nD.在RAC 环境中，每个 undo tablespace不能被多个实例共享\nE.UNDO segments 属于 SYSBACKUP 或 SYS 用户"
+},
+{
+  "QuestionID": 276,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two actions can you perform using DBCA for an existing database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Create nonstandard block size tablespaces."},
+    {"label": "B", "text": "Create a template that can be used to clone the database."},
+    {"label": "C", "text": "Change the server mode from dedicated to shared, and vice versa."},
+    {"label": "D", "text": "Change the character set."},
+    {"label": "E", "text": "Create an additional listener."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "DBCA（Database Configuration Assistant）可以 创建新数据库 或 管理已有数据库\n对已有数据库，主要功能包括:\n--配置数据库选项\n--创建模板用于克隆/复制数据库\n--改变服务器模式（Dedicated ↔ Shared）\n--创建/管理监听器（部分受限）\n--配置初始化参数、表空间等\nE.DBCA可以创建监听器，但通常只在创建新数据库时使用,对已有数据库，添加监听器通常用 NETCA（Network Configuration Assistant） 或手动编辑 listener.ora"
+},
+{
+  "QuestionID": 277,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true?",
+  "ImageURL": "images/q277.png",
+  "Options": [
+    {"label": "A", "text": "The first ROLLBACK command leaves the table's 100 original rows locked."},
+    {"label": "B", "text": "The second ROLLBACK command restores the 100 rows that were in the table originally."},
+    {"label": "C", "text": "The second ROLLBACK command restores the row that was inserted."},
+    {"label": "D", "text": "The first ROLLBACK command leaves the inserted row locked."},
+    {"label": "E", "text": "The first ROLLBACK command restores the row that was inserted."},
+    {"label": "F", "text": "The first ROLLBACK command restores the 100 rows that were in the table originally."},
+    {"label": "G", "text": "The second ROLLBACK command rolls back the ROLLBACK TO SAVEPOINT command."}
+  ],
+  "CorrectAnswer": ["B", "D", "E"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 278,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about Enterprise Manager (EM) Express?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "You can use a single instance of EM Express to manage multiple databases running on the same server."},
+    {"label": "B", "text": "You can shut down a database instance using EM Express."},
+    {"label": "C", "text": "By default, EM Express is available for a database after database creation using DBCA."},
+    {"label": "D", "text": "You cannot start up a database instance using EM Express."},
+    {"label": "E", "text": "EM Express uses a separate repository database to store target database metadata."}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": "EM Express 是轻量级的 Web 管理工具，用于管理单个 Oracle 数据库实例，EM Express本身建立在数据库内部，必须在数据库开着的状态下:\n--直接访问单实例数据库，无需单独安装管理数据库\n--不依赖管理仓库（不同于 EM Cloud Control）;EM Express 直接使用目标数据库本身存储元数据\n--可以监控性能、查看参数、管理用户\n--默认情况下 DBCA(Database Configuration Assistant)创建数据库时会启用EM Express"
+},
+{
+  "QuestionID": 279,
+  "QuestionType": "multiple",
+  "QuestionText": "While one of your databases was in mount state, the datafiles were renamed because they had been moved to a new file system. The database was then opened. Which two statements are true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "V$DATAFILE displays the new names for the data files."},
+    {"label": "B", "text": "DBA_DATA_FILES displays the original name for the data files."},
+    {"label": "C", "text": "DBA_DATA_FILES must be resynchronized manually with the control file in order to have it display the new file names."},
+    {"label": "D", "text": "DBA_DATA_FILES displays the new name for the data files."},
+    {"label": "E", "text": "DBA_DATA_FILES displays both the new name and the old name for the data files."}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "数据文件改名字，数据字典和动态性能视图会自动更新。"
+},
+{
+  "QuestionID": 280,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about data block storage in an Oracle Database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "An index block can contain row data."},
+    {"label": "B", "text": "A table block must always contain row data."},
+    {"label": "C", "text": "Row data is stored starting at the end of the block."},
+    {"label": "D", "text": "A block header contains a row directory pointing to all rows in the block."},
+    {"label": "E", "text": "A data block header is of a fixed length."}
+  ],
+  "CorrectAnswer": ["A", "C", "D"],
+  "Explanation": "A.因为索引块可以包含 键值 + ROWID，ROWID 指向表行，但不存完整行数据;注意：B-tree 索引不存整行，但某些特定索引（如 index-organized table, IOT）索引块确实存储行数据\nB.还有空闲的\nE.数据块头长度 不完全固定，取决于块类型和一些特性（如表、索引、LOB）只有标准块头是 最小固定长度，实际可扩展"
+},
+{
+  "QuestionID": 281,
+  "QuestionType": "single",
+  "QuestionText": "As the DBA, you execute this command: \n\nGRANT CREATE VIEW TO usr1 WITH ADMIN OPTION; \n\nUSR1 then executes this command: \nGRANT CREATE VIEW TO usr2 WITH ADMIN OPTION; \n\nUSR2 then executes this command: \nGRANT CREATE VIEW TO usr3; \n\nWhich statement is true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "USR1 can revoke the CREATE VIEW privilege from USR3."},
+    {"label": "B", "text": "The DBA can revoke only ADMIN OPTION from USR1."},
+    {"label": "C", "text": "When the DBA revokes the CREATE VIEW privilege from USR1, it is revoked from USR2 but not USR3."},
+    {"label": "D", "text": "When the DBA revokes the CREATE VIEW privilege from USR1, it is neither revoked from USR2 nor USR3."},
+    {"label": "E", "text": "When the DBA revokes the CREATE VIEW privilege from USR1, it is revoked from USR2 and USR3."},
+    {"label": "F", "text": "When USR1 revokes the CREATE VIEW privilege from USR2, it is revoked from USR3."}
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "WITH ADMIN OPTION用户可以将自己拥有的系统权限或角色再授予其他用户;授权者可以用 GRANT ... WITH ADMIN OPTION 给别人授予权限;不自动级联撤销\nB.DBA可以撤销整个权限，不只是 ADMIN OPTION\nWITH GRANT OPTION：用于对象权限；级联撤销。"
 }
 
 
 
-      ]
+    ]
     },
     {
       "SubjectID": 2,
