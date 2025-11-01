@@ -4281,6 +4281,251 @@
   ],
   "CorrectAnswer": ["D"],
   "Explanation": "WITH ADMIN OPTION用户可以将自己拥有的系统权限或角色再授予其他用户;授权者可以用 GRANT ... WITH ADMIN OPTION 给别人授予权限;不自动级联撤销\nB.DBA可以撤销整个权限，不只是 ADMIN OPTION\nWITH GRANT OPTION：用于对象权限；级联撤销。"
+},
+{
+  "QuestionID": 282,
+  "QuestionType": "single",
+  "QuestionText": "Which query is valid?",
+  "ImageURL": "images/q282.png",
+  "Options": [
+    {"label": "A", "text": "SELECT prod_id, release_date, SUM(cost) FROM products GROUP BY prod_id, release_date;"},
+    {"label": "B", "text": "SELECT prod_id, release_date, SUM(cost) FROM products GROUP BY prod_id;"},
+    {"label": "C", "text": "SELECT prod_id, AVG (MAX (cost)) FROM products GROUP BY prod_id;"},
+    {"label": "D", "text": "SELECT prod_id, MAX (AVG(cost)) FROM products GROUP BY prod_id;"}
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "非聚合的列必须全部出现在 GROUP BY 中"
+},
+{
+  "QuestionID": 283,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true regarding the UNION and UNION ALL operators?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Duplicates are eliminated automatically by the UNION ALL operator."},
+    {"label": "B", "text": "The names of columns selected in each SELECT statement can be identical."},
+    {"label": "C", "text": "NULLS are not ignored during duplicate checking."},
+    {"label": "D", "text": "The number of columns selected in each SELECT statement must be identical."},
+    {"label": "E", "text": "Duplicates can optionally be eliminated by the UNION operator."},
+    {"label": "F", "text": "The names of columns selected in each SELECT statement must be identical."},
+    {"label": "G", "text": "The number of columns selected by the first SELECT statement can be greater than the number selected in subsequent SELECT statements."}
+  ],
+  "CorrectAnswer": ["B", "C", "D"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 284,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the job?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "You can reattach to it and monitor it."},
+    {"label": "B", "text": "You can reattach to it but not monitor it."},
+    {"label": "C", "text": "It is paused and can be resumed."},
+    {"label": "D", "text": "It continues to run in the background."},
+    {"label": "E", "text": "It terminates."}
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 285,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about space-saving features in an Oracle Database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "An index that is altered to be UNUSABLE will retain its segment."},
+    {"label": "B", "text": "Private Temporary Tables (PTTs) when used, are always dropped at the next COMMIT statement."},
+    {"label": "C", "text": "A table that is truncated will always have all of its extents removed."},
+    {"label": "D", "text": "Private Temporary Tables (PTTs) store metadata in memory only."},
+    {"label": "E", "text": "An index created with the UNUSABLE attribute has no segment."}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation": "A.当索引被标记为 UNUSABLE 时，其段（segment）被释放或根本未分配\nB.PTTs 有两种生命周期类型：1.ON COMMIT DROP DEFINITION → 表定义在事务提交时消失2.ON COMMIT PRESERVE DEFINITION → 表定义在会话结束时消失\nC.TRUNCATE是快速清空数据,如果你想移除 全部 extents，需要使用 DROP ALL STORAGE 子句\nD.PTT 的metadata（表定义）存储在 SGA 的内存中，不占用数据文件中的永久空间"
+},
+{
+  "QuestionID": 286,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about single row functions?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "MOD : returns the remainder of a division operation."},
+    {"label": "B", "text": "FLOOR : returns the smallest integer greater than or equal to a specified number."},
+    {"label": "C", "text": "CEIL : can be used for positive and negative numbers."},
+    {"label": "D", "text": "TRUNC : can be used only with NUMBER data types."},
+    {"label": "E", "text": "CONCAT : can be used to combine any number of values."}
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 287,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about an SPFILE?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It can be used to create a pfile."},
+    {"label": "B", "text": "It can be created by sys from an idle instance."},
+    {"label": "C", "text": "It must exist for a database instance to start."},
+    {"label": "D", "text": "It contains initialization parameters whose values can be changed using the ALTER SYSTEM command."},
+    {"label": "E", "text": "It contains only static initialization parameters."}
+  ],
+  "CorrectAnswer": ["A", "B", "D"],
+  "Explanation": "A.CREATE PFILE='init.ora' FROM SPFILE;\nC.数据库 可以使用文本PFILE启动实例，不一定非要SPFILE"
+},
+{
+  "QuestionID": 288,
+  "QuestionType": "multiple",
+  "QuestionText": "An Oracle database server session has an uncommitted transaction in progress which updated 5000 rows in a table. In which three situations does the transaction complete thereby committing the updates?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "when the session logs out successfully"},
+    {"label": "B", "text": "when a DBA issues a successful SHUTDOWN IMMEDIATE statement and the user then issues a COMMIT"},
+    {"label": "C", "text": "when a DBA issues a successful SHUTDOWN TRANSACTIONAL statement and the user then issues a COMMIT"},
+    {"label": "D", "text": "when a CREATE INDEX statement is executed successfully in the same session"},
+    {"label": "E", "text": "when a COMMIT statement is issued by the same user from another session in the same database instance"},
+    {"label": "F", "text": "when a CREATE TABLE AS SELECT statement is executed unsuccessfully in the same session"}
+  ],
+  "CorrectAnswer": ["A", "C", "D"],
+  "Explanation": "A.当用户会话正常退出时，如果有未提交的事务，Oracle会自动提交或回滚\nB.SHUTDOWN IMMEDIATE 会 强制回滚所有未提交事务，并终止会话。\nC.SHUTDOWN TRANSACTIONAL会等待所有活动事务完成后再关闭数据库\nD.所有DDL操作在Oracle中都是自动提交（implicit commit）：之前的未提交事务会先提交;当前DDL也会提交\nE.事务是会话级别的，其他会话的COMMIT不影响当前事务\nF.对失败的DDL会自动回滚DDL本身，但是不会影响之前的DML事务。因此未提交的5000行更新仍然未提交。"
+},
+{
+  "QuestionID": 289,
+  "QuestionType": "single",
+  "QuestionText": "The STORES table has a column START_DATE of data type DATE, containing the date the row was inserted. You only want to display details of rows where START_DATE is within the last 25 months. Which WHERE clause can be used?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "WHERE MONTHS_BETWEEN(start_date, SYSDATE)<=25"},
+    {"label": "B", "text": "WHERE TO_NUMBER(start_date-SYSDATE)<=25"},
+    {"label": "C", "text": "WHERE ADD_MONTHS(start_date,25)<=SYSDATE"},
+    {"label": "D", "text": "WHERE MONTHS_BETWEEN(SYSDATE,start_date)<=25"}
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "MONTHS_BETWEEN 函数要把当前的时间写在前面，以前的写在后面，否则计算后会出现负数"
+},
+{
+  "QuestionID": 290,
+  "QuestionType": "multiple",
+  "QuestionText": "In which three situations does the transaction complete thereby committing the updates?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "when a DBA issues a successful SHUTDOWN TRANSACTIONAL statement and the user then issues a COMMIT."},
+    {"label": "B", "text": "When a CREATE TABLE AS SELECT statement is issued in the same session but fails with a syntax error."},
+    {"label": "C", "text": "When a DBA issues a successful SHUTDOWN IMMEDIATE statement and the user then issues a COMMIT."},
+    {"label": "D", "text": "When a CREATE INDEX statement is executed successfully in the same session."},
+    {"label": "E", "text": "When the session logs out successfully."},
+    {"label": "F", "text": "When a COMMIT statement is issued by the same user from another session in the same database instance."}
+  ],
+  "CorrectAnswer": ["A", "D", "E"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 291,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two statements are true about the ORDER BY clause?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "numeric values are displayed in descending order if they have decimal positions."},
+    {"label": "B", "text": "Only columns that are specified in the SELECT list can be used in the ORDER BY clause."},
+    {"label": "C", "text": "Column aliases can be used in the ORDER BY clause."},
+    {"label": "D", "text": "NULLS are not included in the sort operation."},
+    {"label": "E", "text": "In a character sort, the values are case-sensitive."}
+  ],
+  "CorrectAnswer": ["C", "E"],
+  "Explanation": "默认情况下，NULL 会被认为最大值;显式控制 NULL 排序位置的关键字:NULLS FIRST:NULL 排在最前面;NULLS LAST: NULL 排在最后面"
+},
+{
+  "QuestionID": 292,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about Data Manipulation Language (DML)?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "INSERT INTO...SELECT...FROM statements automatically commit."},
+    {"label": "B", "text": "DELETE statements can remove multiple rows based on multiple conditions."},
+    {"label": "C", "text": "UPDATE statements can have different subqueries to specify the values for each updated column."},
+    {"label": "D", "text": "DML statements require a primary key be defined on a table."},
+    {"label": "E", "text": "INSERT statements can insert NULLS explicitly into a column."}
+  ],
+  "CorrectAnswer": ["B", "C", "E"],
+  "Explanation": "DDL建改删表清数据;DML增删改合"
+},
+{
+  "QuestionID": 293,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about creating pluggable databases (PDBs) in Oracle 19c and later releases?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A snapshot copy PDB can be a full copy of a source PDB."},
+    {"label": "B", "text": "A PDB snapshot depends on an existing storage snapshot of the source PDB."},
+    {"label": "C", "text": "A snapshot copy PDB does not depend on an existing storage snapshot of the source PDB."},
+    {"label": "D", "text": "A PDB snapshot can be a full copy of a source PDB."},
+    {"label": "E", "text": "A PDB snapshot can be a sparse copy of a source PDB."}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation": "创建 PDB 有几种方法:\n1.Full Clone完整克隆:\n--创建一个完全独立的 PDB 副本\n--占用完整存储空间\n--克隆完成后，源 PDB 与克隆 PDB 完全独立\n2.Snapshot Clone / Sparse Clone快照/稀疏副本快照\n--副本依赖于源 PDB 的数据\n--占用空间少,只存储更改部分Copy-on-Write\n--如果源 PDB 删除或不可用，快照副本可能受影响\n\nPDB Snapshot是PDB的一个只读副本，通过快照克隆Snapshot Clone创建;强调“快照本身”;\nSnapshot Copy PDB可更新快照;可读写; 强调“快照克隆的副本”"
+},
+{
+  "QuestionID": 294,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about indexes and their administration in an Oracle database?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A descending index is a type of function-based index."},
+    {"label": "B", "text": "A unique and non-unique index can be created on the same table column."},
+    {"label": "C", "text": "An INVISIBLE index is not maintained when Data Manipulation Language (DML) is performed on its underlying table."},
+    {"label": "D", "text": "If a query filters on an indexed column then it will always be used during execution of the query."},
+    {"label": "E", "text": "An index can be created as part of a CREATE TABLE statement."},
+    {"label": "F", "text": "A DROP INDEX statement always prevents updates to the table during the drop operation."}
+  ],
+  "CorrectAnswer": ["A", "E", "F"],
+  "Explanation": "A.Oracle 支持DESCENDING索引，它可以按降序排序数据。Oracle 将降序索引看作是一种函数式索引，因为它通过隐式函数对列进行排序。\nB.同一列可以有多个索引，但唯一索引和非唯一索引不可以同时存在在同一列上\nF. DROP INDEX时，会对索引结构加锁，防止表上的DML改变该索引; DROP INDEX ONLINE;允许删除索引时进行更新"
+},
+{
+  "QuestionID": 295,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three tasks are performed by background processes in an Oracle database instance?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Creating dedicated server connections"},
+    {"label": "B", "text": "Reading database blocks into the buffer cache"},
+    {"label": "C", "text": "Registering services with Oracle Net listeners."},
+    {"label": "D", "text": "Writing dirty database block images from the buffer cache."},
+    {"label": "E", "text": "Writing redo to log files."}
+  ],
+  "CorrectAnswer": ["C", "D", "E"],
+  "Explanation": "Oracle 数据库的后台进程负责各种 数据库维护任务和系统管理工作，主要包括:\n--1.DBWR（Database Writer）将修改过的脏数据块dirty blocks(脏块 = 内存中已修改但磁盘尚未更新的数据块)从缓冲区写回磁盘\n--2.LGWR（Log Writer）将重做日志（redo log）缓冲区的内容写入磁盘\n--3.SMON（System Monitor）系统恢复，清理临时段和PMON(Process Monitor)清理失败的用户进程;注销服务注册服务到 Oracle Net listener 属于PMON的功能\n--4.CKPT检查点:本身不写数据块，它负责通知和标记，DBWR负责实际写数据块"
+},
+{
+  "QuestionID": 296,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about roles?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Object privileges may not be granted to roles."},
+    {"label": "B", "text": "Roles must be password protected."},
+    {"label": "C", "text": "The SET ROLE statement can disable one or more roles for a session."},
+    {"label": "D", "text": "All roles granted to a user are set on by default when the user logs in."},
+    {"label": "E", "text": "The SET ROLE statement can enable one or more roles for a session."},
+    {"label": "F", "text": "Roles may be granted to roles."}
+  ],
+  "CorrectAnswer": ["C", "E", "F"],
+  "Explanation": "A.角色就是用来管理权限的工具;可以将 表、视图、序列等对象的权限授予角色，再把角色授予用户\nCE.SET ROLE NONE --禁用所有角色; SET ROLE role1 EXCEPT role2 --启用role1但禁用role2; SET ROLE role1, role2 --启用role1和role2\nD.只有通过 ALTER USER ... DEFAULT ROLE 定义的默认角色会在登录时自动启用\nF.角色嵌套（Role Hierarchy）可以将一个角色授予另一个角色，这样用户获得角色A，也能继承角色B的权限"
+},
+{
+  "QuestionID": 297,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three statements are true about performing Data Manipulation Language (DML) operations on a view with no INSTEAD OF triggers defined?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Views cannot be used to add or modify rows in an underlying table if the defining query of the view contains the DISTINCT keyword."},
+    {"label": "B", "text": "Delete statements can always be done on a table through a view."},
+    {"label": "C", "text": "Insert statements can always be done on a table through a view."},
+    {"label": "D", "text": "Views cannot be used to query rows from an underlying table if the table has a PRIMARY KEY and the PRIMARY KEY columns are not referenced in the defining query of the view."},
+    {"label": "E", "text": "Views cannot be used to add rows to an underlying table if the table has columns with NOT NULL constraints lacking default values which are not referenced in the defining query of the view."},
+    {"label": "F", "text": "The WITH CHECK clause has no effect when deleting rows from the underlying table through the view."}
+  ],
+  "CorrectAnswer": ["A", "E", "F"],
+  "Explanation": "视图就像一个“虚拟表” — 它本身不存储数据，只保存一个 SELECT 查询。当你对视图做查询时，数据库后台其实执行那个 SELECT，得到结果。\n注意点:1.必须有 CREATE VIEW 权限.\n2.基础表base tables或被引用的视图必须存在,且你有必要的 SELECT 权限\n3.可选的 OR REPLACE、FORCE、NOFORCE等子句，用以替换已有视图或在基础对象不存在时仍创建视图\n一般来说，用户执行 SELECT、INSERT、UPDATE、DELETE 操作视图也需要基础对象相应的权限。\n删除视图:使用 DROP VIEW 来删除\n可更新视图（Inherently updatable view）支持DML（INSERT / UPDATE / DELETE）:每个视图中的列都必须映射到单一表的一列;--视图定义不能包含 DISTINCT、 GROUP BY、 ORDER BY、集合表达式（collection expression in SELECT）等;--如果视图中有伪列（如 ROWID、ROWNUM）或表达式，则不能更新那些列对应的基础表行;--如果基础表有 NOT NULL约束且视图中未包含这些列，那么通过视图INSERT可能失败;--OIN 多表的视图通常也是不可更新，或者只能更新部分基础表\n如果在创建视图时加入WITH CHECK OPTION，那么通过视图的 INSERT/UPDATE 操作必须使结果仍然满足视图定义的 WHERE条件\n\nDefining query = 创建视图时的SELECT查询"
 }
 
 
