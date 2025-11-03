@@ -478,7 +478,7 @@
   {
     "QuestionID": 32,
     "QuestionType": "single",
-    "QuestionText": "A user establishes a connection to a database instance by using an Oracle Net connection. You want to ensure the following: 1. The user account must be locked after five unsuccessful login attempts. 2. Data read per session must be limited for the user. 3. The user cannot have more than three simultaneous sessions. 4. The user must have a maximum of 10 minutes session idle time before being logged off automatically. How would you accomplish this?",
+    "QuestionText": "A user establishes a connection to a database instance by using an Oracle Net connection. You want to ensure the following: \n1. The user account must be locked after five unsuccessful login attempts. \n2. Data read per session must be limited for the user. \n3. The user cannot have more than three simultaneous sessions. \n4. The user must have a maximum of 10 minutes session idle time before being logged off automatically. \nHow would you accomplish this?",
     "ImageURL": "",
     "Options": [
       { "label": "A", "text": "By granting a secure application role to the user" },
@@ -492,7 +492,7 @@
   {
     "QuestionID": 33,
     "QuestionType": "single",
-    "QuestionText": "You are administering a database and you receive a requirement to apply the following restrictions: 1. A connection must be terminated after four unsuccessful login attempts by user. 2. A user should not be able to create more than four simultaneous sessions. 3. User session must be terminated after 15 minutes of inactivity. 4. Users must be prompted to change their passwords every 15 days. How would you accomplish these requirements?",
+    "QuestionText": "You are administering a database and you receive a requirement to apply the following restrictions: \n1. A connection must be terminated after four unsuccessful login attempts by user. \n2. A user should not be able to create more than four simultaneous sessions. \n3. User session must be terminated after 15 minutes of inactivity. \n4. Users must be prompted to change their passwords every 15 days. \nHow would you accomplish these requirements?",
     "ImageURL": "",
     "Options": [
       { "label": "A", "text": "By granting a secure application role to the users" },
@@ -4186,7 +4186,7 @@
     {"label": "D", "text": "An UNDO tablespace may be owned by only one instance."},
     {"label": "E", "text": "UNDO segments are owned by SYSBACKUP."}
   ],
-  "CorrectAnswer": ["B", "D"],
+  "CorrectAnswer": ["D"],
   "Explanation": "A.如果 active undo tablespace 突然丢失，实例不会立即 crash，但会报错事务失败或 ORA-01555 等\nB.SYS\nC.一个数据库可以创建多个 undo tablespace，但每个实例一次只能使用一个\nD.在RAC 环境中，每个 undo tablespace不能被多个实例共享\nE.UNDO segments 属于 SYSBACKUP 或 SYS 用户"
 },
 {
