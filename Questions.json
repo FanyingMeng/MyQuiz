@@ -4317,7 +4317,7 @@
   "QuestionID": 284,
   "QuestionType": "multiple",
   "QuestionText": "Which two statements are true about the job?",
-  "ImageURL": "",
+  "ImageURL": "images/q284.png",
   "Options": [
     {"label": "A", "text": "You can reattach to it and monitor it."},
     {"label": "B", "text": "You can reattach to it but not monitor it."},
