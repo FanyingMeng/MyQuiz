@@ -5166,7 +5166,319 @@
   ],
   "CorrectAnswer": ["B", "C", "E"],
   "Explanation": "CREATE PLUGGABLE DATABASE 命令缺少一个关键信息：新 PDB 数据文件的存放位置，要让该命令成功执行，数据库必须能够确定新数据文件的 位置 (Location) 和 名称 (Name)\n\nFILE_NAME_CONVERT = 在 SQL 语句里用的，一次性的路径替换。\nPDB_FILE_NAME_CONVERT = 参数，不写在 SQL 里，用一次设置长期使用\n\nA.FILE_NAME_CONVERT 和 PDB_FILE_NAME_CONVERT 只能二选一，不需要同时用\nC.PDB_FILE_NAME_CONVERT 参数是解决PDB克隆或创建时，文件路径转换问题的。如果该参数在 CDB 级别设置，它提供了一个“查找-替换”的规则，Oracle 会用这个规则来自动生成新 PDB 文件在磁盘上的位置和名称\nDF.开启 OMF 后不需要任何 file convert 参数,不能一起用"
+},
+{
+  "QuestionID": 41,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about Recovery Manager (RMAN) diagnostic message output? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Media Management messages for SBT devices are always written to sbtio.log."},
+    {"label": "B", "text": "RMAN error stacks should be read from the bottom up as that is the order in which errors are generated."},
+    {"label": "C", "text": "RMAN error stacks should be read from the top down as that is the order in which errors are generated."},
+    {"label": "D", "text": "The RMAN LOG command line clause causes output issued during RMAN command compilation to be written to a log file and to standard output."},
+    {"label": "E", "text": "The RMAN LOG command line clause causes output issued during RMAN command compilation to be written to a log file only."},
+    {"label": "F", "text": "Media Management messages for SBT devices are written to an Oracle trace file."}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "Recovery Manager (RMAN) diagnostic message output:\n1.标准输出 (Standard Output):RMAN 客户端命令执行期间的输出默认显示在终端屏幕上,不会包含媒体管理器详细信息,只是普通运行信息\n\n2.日志文件 (Log File):LOG command line clause的输出写入日志文件,把屏幕所有输出复制到 log,不会包含 trace 里的内部诊断信息,不会包含媒体管理器SBT详细日志\n\n3.Oracle Trace File(.trc):RMAN 与 Oracle server process 的内部错误;RMAN错误堆栈stack trace(错误堆栈Error Stack从下往上阅读);SBT调用失败的错误码(高层错误写入trace，但不会写入媒体管理器的详细messages)\n\n4.介质管理软件输出Media Management Software Output:这些信息由第三方 SBT 软件（如 NetBackup, TSM 等）生成，用于记录与磁带库和介质通信的细节,写到 sbtio.log（或第三方 Media Manager 的自有日志,sbtio.log 不是绝对的“唯一”位置）;"
+},
+{
+  "QuestionID": 42,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about managing memory components in an Oracle database instance? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "With Automatic Shared Memory Management, the database instance can increase the Large Pool size by reducing the Shared Pool size."},
+    {"label": "B", "text": "With Automatic Memory Management, the database instance can increase the System Global Area size by reducing the Program Global Area size."},
+    {"label": "C", "text": "Automatically tuned and resized System Global Area components will always revert to their initial sizes after an instance restart."},
+    {"label": "D", "text": "Automatic Memory Management must be used together with locking the System Global Area into physical memory."},
+    {"label": "E", "text": "With Automatic Shared Memory Management, the database instance can increase the Program Global Area size by reducing the System Global Area size."},
+    {"label": "F", "text": "On Line Transaction Processing systems often use less Program Global Area than Decision Support Systems."}
+  ],
+  "CorrectAnswer": ["A", "B", "F"],
+  "Explanation": "1.Automatic Memory Management:控制参数MEMORY_TARGET;最全面的管理模式。数据库在 SGA 和 PGA 之间动态分配内存，以满足当前工作负载需求。\n\n2.Automatic Shared Memory Management:控制参数SGA_TARGET;仅管理 SGA 的大小，允许 SGA 内部组件（如共享池、大池、缓冲区缓存）之间动态调整大小,PGA 仍需独立管理\n\nC.在 ASMM 或 AMM 模式下,SGA 组件（如共享池、缓冲区缓存）的实际大小在实例关闭时不会恢复到其初始值，它们会保留在 SPFILE/PFILE 中设置的 SGA_TARGET 或各个组件的最小/初始限制值\nD.锁定 SGA（使用 LOCK_SGA=TRUE）是可选的，用于防止 SGA 被交换到磁盘Swap Out，以提高性能，但它不是使用 AMM 的强制要求\nF.(On Line Transaction Processing)OLTP联机事务处理的特点是大量短小的事务，它们主要执行索引查找和简单的 DML 操作，因此对 PGA 中所需的排序区和哈希区等工作区需求较少;(Decision Support Systems)DSS决策支持系统的特点是执行复杂的查询，涉及大量的全表扫描、大型连接和聚合。这些操作需要大量的内存来进行排序Sort和哈希连接Hash Join，因此对 PGA 的工作区需求非常高"
+},
+{
+  "QuestionID": 43,
+  "QuestionType": "multiple",
+  "QuestionText": "A database is configured in ARCHIVELOG mode. Full RMAN backups are taken daily and no backup to trace has been taken of the control file. A media failure has occurred. In which two scenarios is complete recovery possible? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "when any archived log from, before, or after the most recent backup is corrupt."},
+    {"label": "B", "text": "after losing all copies of the control file"},
+    {"label": "C", "text": "after losing an archived log from after the most recent backup"},
+    {"label": "D", "text": "after losing an archived log from before the most recent backup"},
+    {"label": "E", "text": "after losing the SYSTEM tablespace"}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation": "完整恢复Complete Recovery必须有:Control File;Data Files;Online Redo Logs;Archived Redo Logs"
+},
+{
+  "QuestionID": 44,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about Database Point-in-Time Recovery? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The database must have FLASHBACK DATABASE ON to perform Database Point-in-Time Recovery."},
+    {"label": "B", "text": "The database must be in MOUNT state when performing Database Point-in-Time Recovery."},
+    {"label": "C", "text": "Database Point-in-Time Recovery is performed by the Managed Recovery Process (MRP)."},
+    {"label": "D", "text": "The Database must be in ARCHIVELOG mode."},
+    {"label": "E", "text": "The target point for the recovery must be specified as a time or System Change Number (SCN)."},
+    {"label": "F", "text": "The database must be open RESETLOGS after Database Point-in-Time Recovery."}
+  ],
+  "CorrectAnswer": ["B", "D", "F"],
+  "Explanation": "数据库时间点恢复(Database Point-in-Time Recovery)是一种不完整恢复（Incomplete Recovery）的形式，它将数据库恢复到过去的某个指定时间点、SCN 或日志序列号，通常用于从逻辑错误（如意外删除或更新数据）中恢复\n\nBDF.行数据库时间点恢复（DBPITR）时，数据库必须处于 MOUNT 状态。因为恢复过程需要访问控制文件和数据文件，但数据库不需要处于 OPEN 状态;时间点恢复依赖归档日志来回滚到指定时间点，因此数据库必须处于ARCHIVELOG 模式;时间点恢复属于不完全恢复，完成后必须使用 OPEN RESETLOGS 打开数据库，以重置日志序列，确保数据一致性\n\nA.DBPITR 是基于 RMAN 备份和归档日志的传统恢复方法。Flashback Database 是另一种快速恢复方法，它使用闪回日志Flashback Logs来实现，两者是不同的机制，DBPITR 不依赖于 Flashback\nC.(Managed Recovery Process)MRP 是 Data Guard 备用数据库用来自动应用归档日志的进程。在主数据库上执行 RMAN 的时间点恢复时，是由 服务器进程 (Server Process) 而不是 MRP 来执行日志应用\nE.除了时间和 SCN，恢复目标还可以通过 日志序列号（Log Sequence Number, LSN 或 Log Sequence#） 来指定。RMAN 提供了 UNTIL TIME, UNTIL SCN, 和 UNTIL SEQUENCE 三种指定目标点的方式"
+},
+{
+  "QuestionID": 45,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about the SQL Tuning Advisor? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It checks each query being analyzed for stale statistics."},
+    {"label": "B", "text": "It checks each query being analyzed for missing statistics."},
+    {"label": "C", "text": "It only recommends syntactic changes to SQL statements."},
+    {"label": "D", "text": "It can recommend semantic changes to SQL statements."},
+    {"label": "E", "text": "It considers all SQL statements being analyzed by the advisor task as a group."},
+    {"label": "F", "text": "It builds SQL profiles for each poorly performing SQL statement to prevent regressions."}
+  ],
+  "CorrectAnswer": ["A", "B", "D"],
+  "Explanation": "SQL Tuning Advisor通常作为一个顾问任务 (Advisor Task) 运行:\n1.输入 (Input):DBA 或开发人员向顾问提供一个或多个需要分析的 SQL 语句。这些语句通常来自:\n--自动工作负载资料档案库 (AWR) 中的历史数据\n--SQL 调优集 (SQL Tuning Set, STS)\n--直接输入的 SQL 语句\n\n2.分析Analysis:顾问启动一个四阶段的综合分析:\n--统计信息分析Statistics Analysis:这是第一步，也是最重要的步骤之一\n--访问路径分析Access Path Analysis:检查索引的使用和效率\n--SQL 结构分析SQL Structure Analysis:检查 SQL 语句本身的写法\n--替代结构分析Alternative Structures Analysis建议创建物化视图或考虑分区方案\n\nE.SQL 优化顾问通常是针对单个或多个独立的 SQL 语句进行分析，并为每个语句提供独立的优化建议。将其视为一个整体组进行分析是 SQL 访问顾问SQL Access Advisor的特性，该顾问会分析工作负载Workload并推荐索引和物化视图的组合优化\nF.防止退化prevent regressions是 SQL 计划管理SQL Plan Management的主要功能"
+},
+{
+  "QuestionID": 46,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about duplicating pluggable databases (PDBs) with RMAN? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Two or more PDBs can be duplicated with the same RMAN DUPLICATE command."},
+    {"label": "B", "text": "All tablespaces belonging to a PDB must be duplicated when duplicating the PDB."},
+    {"label": "C", "text": "The auxiliary instance is automatically created with ENABLE_PLUGGABLE_DATABASE = TRUE."},
+    {"label": "D", "text": "A user with SYSDBA or SYSBKUP must use RMAN logged in to a PDB in order to duplicate it."},
+    {"label": "E", "text": "CDB$ROOT and PDB$SEED are automatically duplicated if a PDB is duplicated."}
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": "Target Instance：生产数据库实例\nAuxiliary Instance辅助实例（duplicate_db）= 临时实例 + RMAN 操作 + 克隆/恢复 + 不干扰生产\nB.RMAN 复制 PDB 时，默认会复制所有必要的表空间，但您可以使用 SKIP TABLESPACE 子句来排除某些非必要或临时性的表空间\nC.ENABLE_PLUGGABLE_DATABASE 是 CDB（Container Database）初始化参数,控制 是否允许创建 Pluggable Database（PDB）\nD.RMAN 复制操作必须在 CDB 级别（即连接到 CDB$ROOT）进行，以便管理整个 CDB 的数据文件和控制文件，而不能连接到单个 PDB 来发起复制操作\nE.使用 RMAN 复制一个或多个 PDB 时，RMAN 实际上执行的是一个克隆操作。它会创建一个新的容器数据库 (CDB) 来容纳复制的 PDB。为了使新的 CDB 能够正常工作，RMAN 会自动复制:CDB$ROOT:包含 CDB 的元数据和通用数据。PDB$SEED:用于未来创建新 PDB 的模板"
+},{
+  "QuestionID": 47,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about Rapid Home Provisioning (RHP), which has been available since Oracle 18c? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is an Oracle Database service."},
+    {"label": "B", "text": "It can be used to deploy Oracle Database homes."},
+    {"label": "C", "text": "It cannot be used to provision applications."},
+    {"label": "D", "text": "It can be used to deploy Grid Infrastructure homes, including Oracle Restart."},
+    {"label": "E", "text": "It cannot be used to provision middleware."},
+    {"label": "F", "text": "It is an Oracle Grid Infrastructure service."}
+  ],
+  "CorrectAnswer": ["B", "D","F"],
+  "Explanation": "Rapid Home Provisioning旨在实现 Oracle 软件（特别是数据库和网格基础设施）的集中式、标准化、快速部署和生命周期管理，它不是一个数据库实例，而是一个基础设施服务，它作为 Oracle Grid Infrastructure (GI) 的一部分运行;RHP 适用于管理拥有大量 Oracle 数据库安装的大型环境，通过集中管理黄金镜像Golden Images，将软件部署从繁琐、耗时的过程转变为快速、标准化的克隆操\n\nRHP 管理的对象:\n1.Software HomesOracle Database homes;\n2.Grid Infrastructure (GI) homes\n3.Oracle Engineered Systems Software:Exadata 等工程系统上的专用软件\n4.通用软件部署 (General Software Deployment):从 Oracle Database 19c/21c 开始，RHP 的功能已扩展，可以用于部署和管理通用软件(非 Oracle)应用程序和中间件的软件主目录。这个扩展功能打破了 RHP 仅限于 Oracle 软件的限制"
+},
+{
+  "QuestionID": 48,
+  "QuestionType": "multiple",
+  "QuestionText": "Examine this configuration:\n1). CDB1 is a container database.\n2). COMMON_USER_PREFIX is C##.\n3). PDB1 is a pluggable database contained in CDB1.\n4). APP1_ROOT is an application container contained in CDB1.\n5). APP1_PDB1 is an application PDB contained in APP1_ROOT.\nYou execute these commands successfully:\nWhich two are true? (Choose two.)",
+  "ImageURL": "images/Q48",
+  "Options": [
+    {"label": "A", "text": "APP1_USER1 can be created in PDB1."},
+    {"label": "B", "text": "APP1_USER1 can be created in CDB1."},
+    {"label": "C", "text": "APP1_USER1 can have different privileges in each Application PDB contained in APP1_ROOT."},
+    {"label": "D", "text": "C##_APP_USER1 can be created in CDB1."},
+    {"label": "E", "text": "P1_USER1 can be created in CDB1."},
+    {"label": "F", "text": "C##_USER1 will have the same privileges and roles granted in all PDBs in CDB1."}
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": "Application Container一个特殊的 PDB，位于 CDB 之下,包含Application PDBs;\n\nApplication Container 就像一个软件的主模板。所有的租户Application PDBs使用同一个标准化的应用程序框架Application Root，但拥有各自隔离的业务数据\n\nCDB 解决了 Oracle 数据库管理和资源整合的问题。\n\nApplication Container 解决了 企业级应用软件的部署和生命周期管理（例如，只需在 Application Root 中打一次补丁，所有 Application PDB 都会自动更新）的问题\n\nA.相当于在PDB1里面又建了一个APP1_USER1,和app1_root里的APP1_USER1只是同名，没有关系\nB.Common User用户名必须以 C## 或 c## 开头。必须包含 CONTAINER=ALL (除非是隐式创建)\nC.APP1_USER1 作为一个Application Common User,appl_root 中授予给 APP1_USER1通用权限 (Common Privileges),APP1_USER1 在不同的应用 PDB 中，可以拥有的“不同”权限\nD.语法上可以，但是将一个应用用户命名为CDB通用用户 (C##APP_USER1) 并放在 CDB1 中，是错误的架构设计，因为它破坏了多租户和应用容器的隔离性和最小权限原则"
+},
+{
+  "QuestionID": 49,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are facets of performance planning that should always be considered or implemented for an Oracle Database environment? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "defining primary keys for all tables to speed up all queries"},
+    {"label": "B", "text": "using check constraints to speed up updates"},
+    {"label": "C", "text": "defining foreign keys for all tables to speed up joins"},
+    {"label": "D", "text": "the physical data model"},
+    {"label": "E", "text": "the configuration of storage arrays"}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation": "A.虽然主键（Primary Key）是关系完整性的基础，并会自动创建唯一索引，但并非所有表都需要主键（如纯粹的日志表），且一个查询的性能瓶颈很少只依赖于主键。过度创建或不恰当的索引反而会增加 DML（插入、更新、删除）的开销\nB.Check 约束的目的是保证数据的完整性，例如确保某一列的值在特定范围内。Check 约束在 更新 (Updates) 或 插入 (Inserts) 时需要进行额外的验证步骤，这通常会增加 DML 操作的开销，而不是加速它们\nC.外键（Foreign Key）的目的是维护参照完整性，确保子表中的数据引用了父表中存在的数据。外键本身不会直接加速 Join 操作；Join 的加速主要依赖于索引。在某些情况下，维护外键的完整性（例如，在父表上进行 DML 操作时检查子表）反而会增加开销\nD.物理数据模型定义了表的结构、数据类型、索引策略、分区策略 (Partitioning) 和关系。设计不佳的物理模型（如不恰当的数据类型、缺少关键索引、不合理的分区）将导致所有查询性能低下，无论硬件配置多好。这是进行 SQL 调优 和 索引优化 的前提\nE.数据库工作负载通常是 I/O 密集型的。存储阵列（Storage Arrays）的配置，包括 RAID 级别、磁盘类型（HDD vs. SSD vs. NVMe）和 存储网络带宽，直接决定了数据库的 IOPS (Input/Output Operations Per Second) 和吞吐量。如果存储配置是瓶颈，数据库的性能将受到严重限制，特别是对于大量数据读写的操作"
+},
+{
+  "QuestionID": 50,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three actions are performed by Database Upgrade Assistant (DBUA)? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It recompiles all stored PL/SQL code by using utlrp.sql."},
+    {"label": "B", "text": "It empties the RECYCLE BIN."},
+    {"label": "C", "text": "It performs prerequisite checks to verify if the Oracle database is ready for upgrade."},
+    {"label": "D", "text": "It sets all user tablespaces to read-only before starting the upgrade."},
+    {"label": "E", "text": "It removes the AUDSYS schema and the AUDIT_ADMIN and AUDIT_VIEWER roles."},
+    {"label": "F", "text": "It increases tablespace size, if required, to meet upgrade requirements."}
+  ],
+  "CorrectAnswer": ["B", "C", "F"],
+  "Explanation": "Database Upgrade Assistant (DBUA)是一个基于 Java 的图形用户界面（GUI）工具，它随 Oracle 数据库软件安装包一起提供，帮助 DBA 自动化、简化和指导整个 Oracle 数据库升级过程。它将复杂的命令行升级步骤（如运行各种脚本）封装在了一个易于操作的向导中\n\nDBUA 的功能涵盖了升级过程的三个关键阶段：准备、执行和后处理:\n--升级前的检查与准备 (Pre-Upgrade Checks):\n1.先决条件检查（Prerequisite Checks）： 这是 DBUA 最重要的功能之一。它会自动检查当前数据库环境，确保其满足新版本的所有要求\n2.创建还原点/备份： 允许您在升级前创建 Flashback Guarantee 还原点或提示您进行完整的数据库备份\n3.配置管理： 如果需要，它可以自动增加表空间大小（如 SYSAUX），以确保升级过程有足够的空间\n--升级的自动化执行 (Upgrade Execution):DBUA 会在后台执行所有必需的 SQL 脚本和操作，例如调用核心的 catupgrd.sql 脚本，将数据字典和内部组件升级到新版本\n--升级后的清理与优化 (Post-Upgrade Actions):\n1.重新编译无效对象:自动执行 utlrp.sql 脚本，重新编译所有无效的 PL/SQL 代码、视图和 Java 对象，确保应用程序在新版本下能够正常工作。\n2.时区文件更新： 检查并更新时区文件\n3.统计信息收集： 帮助收集新的或变化的系统统计信息，以优化新环境下的查询性能\n\nB.DBUA 会在升级前的检查和修复阶段主动清空回收站或提示用户进行清空\nD.DBUA 不会在升级前将用户表空间设置为只读。它主要关注于 SYSTEM 和 SYSAUX 表空间，并且用户表空间需要保持可写以便在升级过程中进行数据字典和元数据的更新\nE.AUDSYS 模式是 Oracle 数据库中统一审计功能的核心组成部分，不会在升级过程中被移除。恰恰相反，在从旧版本升级时，DBUA 会帮助迁移审计数据到新的统一审计系统"
+},
+{
+  "QuestionID": 51,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about RMAN backups when using a media manager to write backups to tape when there are only two tape drives? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "SBT tape compression can be used even if no RMAN compression is configured."},
+    {"label": "B", "text": "Any backup set written to the SBT device in this configuration can contain a maximum of two backup pieces."},
+    {"label": "C", "text": "Any backup written to the SBT device in this configuration can contain a maximum of two backup sets."},
+    {"label": "D", "text": "SBT tape compression and RMAN backup compression should be used in parallel."},
+    {"label": "E", "text": "The SBT device should be configured to use PARALLELISM 2 to allow both tape drive to be used simultaneously."}
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": "A.SBT (System Backup to Tape) 接口允许 Oracle RMAN 与第三方介质管理软件通信。SBT 介质管理器（例如 NetBackup, RMAN, Data Protector 等）通常在将数据写入物理磁带之前，可以在软件层面或通过磁带驱动器本身执行其自己的压缩（SBT 压缩）。这种压缩独立于 RMAN 内部配置的压缩\nB.备份集 (BACKUP SET) 的大小和数量与 PARALLELISM 或磁带驱动器的数量无关。一个备份集可以包含一个或多个备份片 (BACKUP PIECES)，备份片的数量仅受备份集内容和 MAXPIECESIZE 参数限制\nC.RMAN 在一次备份操作中创建的备份集数量仅受要备份的数据量和备份命令（如 SECTION SIZE、FILES_PER_SET）的控制，与可用的并行度或驱动器数量无关\nD.同时启用 RMAN压缩和磁带压缩可能导致冗余处理，降低效率，通常不建议同时使用。"
+},
+{
+  "QuestionID": 52,
+  "QuestionType": "multiple",
+  "QuestionText": "You plan to install Oracle Grid Infrastructure for a Standalone Server and Oracle Database for the first time on a server. Examine this command and its outcome:\n\n# id oracle\nuid=54321 (oracle) gid=54321(oinstall) groups=54321 (oinstall), 54322 (dba)\n\nWhich two are true? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "oracle will be an owner of the Oracle Inventory."},
+    {"label": "B", "text": "oracle must be the owner of every Oracle Database installation."},
+    {"label": "C", "text": "oracle can own an Oracle Database installation but not an Oracle Grid Infrastructure installation."},
+    {"label": "D", "text": "oracle will be granted the SYSASM privilege when installing the Oracle Database software."},
+    {"label": "E", "text": "The user account, oracle, and group, oinstall, can be used for all Oracle software installations."}
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": "A.Oracle Inventory（存储所有 Oracle 软件安装信息的中央目录）由安装第一个 Oracle 软件的用户账户拥有。在 Linux/Unix 环境中，这个用户的主组通常是 oinstall。由于用户 oracle 的主组是 oinstall，并且它是第一个安装的用户，因此它将拥有这个 Inventory\nB.通常使用不同的操作系统用户来分别拥有 Grid Infrastructure（如 grid 用户）和 Oracle Database（如 oracle 用户），以实现权限分离和最小权限原则。因此，它不是“必须”\nC.在单实例服务器上，允许使用同一个 oracle 用户来拥有 Grid Infrastructure (GI) 和 Database 软件。只有在安装 RAC (Real Application Clusters) 时，才要求使用独立的 grid 操作系统用户来安装 GI 软件\nD.SYSASM 权限是在数据库实例连接到 ASM 实例时，由 ASM 实例授予的，而不是在安装 Database 软件时授予的。 该权限由 Grid Infrastructure 的安装用户（或者说，由该用户所在的 OS 组）来行使\nE.在单实例（Standalone Server）环境中，标准做法是使用一个安装所有 Oracle 软件的统一用户。oinstall 组是 Oracle Inventory Group，它用于创建和管理 Oracle 安装的共享文件权限。oracle 用户是 Oracle Software Owner，用于执行 Grid Infrastructure 和 Database 的安装。这个用户和组的组合是用于安装所有 Oracle 软件的标准配置"
+},
+{
+  "QuestionID": 53,
+  "QuestionType": "single",
+  "QuestionText": "Examine this configuration:\n1. CDB1 is a container database running in ARCHIVELOG mode.\n2. Controlfiles of CDB1 are multiplexed in '/u01/app/oracle/oradata/CDB1/controlfile/controlfile01.ctl' \nand '/u02/app/oracle/fast_recover_area/cdb1/CDB1/controlfile02.ctl'.\n3. The only backup of CDB1 was taken when CONTROLFILE AUTOBACKUP was OFF.\n4. SNAPSHOT CONTROLFILE NAME is '/u01/app/oracle/product/12.2.0.1/db_1/dbs/snapcf_cdb1.f'.\n\nWhile CDB1 is open, '/u02/app/oracle/fast_recover_area/cdb1/CDB1/controlfile02.ctl' is accidentally deleted. To recover from this critical failure, you execute these commands:\n$ rman target sys/oracle_4U@localhost:1521/cdb1\nRMAN> SHUTDOWN ABORT\n...\n\nOracle instance shut down\n\nRMAN> STARTUP NOMOUNT\nRMAN> RESTORE CONTROLFILE FROM '/u01/app/oracle/oradata/CDB1/controlfile/controlfile01.ctl'\n\nWhat will be the outcome? (Choose one.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It will create '$ORACLE_HOME/dbs/cdb1/CDB1/controlfile02.ctl'"},
+    {"label": "B", "text": "It will create '/u01/app/oralce/oradata/CDB1/controlfile/controlfile02.ctl'"},
+    {"label": "C", "text": "It will re-create '/u02/app/oracle/fast_recover_area/cdb1/CDB1/controlfile02.ctl'"},
+    {"label": "D", "text": "It will create '/u01/app/oracle/product/12.2.0.1/db_1/dbs/snapcf_cdb1control02.ctl'"},
+    {"label": "E", "text": "It will fail because there is no autobackup of the controlfiles."}
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "故障:数据库正在运行（CDB1 is open）时，一个控制文件副本 /u02/app/oracle/...controlfile02.ctl 被意外删除\n操作:实例被中止 (SHUTDOWN ABORT)，然后以不加载模式启动 (STARTUP NOMOUNT)。\n恢复命令:RMAN> RESTORE CONTROLFILE FROM '/u01/app/oracle/oradata/CDB1/controlfile/controlfile01.ctl\n\nABD.RMAN 在使用 RESTORE CONTROLFILE 时，默认的目的是恢复到原始位置，而不是创建新的、名称不同的文件，除非使用 SET CONTROLFILE AUTOBACKUP FORMAT 或 RESTORE CONTROLFILE TO '新路径' 显式指定\nE.失败的前提是 RMAN 无法找到任何可用的控制文件。但在这个场景中，RMAN 被明确告知从 /u01/app/oracle/oradata/CDB1/controlfile/controlfile01.ctl（一个完好的、在线的副本）进行恢复，所以它不会失败"
+},
+{
+  "QuestionID": 54,
+  "QuestionType": "single",
+  "QuestionText": "Examine these actions:\n1). Create a new database for a recovery catalog.\n2). Create a tablespace with sufficient space in the catalog database for the recovery catalog.\n3). Configure ARCHIVELOG mode for the catalog database.\n4). Create a user to own the recovery catalog schema with quota on the tablespace that will contain the catalog.\n5). Grant the RECOVERY_CATALOG_OWNER role to the recovery catalog schema owner.\n6). Grant the SYSBACKUP privilege to the recovery catalog schema owner.\n\nWhich are the minimum actions that must be performed before executing the CREATE CATALOG command?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "2, 4, 5, 6"},
+    {"label": "B", "text": "1, 2, 3, 4, 5, 6"},
+    {"label": "C", "text": "1, 2, 4, 5"},
+    {"label": "D", "text": "2, 4, 5"},
+    {"label": "E", "text": "1, 3, 4, 5"}
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "1.你可以使用已有的数据库作为 Catalog，只要有空间和权限即可，并非强制要求新建数据库\n2.Recovery Catalog 需要一个表空间存储 RC_* 表,没有表空间，无法创建表，自然无法执行 CREATE CATALOG\n3.目录数据库不要求必须是 ARCHIVELOG 模式,ARCHIVELOG 只是保证 Catalog 数据库可恢复性，提高安全性\n4.必须有一个 schema/user 来存储 RMAN Catalog 对象,并且用户需要在表空间上有足够配额\n5.这是创建 Catalog 的核心权限,RECOVERY_CATALOG_OWNER 是一个预定义的角色，它包含创建和维护恢复目录所需的所有权限（例如 CREATE TABLE、CREATE SEQUENCE 等）。没有这个角色，目录所有者用户就无法执行 CREATE CATALOG\n6.SYSBACKUP 权限是授予连接到目标数据库（被备份数据库）的 RMAN 操作员用户的，以便他们可以执行备份和恢复操作。与 CREATE CATALOG 本身无关"
+},
+{
+  "QuestionID": 55,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about creating pluggable databases (PDBs) using snapshots in Oracle 19c and later releases? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A PDB snapshot is always a full copy of the source PDB."},
+    {"label": "B", "text": "A PDB snapshot is always a sparse copy of the source PDB."},
+    {"label": "C", "text": "A snapshot copy PDB depends on a storage snapshot which can only be stored on specific file systems."},
+    {"label": "D", "text": "A PDB snapshot depends on a storage snapshot which can be stored on any file system."},
+    {"label": "E", "text": "A PDB snapshot depends on a storage snapshot which can only be stored on specific file systems."},
+    {"label": "F", "text": "A snapshot copy PDB depends on a storage snapshot which can be stored on any file system."},
+    {"label": "G", "text": "A snapshot copy PDB can be created from a stand-alone clone PDB."}
+  ],
+  "CorrectAnswer": ["C", "G"],
+  "Explanation": "CF.快照拷贝 PDB 是一种存储效率很高、创建速度极快的 PDB 副本，但这种效率是通过利用底层文件系统提供的存储快照技术来实现的。不能在任何普通的文件系统上创建这种快照 PDB，而必须使用那些能够提供块级快照和写时复制功能的 特定文件系统（如 Oracle ACFS）作为数据文件的存储介质\nEF.PDB Snapshot依赖于它的源PDB (PDB Source)\n立克隆 PDB (Stand-Alone Clone PDB) 是 Oracle 多租户架构中克隆操作的一种类型，它指的是从一个源 PDB 创建一个完全独立、自给自足的副本;只要克隆 PDB 处于可写状态（READ WRITE 模式），即可基于其创建快照复制PDB"
+},
+{
+  "QuestionID": 56,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about Oracle Database Configuration Assistant (DBCA) templates? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The General Purpose or Transaction Processing templates are most suitable when concurrency and recoverability are key criteria."},
+    {"label": "B", "text": "Oracle DBCA templates can store only logical structure and not database files."},
+    {"label": "C", "text": "New templates can only be created by modifying an existing user-created template."},
+    {"label": "D", "text": "The Data Warehouse template is most suitable when transaction response time is the key criterion."},
+    {"label": "E", "text": "Oracle DBCA templates can be used to create new databases and duplicate existing databases."}
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": "A.事务处理模板 (Transaction Processing templates) 或称为 通用目的模板 (General Purpose templates)，其设计目标就是为了支持 高并发 (Concurrency) 和 可恢复性 (Recoverability) 的工作负载，也就是典型的 OLTP (Online Transaction Processing) 环境\nB.DBCA 模板主要分为两大类:1.结构模板Structural Templates:仅包含数据库的逻辑结构和配置信息;2.种子文件模板 (Seed File Templates):包含逻辑结构 以及 一个或多个数据文件（称为种子文件）\nD.数据仓库模板Data Warehouse template追求的是复杂查询的整体完成速度和数据分析的效率,如果应用要求：处理复杂的分析型查询。需要快速扫描和聚合大量数据\n如果 事务响应时间 是关键标准，应该选择事务处理Transaction Processing或 通用目的General Purpose模板"
+},
+{
+  "QuestionID": 57,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true? (Choose two.)",
+  "ImageURL": "images/Q57.png",
+  "Options": [
+    {"label": "A", "text": "The CONTAINERS clause cannot be used in queries on the REVENUE table."},
+    {"label": "B", "text": "The REVENUE table must be a list-partitioned table."},
+    {"label": "C", "text": "The MAPTABLE tables defines a logical partition key on a commonly used column for the REVENUE table."},
+    {"label": "D", "text": "The MAPTABLE table is a metadata-linked table."},
+    {"label": "E", "text": "A container map exists for the REVENUE table, but is not enabled."},
+    {"label": "F", "text": "The REVENUE table partitions are not pruned across the PDBs automatically."}
+  ],
+  "CorrectAnswer": ["C", "F"],
+  "Explanation": "应用通用表Application Common Table自动存在于所有的子PDB中\n\n应用通用表的数据存储有两种常见模式:\n1.元数据链接 Metadata-Linked所有PDB共享同一份数据. 存储在根容器中，子PDB通过链接访问数据. CONTAINERS_DEFAULT = YES;\n2.数据链接Data-Linked每个 PDB 存储自己的数据. 结构共享，但数据文件独立,CONTAINERS_DEFAULT = NO\n容器映射表 (Container Map Table)告诉 Oracle：哪些 PDB 有这个表的数据 → Oracle 只去这些 PDB 查，从而大幅提高跨容器查询性能。\n在 CDB Root 执行一个跨容器查询 (SELECT ... FROM CONTAINERS(FIN.REVENUE)) 时，它会去扫描所有 PDB 中的 REVENUE 表。为了避免扫描不必要的 PDB，Oracle 使用容器 ID (PDB ID) 作为隐式的分区键\n\nC.MAPTABLE（容器映射表）是容器映射分区的核心。它存储了 PDB ID 到分区键的映射。这个分区键是一个逻辑分区列，比如 PDB_ID，Oracle 利用这个逻辑列来组织和访问跨 PDB 的数据\nF.分区修剪Partition Pruning是提高分区表查询性能的关键技术。如果一个跨容器查询带有 PDB ID 的筛选条件（例如 WHERE con_id = 3），数据库需要知道哪些 PDB 包含这些数据，从而只扫描那些 PDB,这个优化功能由 CONTAINER_MAP_OBJECT 字段控制。CONTAINER_MAP_OBJECT 是 NO，表明自动的分区修剪功能没有启用，因此查询会扫描不必要的 PDB，性能会下降\n\nA.只要用户有权限，任何应用通用表都可以在 CDB Root 中使用 CONTAINERS 子句进行查询（例如 SELECT * FROM CONTAINERS(FIN.REVENUE)），因为它是应用容器中的通用对象\nB.虽然容器映射分区在概念上类似于列表分区，但它是一个内部的、由 Oracle 管理的分区类型。它不要求该表必须是 DBA 手动创建的列表分区表\nC.当 CONTAINER_MAP 字段显示 YES 时，表明 REVENUE 表使用了 容器映射分区 (Container Map Partitioning) 特性。容器映射分区允许 Oracle 自动根据 PDB ID (Container ID) 对数据进行分区。这要求创建一个容器映射表（在这里是 MAPTABLE），它定义了 PDB ID 到分区键的映射。这个分区键是 REVENUE 表上用于分区的一个逻辑列\nE.CONTAINER_MAP 字段显示为 YES，这意味着容器映射特性已启用。"
+},
+{
+  "QuestionID": 58,
+  "QuestionType": "multiple",
+  "QuestionText": "Your container database, CDB1, has an application container, HR_ROOT, with an application PDB, HR_PDB1. You have the required privilege to clone HR_PDB1 to container database CDB2, which does not contain HR_ROOT. Which two are always true? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "CDB1 and CDB2 must be in shared undo mode."},
+    {"label": "B", "text": "A common user must exist in CDB2 with the CREATE PLUGGABLE DATABASE privilege."},
+    {"label": "C", "text": "All transactions in HR_PDB1 of CDB1 must commit before the cloning process starts."},
+    {"label": "D", "text": "Cloning HR_ROOT automatically clones HR_PDB1."},
+    {"label": "E", "text": "The HR_PDB1 clone created in CDB2 will be in mount state when cloning ends."}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "A.共享撤销模式Shared Undo Mode并且不是 PDB 跨 CDB 克隆的硬性先决条件。PDB 克隆可以发生在配置了本地撤销（Local Undo Mode，现在是默认模式）或共享撤销模式的 CDB 之间\nB.要将任何 PDB（无论是普通 PDB 还是应用 PDB）克隆到另一个 CDB,需要以一个能够执行克隆操作的用户身份登录到目标 CDB2。权限要求:该用户必须拥有 CREATE PLUGGABLE DATABASE 权限。在目标 CDB 中执行此操作的用户必须是 通用用户 (Common User)（例如 SYS 或其他具有 C## 前缀的管理用户）\nC.RMAN 的克隆操作使用的是热备份Hot Backup或在线克隆技术。它通过在数据库运行期间获取数据文件的副本，并使用归档日志 (Archive Logs) 或 Redo Log 来处理克隆过程中未提交或正在进行的事务,不需要强制要求所有事务提交或将 PDB 置于只读模式\nD.可以将 HR_ROOT作为一个整体进行克隆，也可以只克隆其下的子 PDB HR_PDB1。克隆 HR_ROOT 并不意味着克隆所有的子 PDB,需要明确指定要克隆的对象。在这个场景中，是直接克隆了 HR_PDB1，而不是克隆整个应用容器根。\nE.当一个新的 PDB 被创建（通过克隆、插拔或恢复）后，它首先被置于 MOUNT状态。在 MOUNT 状态下，需要执行 ALTER PLUGGABLE DATABASE OPEN READ WRITE; 命令，并可能触发恢复或同步操作，之后才能被打开供读写使用"
+},
+{
+  "QuestionID": 59,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about backup, restore, and recovery operations done without using Recovery Manager (RMAN)? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Backing up a database in NOARCHIVELOG mode using O/S utilities requires that the database instance be started and the database be in the MOUNT state."},
+    {"label": "B", "text": "Backing up a database in ARCHIVELOG mode using O/S utilities requires that the database instance be started and the database be in MOUNT state."},
+    {"label": "C", "text": "An Oracle database can be restored from backup files copied using O/S utilities."},
+    {"label": "D", "text": "Oracle data file backups, copied using an O/S utility, can be added to the RMAN catalog as IMAGE COPIES."},
+    {"label": "E", "text": "Backing up a database in NOARCHIVELOG mode using O/S utilities requires that the database instance be shut down."},
+    {"label": "F", "text": "Oracle archive log backups, copied using an O/S utility, can be added to the RMAN catalog as a backup set."},
+    {"label": "G", "text": "Backing up a database in ARCHIVELOG mode using O/S utilities requires that the database instance be started and the database be in OPEN state."}
+  ],
+  "CorrectAnswer": ["C", "D", "E"],
+  "Explanation": "不使用 RMAN，而是使用 操作系统实用程序（O/S Utility） 进行数据库备份，也就是常说的 用户管理备份 (User-Managed Backup)\n--NOARCHIVELOG模式,数据库必须处于 SHUTDOWN 状态,必须先执行 SHUTDOWN IMMEDIATE 或 SHUTDOWN NORMAL，然后复制所有数据文件、控制文件和初始化参数文件。\n--ARCHIVELOG 模式下,数据库可以处于 OPEN 状态,备份前需对表空间执行 ALTER TABLESPACE ... BEGIN BACKUP;，复制完文件后执行 END BACKUP;。必须同时备份所有相关的归档日志。\nD.RMAN 的 image copy（镜像副本） 本质上就是：数据文件的逐块物理复制，没有压缩、没有格式化、没有改变结构。用 O/S copy 复制一个 datafile和 RMAN 做的 image copy 本质上一样,所以 RMAN 可以识别并 catalog\nF.RMAN 的 backup set 是 RMAN 逻辑容器，里面记录了元数据、通道信息、备份片信息等。单纯的 O/S 拷贝归档日志，RMAN 无法将其认作 backup set\nG.ARCHIVELOG 模式下，可以shutdown数据库"
+},
+{
+  "QuestionID": 60,
+  "QuestionType": "multiple",
+  "QuestionText": "Examine this configuration:\n1). CDB1 is a container database.\n2). PDB1 and PDB2 are pluggable databases in CDB1.\nYou execute these commands successfully:\n$ export ORACLE_SID=cdb1\n$ sqlplus / as sysdba\nSQL> SHUTDOWN IMMEDIATE\nOracle instance shut down.\nSQL> STARTUP MOUNT\nDatabase mounted.\n\nWhich two are true? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "PDB1 and PDB2 are in MOUNT state."},
+    {"label": "B", "text": "Redo logs are opened."},
+    {"label": "C", "text": "PDB1 and PDB2 are in READ ONLY state."},
+    {"label": "D", "text": "CDB$ROOT is in MOUNT state."},
+    {"label": "E", "text": "PDB$SEED is in READ ONLY state."}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "CDB$ROOT是 Mount状态,所有的 PDB及 PDB$seed也是 Mount状态"
 }
+
 
 
       ]
