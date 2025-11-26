@@ -4550,7 +4550,7 @@
     {"label": "F", "text": "STATISTICS_LEVEL must be set to ALL to generate alerts"}
   ],
   "CorrectAnswer": ["B", "C", "E"],
-  "Explanation": "1.Metrics指标:Oracle 会自动收集一些数据库的统计数据（例如 CPU 使用率、表空间使用率等）。这些数据叫做 metrics。\n2. Thresholds阈值:你可以设定某个指标达到什么程度时触发警报。例如:表空间使用超过85% → warning alert;表空间使用超过 97% → critical alert\n3.Server-generated alerts（服务器自动产生的警报）Oracle 自动根据 metric + threshold 触发警报，例如:表空间满了;归档空间快满了;Undo tablespace 有问题\n这些由 Oracle 后台自动产生，不是 SMON 产生的。\n**A.不是所有 metrics 都是 instance-level。\n例如:CPU usage是Instance-level;Tablespace space usage是Tablespace-level;Segment size是Object-level\n**Bstateful alert有状态警报的特点是:条件满足 → 产生警报;条件消失 → 警报自动清除\n例如:表空间使用率超过 97% → 触发 alert;后来减到 50% → alert 自动清除;历史记录（包括清除过的）会保存在:DBA_ALERT_HISTORY\n**C.Oracle 的空间类的alert是stateful alert\n**D.Oracle 有自己的 MMON(Manageability Monitor Process)负责监控和触发server-generated alerts\n**E.Metrics = Oracle 定期收集的一些统计值;如:每秒物理读次数;表空间使用率;事务数;CPU时间"
+  "Explanation": "1.Metrics指标:Oracle 会自动收集一些数据库的统计数据（例如 CPU 使用率、表空间使用率等）。这些数据叫做 metrics。\n2. Thresholds阈值:你可以设定某个指标达到什么程度时触发警报。例如:表空间使用超过85% → warning alert;表空间使用超过 97% → critical alert\n3.Server-generated alerts（服务器自动产生的警报）Oracle 自动根据 metric + threshold 触发警报，例如:表空间满了;归档空间快满了;Undo tablespace 有问题\n这些由 Oracle 后台自动产生，不是 SMON 产生的。\n**A.不是所有 metrics 都是 instance-level。\n例如:CPU usage是Instance-level;Tablespace space usage是Tablespace-level;Segment size是Object-level\n**B.stateful alert有状态警报的特点是:条件满足 → 产生警报;条件消失 → 警报自动清除\n例如:表空间使用率超过 97% → 触发 alert;后来减到 50% → alert 自动清除;历史记录（包括清除过的）会保存在:DBA_ALERT_HISTORY\n**C.Oracle 的空间类的alert是stateful alert\n**D.Oracle 有自己的 MMON(Manageability Monitor Process)负责监控和触发server-generated alerts\n**E.Metrics = Oracle 定期收集的一些统计值;如:每秒物理读次数;表空间使用率;事务数;CPU时间"
 },
 {
   "QuestionID": 2,
@@ -5477,6 +5477,324 @@
   ],
   "CorrectAnswer": ["A", "D"],
   "Explanation": "CDB$ROOT是 Mount状态,所有的 PDB及 PDB$seed也是 Mount状态"
+},
+{
+  "QuestionID": 61,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about upgrading Oracle Grid Infrastructure? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A direct upgrade can be performed only from the immediately preceding Oracle Grid Infrastructure version."},
+    {"label": "B", "text": "The newer version is installed in a separate Oracle Grid Infrastructure home on the same server as the existing version."},
+    {"label": "C", "text": "An existing Oracle base can be used."},
+    {"label": "D", "text": "The upgrade process will automatically install all mandatory patches for the current version of Oracle Grid Infrastructure."},
+    {"label": "E", "text": "Existing Oracle Database instances must be shut down before starting the upgrade."},
+    {"label": "F", "text": "Only the grid user can perform the upgrade."}
+  ],
+  "CorrectAnswer": ["B", "C", "E"],
+  "Explanation": "A.Oracle 允许从多个旧版本（例如，从 12.2 或 18c）直接升级到 19c 或更高版本。通常，只要在支持的升级路径内，不一定必须是紧邻的上一个版本\nC.Oracle Base是 Oracle 软件安装时最基础、最顶层的目录，用来放所有 Oracle 产品的文件、日志、诊断信息等\nORACLE_BASE 是整个 Oracle 的根目录\nORACLE_HOME 是具体版本的安装目录\nD.升级过程只会安装基础版本软件。您仍需要单独下载并应用最新的 Release Updates (RU)、Release Update Revisions (RUR) 以及任何必要的强制补丁Mandatory Patches"
+},
+{
+  "QuestionID": 62,
+  "QuestionType": "multiple",
+  "QuestionText": "A database is configured in ARCHIVELOG mode.\nA full RMAN backup exists but no control file backup to trace has been taken.\nA media failure has occurred.\nIn which two scenarios is incomplete recovery required? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "after losing a SYSAUX tablespace data file"},
+    {"label": "B", "text": "after losing all members of an INACTIVE online redo log group"},
+    {"label": "C", "text": "after losing all members of the CURRENT online redo log group"},
+    {"label": "D", "text": "after losing all copies of the control file"},
+    {"label": "E", "text": "after losing an UNDO tablespace that is in use"}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": "完全恢复Complete Recovery:\n1.目标:将数据库恢复到故障发生时的确切时间点/SCN\n2.何时使用:当所有必需的归档日志和在线重做日志都可用，并且可以应用到最后一条重做记录时\n3.核心场景:\n--丢失非 SYSTEM 表空间的数据文件。\n--丢失所有 INACTIVE 在线重做日志成员\n--丢失 SYSTEM 或其他重要文件，但所有重做日志都可用\n--数据库崩溃（实例恢复\n4.打开方式:使用 ALTER DATABASE OPEN; 正常打开数据库\n5.日志序列:保持不变,旧备份仍然有效，可用于未来恢复\n\n不完全恢复Incomplete Recovery:\n1.目标:将数据库恢复到故障发生之前的某个时间点、SCN 或日志序列\n2.何时使用:当无法应用所有必需的重做日志时，或者需要回退人为错误时。\n3.核心场景:\n--丢失所有 CURRENT 在线重做日志成员\n--丢失所有控制文件副本（从备份恢复控制文件）\n--丢人为错误或逻辑损坏（需要回退事务）\n4.打开方式:必须使用 ALTER DATABASE OPEN RESETLOGS; 打开数据库。\n5.重置日志序列，创建新的数据库世代，在 RESETLOGS 之前创建的所有备份失效"
+},
+{
+  "QuestionID": 63,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about instance recovery? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is not possible if an archived log is missing."},
+    {"label": "B", "text": "It is performed automatically after the database is opened; however, blocks requiring recovery are not available until they are recovered."},
+    {"label": "C", "text": "Setting FAST_START_MTTR_TARGET to a lower value reduces instance recovery time by causing dirty buffers to be written to disk more frequently, thereby reducing the number of I/Os needed during instance recovery."},
+    {"label": "D", "text": "It is performed by the Recovery Writer (RVWR) background process."},
+    {"label": "E", "text": "Setting FAST_START_MTTR_TARGET to a higher value reduces instance recovery time by causing the log writer to write more frequently, thereby reducing the number of I/Os needed during instance recovery."},
+    {"label": "F", "text": "It is performed automatically while the database remains in MOUNT state. Then the database is opened."}
+  ],
+  "CorrectAnswer": ["C", "F"],
+  "Explanation": "实例恢复 (Instance Recovery)是 Oracle 数据库用于保证数据一致性的自动机制\n\n实例恢复在数据库启动过程中，从 NOMOUNT 状态转换到 MOUNT 状态之后，在尝试执行 ALTER DATABASE OPEN 命令时自动开始。它在数据库进入 OPEN 状态之前完成\n\n实例恢复主要由 SMON (System Monitor) 后台进程执行\n\n实例恢复只需要在线重做日志。它不需要归档日志（Archived Logs），归档日志是用于介质恢复 (Media Recovery) 的\n\nFAST_START_MTTR_TARGET 是一个初始化参数，用于控制实例恢复所需的时间\nMTTR = Mean Time To Recover平均恢复时间。该参数允许 DBA 设置一个目标时间（以秒为单位，例如 300 秒），数据库会尽力将实例恢复时间控制在这个范围内为了达到这个目标，Oracle 会动态调整检查点 (Checkpoint) 的频率和程度。\n检查点的作用是强制 DBWn (Database Writer) 进程将脏缓冲区（内存中已修改但尚未写入磁盘的数据块）写入数据文件。检查点完成后，该检查点之前的重做记录就不再需要用于实例恢复了\n\nFAST_START_MTTR_TARGET 设置较低的值 (如 30 秒):缩短恢复时间,更频繁地触发检查点,减少了自上次检查点以来需要在恢复时读取和应用重做日志的 I/O 量，从而加快恢复速度\n\nFAST_START_MTTR_TARGET 设置较高的值 (如 1800 秒):容忍更长的恢复时间;减少检查点的频率;减少了正常的数据库运行时 I/O 负担，但如果发生崩溃，实例恢复时间会更长。\n\n介质恢复Media Recovery是指从备份中恢复数据文件后，应用归档重做日志 (Archived Redo Logs)，将数据文件前滚到所需时间点（通常是故障发生时的 SCN）\n\n实例恢复处理的是内存中数据丢失（崩溃），使用在线重做日志。\n\n介质恢复处理的是磁盘上数据丢失（损坏），使用备份和归档日志。"
+},
+{
+  "QuestionID": 64,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about Oracle Optimizer Statistics, their use, and their collection? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The number of table rows is considered when evaluating the cost of accessing a table using an index."},
+    {"label": "B", "text": "Index balanced B*Tree height is considered when evaluating the cost of using an index."},
+    {"label": "C", "text": "The Statistics Advisor can help recommend the best way to gather statistics."},
+    {"label": "D", "text": "Statistics collected using DBMS_STATS always yield the best optimizer result."},
+    {"label": "E", "text": "The Statistics Advisor generates actions for all recommendations."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "优化器统计信息 (Optimizer Statistics)是 Oracle 数据库用来描述数据库中数据和对象属性的一组元数据\nOptimizer Statistics种类:\n1.对象统计信息 (Object Statistics)描述数据库对象（表、索引、列、分区等）的数据分布和物理属性\n--行数 (NUM_ROWS);块数 (BLOCKS);平均行长 (AVG_ROW_LEN) → 估算全表扫描的成本，以及连接操作的基数\n--唯一值数量 (NUM_DISTINCT);空值数量 (NUM_NULLS);最大/最小值;直方图 (Histogram)→ 估算查询谓词（WHERE 子句）的选择性 (Selectivity)，即返回的行占总行数的比例。\n--索引块数;B*Tree HEIGHT;叶块数 LEAF_BLOCKS;聚簇因子Clustering Factor→ 估算索引扫描所需的 I/O 次数和效率。特别是B*Tree HEIGHT，直接决定了索引访问的成本\n2.系统统计信息 (System Statistics)描述数据库运行环境的性能特征，特别是 I/O 和 CPU 的能力;确保优化器在计算 I/O 成本和 CPU 成本时，能准确反映真实系统的硬件能力\n\n基于成本的优化器 (Cost-Based Optimizer, CBO)用来估算不同 SQL 执行计划的成本 (Cost)，从而选择出成本最低、执行效率最高的那个计划\n\n索引聚簇因子Index Clustering Factor, CF衡量表里行的物理存储顺序与索引键顺序的一致性。CF 越低（越接近表块数），说明数据与索引键顺序较一致，索引范围扫描时 I/O 效率越高;CF 越高（接近行数），说明数据分布比较分散，索引扫描时可能要大量随机 I/O\n\nB.索引的叶块数 + B‑tree 层级 → 决定访问索引本身需要多少 I/O (查索引)\n\nB*Tree 高度 (Height)表示从索引的根块 (Root Block) 到最深处的叶块 (Leaf Block) 所需的逻辑 I/O 次数（即中间层块的数量 + 根块）\n\n叶块数 (Leaf Blocks) 统计信息表示构成索引叶子层 (Leaf Level) 的数据块的总数量\n\nOptimizer Statistics Advisor（Oracle Database 里的 “统计顾问”）。它是 Oracle 内建工具，用来分析当前统计信息收集策略和收集结果的质量;它只负责分析现有统计实践 + 建议更好的统计收集策略\n\nD.过时的或不准确的统计信息可能会导致优化器选择错误的执行计划;在某些复杂场景中，DBA 可能需要手动干预或使用动态采样 (Dynamic Sampling) 来辅助优化"
+},
+{
+  "QuestionID": 65,
+  "QuestionType": "multiple",
+  "QuestionText": "A container database (CDB) contains two pluggable databases PDB1 and PDB2.\nThe LOCAL_UNDO_ENABLED database property is set to FALSE in the CDB.\nData file 24 of PDB2 was deleted and you need to restore and recover it.\nThe only RMAN backup that exists was created with the BACKUP DATABASE command while connected to CDB$ROOT.\nWhich three are true? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Data file 24 can be recovered only while connected to PDB2."},
+    {"label": "B", "text": "Data file 24 can be restored and recovered while connected to CDB$ROOT."},
+    {"label": "C", "text": "Data file 24 can be restored only while connected to CDB$ROOT."},
+    {"label": "D", "text": "Data file 24 can be restored only while connected to PDB2."},
+    {"label": "E", "text": "Data file 24 can be recovered while connected to PDB2."},
+    {"label": "F", "text": "Data file 24 can be recovered while connected to CDB$ROOT."}
+  ],
+  "CorrectAnswer": ["B", "E", "F"],
+  "Explanation": "RESTORE:重建物理文件;是将数据文件从备份集中复制到其位置的过程\nRECOVER(介质恢复):更新文件数据;是应用归档重做日志（或在线重做日志）将数据文件前滚到最新状态的过程。\n\n在处理介质故障（如数据文件损坏或丢失）时：\n--文件不存在或损坏 → 必须 RESTORE + RECOVER。\n--文件存在但滞后 → 只需要 RECOVER。\n在处理实例崩溃（如断电）时:不需要 DBA 干预，数据库在启动时自动执行实例恢复，不需要 RESTORE 或手动 RECOVER。\n\nAEF.重做日志是 CDB 级别的，包含 CDB 中所有 PDB 的更改。CDB$ROOT 拥有全局权限，因此可以执行 CDB 中任何文件的介质恢复;PDB 本身也拥有管理其自己的数据文件的权限，并且可以请求 CDB 应用所需的重做日志，因此可以在 PDB 级别执行介质恢复。"
+},
+{
+  "QuestionID": 66,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about data movement between a non-CDB and a PDB using Data Pump? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Tablespaces are automatically created as needed while importing full exports in either a non-CDB or a PDB."},
+    {"label": "B", "text": "Oracle attempts to convert conventional database users to local users when moving schemas from a non-CDB to a PDB."},
+    {"label": "C", "text": "A new PDB is automatically created when importing a non-CDB into a CDB."},
+    {"label": "D", "text": "Oracle attempts to convert common users to conventional users when moving schemas from a PDB to a non-CDB."},
+    {"label": "E", "text": "Moving data from a PDB to a non-CDB is only possible by using transportable tablespace export and import."},
+    {"label": "F", "text": "Moving data from a non-CDB to a PDB is only possible by using conventional export and import."}
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "A.Oracle Data Pump不会自动创建目标数据库中不存在的表空间。\nC.Data Pump的导入操作不会自动创建新的 PDB。您必须手动创建一个 PDB，然后将 Non-CDB 的数据导入到该 PDB 中\nD.当使用 Data Pump 将数据从 PDB 导出时，导出的用户数据包含 本地用户 和该 PDB 的 通用用户。当将此数据导入到 Non-CDB 时：Non-CDB 不支持 通用用户 (C##) 命名规则。Data Pump 在尝试导入通用用户时，会尝试删除 C## 前缀。如果删除前缀后的用户名在 Non-CDB 中不存在且合法，Data Pump 就会创建一个传统的数据库用户。\n\n在 CDB 和 Non-CDB 之间移动数据有多种方法，包括：\n1.传统 Data Pump 导出/导入 (Conventional Data Pump Export/Import)：使用 SCHEMA 或 FULL 模式导出和导入数据文件。\n2.可传输表空间 (Transportable Tablespaces, TTS)：将表空间作为数据文件移动，通常速度更快，尤其适用于大型数据库。\n3.克隆/插拔操作 (PDB Plug/Unplug)：将 Non-CDB 转换为 PDB，或在 CDB 之间移动 PDB（这是最高效的整体迁移方式，但不是仅 Data Pump 的方法）。"
+},
+{
+  "QuestionID": 67,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three methods can be used for heap table data migration after upgrading a database? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "using Database Replay"},
+    {"label": "B", "text": "using SQL Developer"},
+    {"label": "C", "text": "using Oracle Data Pump"},
+    {"label": "D", "text": "using operating system file copy utilities"},
+    {"label": "E", "text": "using Database Upgrade Assistant"},
+    {"label": "F", "text": "using the CREATE TABLE AS SELECT SQL statement"}
+  ],
+  "CorrectAnswer": ["B", "C", "F"],
+  "Explanation": "堆表数据迁移意味着要使用某些工具或语句，将数据逻辑地从旧位置读出，然后逻辑地写入到新位置（通常是新创建的表或数据库中）。SQL Developer 和 Data Pump主要用于跨数据库或跨 Schema 的数据复制;CTAS主要用于同一数据库内的碎片整理和空间管理。\n\nA.Database Replay 是 Real Application Testing (RAT) 工具集的一部分，用于测试升级或配置更改的影响，而不是用于实际的数据迁移\nD.不适用于堆表数据。 数据库文件（如数据文件）是以 Oracle 特定的格式存储的，不能简单地用操作系统命令（如 cp 或 copy）复制到另一个数据库中并直接使用。这仅适用于 Transportable Tablespaces 场景，且需配合 SQL 和 RMAN 命令"
+},
+{
+  "QuestionID": 68,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about Oracle instance recovery? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Recovery begins from the beginning of the CURRENT redo log group."},
+    {"label": "B", "text": "Recovery begins from the last checkpoint position that was calculated by the Database Writer before instance failure."},
+    {"label": "C", "text": "Recovery begins from the start of any ACTIVE redo log group or the start of the CURRENT log group if no other group is ACTIVE."},
+    {"label": "D", "text": "Recovery reads redo until the end of the redo thread. SMON rolls back any dead transactions, and then the database is opened."},
+    {"label": "E", "text": "Recovery begins from the last checkpoint position that was recorded in the control file by the checkpoint process (CKPT)."},
+    {"label": "F", "text": "Recovery reads redo until the end of the redo thread, and then opens the database. SMON then rolls back any dead transactions."}
+  ],
+  "CorrectAnswer": ["E", "F"],
+  "Explanation": "AC.恢复不是从重做日志组的开始（无论是当前还是活动）开始。恢复的起点是check point，它保证了只应用check point之后的更改，避免重复工作\nBE.检查点进程 (CKPT) 的职责是更新数据文件头和控制文件 (Control File) 中的检查点信息;恢复过程的起点是控制文件中记录的上一个检查点 (Last Checkpoint)。这个位置标志着所有在此时刻或之前的“脏数据”块都已安全地写入到数据文件中\n\n前滚 (Roll Forward)： 恢复进程从这个检查点位置开始，读取在线重做日志，将所有尚未写入数据文件（即在内存中丢失）的已提交或未提交事务的更改应用到数据文件。这一过程称为前滚 (Roll Forward)\n\n实例恢复分为两个阶段:\n--前滚阶段 (Roll Forward)： 自动应用重做日志直到日志线程的末尾，这会使数据文件包含所有已提交和未提交（死亡）事务的更改。\n--数据库打开： 一旦前滚完成，数据文件就处于一个一致的状态，可以安全地将数据库设置为 OPEN。这是 Oracle 的一个关键设计：数据库在死亡事务被回滚之前就可以打开。\n--回滚阶段 (Roll Back)： 在数据库打开后，系统监视器 (SMON) 进程才会在后台异步地回滚在崩溃时处于活动状态（死亡）的事务，释放它们占用的锁和资源。"
+},
+{
+  "QuestionID": 69,
+  "QuestionType": "single",
+  "QuestionText": "Examine this configuration:\n1). The ORCL database data files are in Automatic Storage Management (Oracle ASM) disk group +DATA.\n2). ORCL uses disk group +FRA for the Fast Recovery Area.\n3). LISTENER is the listener for ORCL.\n4). The database, listener, ASM instance, and ASM disk groups are managed by Oracle Restart.\n5). All components are currently shut down.\nYou execute this command:\n$ srvctl start database -d ORCL\nWhat is the outcome? (Choose one.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The ORCL database, the Oracle ASM instances, the +DATA and +FRA disk groups, and the LISTENER are started."},
+    {"label": "B", "text": "Only the ORCL database instance is started."},
+    {"label": "C", "text": "Only the ORCL database and the ASM instances are started."},
+    {"label": "D", "text": "Only the ORCL database instance, the Oracle ASM instance, and the +DATA and +FRA disk groups are started."},
+    {"label": "E", "text": "Only the ORCL database instance and the +DATA and +FRA disk groups are started."}
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "1.ORCL 数据文件在 +DATA\n2.ORCL FRA 在 +FRA\n3.LISTENER 是 ORCL 的监听器\n4.所有组件由 Oracle Restart 管理。\n5.所有组件当前都已关闭\nsrvctl start database 命令的目的是确保数据库及其所有必需的依赖项都已启动。srvctl start database 应该启动整个依赖链：启动 ASM 实例。\n挂载 +DATA 和 +FRA 磁盘组。\n启动 LISTENER。\n启动 ORCL 数据库实例。"
+},
+{
+  "QuestionID": 70,
+  "QuestionType": "multiple",
+  "QuestionText": "Which four are true about a Recovery Manager (RMAN) duplication without a TARGET connection? (Choose four.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The NOREDO clause must be used if the backups of the database being duplicated were taken when the database was in NOARCHIVELOG mode."},
+    {"label": "B", "text": "The UNDO TABLESPACE clause is always required when no connection exists to the TARGET instance."},
+    {"label": "C", "text": "RMAN pushes the backups of the database to be duplicated over the network to the auxiliary instance."},
+    {"label": "D", "text": "The NOREDO clause can be used if the backups of the database being duplicated were taken when the database was in ARCHIVELOG mode."},
+    {"label": "E", "text": "RMAN SBT-based backups of the database to be duplicated can be used by the auxiliary instance."},
+    {"label": "F", "text": "The UNDO TABLESPACE clause is always required when no connection exists to the recovery catalog and the TARGET database is closed."},
+    {"label": "G", "text": "The UNDO TABLESPACE clause is always required when no connection exists to the recovery catalog and the TARGET database is opened."},
+    {"label": "H", "text": "RMAN disk-based backups of the database to be duplicated can be used by the auxiliary instance."}
+  ],
+  "CorrectAnswer": ["A", "E", "F", "H"],
+  "Explanation": "RMAN Duplication without a TARGET Connection基于备份的克隆 (Duplicate from Backup)，是 RMAN 中一种非常强大的恢复和测试手段，特别适用于源数据库不可用、已销毁或无法建立连接的场景\n由于无法连接 TARGET，RMAN 必须依赖用户提供以下信息:\n1.备份文件:必须有一个或多个完整的源数据库备份集，包括数据文件和控制文件（或 SPFILE）\n2.备份位置： 辅助实例必须能够直接访问这些备份文件（无论是磁盘文件还是 SBT 介质）\n3.控制文件信息： 必须有一个备份控制文件，用于获取源数据库的元数据\n4.辅助实例 (Auxiliary Instance)：必须在目标服务器上启动一个辅助实例到 NOMOUNT 状态。必须为该实例创建 PFILE 或 SPFILE。\n\nA.D.如果源数据库备份是在 NOARCHIVELOG 模式下创建的，必须使用 NOREDO。 这是因为没有归档日志可以应用。如果源数据库在 ARCHIVELOG 模式下，RMAN 不允许 NOREDO\n\nBFG.RMAN可以连接 TARGET 实例: 可以从数据库获取undo tablespace;不能连接 TARGET，但有 recovery catalog,可以从 catalog 获取undo tablespace;不能连接 TARGET，也没有 catalog无法获取undo tablespace\n\nRecovery Catalog 是一个普通的 Oracle 数据库,它本身就是一个数据库（可以叫 catalog database 或 schema）,需要在某台服务器上安装 Oracle Database，并创建一个专门的 schema 来存放 Recovery Catalog,RMAN 会连接到这个 catalog database 来读取 / 写入备份信息\n\nC.基于备份的克隆模式下，RMAN 不会通过网络推送备份。RMAN 要求辅助实例直接访问备份文件的物理位置（磁盘或 SBT）。只有在 基于活动数据库的克隆 且源数据库与辅助数据库不在同一主机上时，RMAN 才会通过网络推送数据文件\n\nEH.在无 TARGET 连接的克隆中，辅助实例 Auxiliary Instance需要能够访问源数据库的备份,如果备份存储在磁盘上，只要辅助实例所在的服务器可以访问该磁盘位置,SBT (System Backup to Tape) 备份存储在磁带或其他介质管理设备中。只要辅助实例的 RMAN 配置了正确的 介质管理器 (Media Manager) 库，它就可以从 SBT 设备中读取备份文件进行恢复"
+},
+{
+  "QuestionID": 71,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Virtual Private Database (VPD) policies on objects in an application root are automatically synchronized with all application PDBs contained in the application container."},
+    {"label": "B", "text": "Application-common TSDP policies are always container specific."},
+    {"label": "C", "text": "Application-common Transparent Security Data Protection (TSDP) policies can be created only within an application install/patch BEGIN-END block."},
+    {"label": "D", "text": "Application-common Oracle Label Security (OLS) policies cannot be created in an application root outside an install/patch BEGIN-END block."},
+    {"label": "E", "text": "Fine-grained auditing (FGA) policies in an application root are automatically synchronized to all application PDBs contained in the application container."},
+    {"label": "F", "text": "Application-common OLS policies can be created in an application root inside an install/patch BEGIN-END block."},
+    {"label": "G", "text": "Unified auditing can be automatically synchronized to all application PDBs in an application container."}
+  ],
+  "CorrectAnswer": ["B", "D", "G"],
+  "Explanation": "虚拟私有数据库 (VPD)也称为 行级安全 (Row-Level Security, RLS)\nA.application root 定义了 VPD 策略，它 不会自动同步到所有 application PDBs需要手动在 PDB 中应用策略\nB.在 application root 中定义的 TSDP policy，对于 application-common 对象，如果要在某个 application PDB 中生效，需要在那个 PDB (container) 中enable该策略\nCD.TSDP 不能在 install/patch BEGIN-END block 中创建，必须使用匿名 PL/SQL 块创建；OLS 在 application root 中创建时，必须在 install/patch BEGIN-END block 内；如果在外部创建，会失败\n\n1.容器隔离：绝大多数安全策略是 container-specific，即使对象是 application-common，也不会自动同步策略\n2.策略传播：VPD / TSDP / FGA 策略需要手动 propagate 或在 PDB 分别启用\n3.创建限制：TSDP → 不能放在 application install/patch BEGIN-END block; OLS → 必须放在 install/patch block; VPD / FGA → 需通过 DBMS_RLS / DBMS_FGA 过程创建\n4.审计策略：Unified Audit 可以跨 PDB，但需要注意 common/local 用户和权限。一旦通用策略在应用根中被创建和启用，它就会被设计为自动传播到该应用容器中的所有应用 PDBs（Application PDBs）"
+},
+{
+  "QuestionID": 72,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about Automatic Workload Repository (AWR)? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "By default, AWR snapshots are taken every 60 minutes."},
+    {"label": "B", "text": "Its collection level is determined by the value of the STATISTICS_LEVEL database parameter."},
+    {"label": "C", "text": "By default, AWR snapshots are retained for 7 days."},
+    {"label": "D", "text": "The taking of AWR snapshots can be disabled."},
+    {"label": "E", "text": "AWR data is stored in the SYSTEM tablespace."}
+  ],
+  "CorrectAnswer": ["A", "B", "D"],
+  "Explanation": "B.STATISTICS_LEVEL (默认 TYPICAL) 控制了包括 AWR 在内的大多数性能统计信息的采集\nD.AWR 快照的自动采集可以被禁用。可以通过执行 DBMS_WORKLOAD_REPOSITORY.DISABLE_AWR()\nE.AWR 数据存储在 SYSAUX 表空间中"
+},
+{
+  "QuestionID": 73,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about automatic block repair? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Automatic block repair can repair blocks with no standby database if DB_BLOCK_CHECKING = TRUE."},
+    {"label": "B", "text": "Real-Time Query must be enabled on a physical standby database for automatic block repair to be done on that physical standby database."},
+    {"label": "C", "text": "Real-Time Query must be enabled on a primary database for automatic block repair to be done on any of its physical standby databases."},
+    {"label": "D", "text": "It is not possible for media corrupt blocks."},
+    {"label": "E", "text": "Real-Time Query must be enabled on a physical standby database for automatic block repair to be done on its primary database."}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "automatic block repair是 Oracle Data Guard 的一项功能，允许损坏的块（逻辑损坏，如校验和不匹配）从 Data Guard 体系结构中的伙伴数据库（Primary 或 Standby）自动获取并修复\n自动块修复的核心机制是从另一份数据副本中获取正确块。如果环境中没有备用数据库（Standby Database），即使设置了 DB_BLOCK_CHECKING = TRUE（这只是启用块校验），也无法进行自动修复，因为没有块的来源\nBCE.Real-Time Query（Active Data Guard, ADG）是备用数据库（Standby Database）上的一个功能，它允许：备库自身进行查询 (如 B 选项中的修复源查询)。备库接受外部查询 (如 E 选项中主库对备库的查询)。主库primary database不涉及 ADG\nD.自动块修复可以修复 Media Corrupt Blocks（介质损坏块），前提是损坏的块是由逻辑错误（如校验和失败）导致的，并且Data Guard环境中有可用的、未损坏的块副本。修复范围包括逻辑损坏。"
+},
+{
+  "QuestionID": 74,
+  "QuestionType": "multiple",
+  "QuestionText": "Oracle Managed Files (OMF) is enabled in a CDB and this command is successfully executed:\nCREATE PLUGGABLE DATABASE app1\n AS APPLICATION CONTAINER\n ADMIN USER admini IDENTIFIED BY app_123 ROLES= (CONNECT);\nWhich three are true? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Application PDBs that are subsequently created in the APP1 application container will be cloned from APP1$SEED."},
+    {"label": "B", "text": "An application seed PDB is created for APP1."},
+    {"label": "C", "text": "An application root PDB is created for APP1."},
+    {"label": "D", "text": "A default service is created for the application root APP1."},
+    {"label": "E", "text": "Application PDBs that are subsequently created in the APP1 application container will be cloned from PDB$SEED."},
+    {"label": "F", "text": "APP1 can never be unplugged."}
+  ],
+  "CorrectAnswer": ["C", "D", "E"],
+  "Explanation": "AB.CREATE PLUGGABLE DATABASE APP1 AS APPLICATION CONTAINER ...，并没有包含 AS SEED 子句，因此应用种子 PDB (APP1$SEED) 不会作为该命令的直接结果自动创建。 必须在创建应用根 PDB 后，再执行单独的 CREATE PLUGGABLE DATABASE APP1$SEED AS SEED 命令\n\nE.由于 APP1$SEED 不存在，如果用户在应用根中尝试使用默认方式创建应用 PDB，它会使用 CDB 的通用种子 PDB$SEED 作为模板。在没有应用种子的情况下，这是创建 PDB 的默认行为。\nF.如果 APP 容器没有任何 PDB，您可以拔下 APP 容器;如果 APP 里有 PDB，就不可以拔下来"
+},
+{
+  "QuestionID": 75,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about RMAN encryption? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "RMAN encryption keys are stored in a database keystore."},
+    {"label": "B", "text": "RMAN can encrypt the Oracle Database password file."},
+    {"label": "C", "text": "Dual-mode encrypted backups can be restored only if both the password and the keystore used for encryption are available."},
+    {"label": "D", "text": "The SET ENCRYPTION command overrides encryption settings specified by the CONFIGURE ENCRYPTION command."},
+    {"label": "E", "text": "Password encryption can be persistently configured using the CONFIGURE ENCRYPTION command."}
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "RMAN 备份加密模式:\n1.透明加密模式 (Transparent Mode):加密和解密的密钥（通常是 TDE Master Key 或 Auto-Login Keystore）存储在 数据库 Keystore,恢复时，只要 Keystore 是开放且可用的，RMAN 就会自动从 Keystore 中获取密钥\n2.密码加密模式 (Password Mode)用户必须在 RMAN 命令中指定加密密码。RMAN 使用该密码对备份数据进行加密。恢复该备份时，用户必须提供完全相同的密码，否则 RMAN 无法解密和还原数据\n\nB.RMAN 的加密功能针对的是备份集和归档日志。Oracle Database 密码文件的安全由操作系统权限或使用 orapwd 实用程序创建时设置的密码保护，RMAN 本身没有加密密码文件的功能\nC.双模式 (Dual Mode) 加密指的是 RMAN 备份可以同时使用透明模式和密码模式加密。但是，要恢复备份，只需要其中一种解密机制可用即可：如果 keystore 可用，RMAN 可以使用透明模式自动解密。如果 keystore 不可用，用户可以使用加密时设置的密码进行解密\nD.RMAN 提供了两种设置加密的方法：CONFIGURE ENCRYPTION：用于设置持久的、全局的默认加密设置;SET ENCRYPTION：用于在单个 BACKUP 命令或 RUN 块内设置加密,根据 RMAN 的规则，SET ENCRYPTION 总是优先于（即覆盖）CONFIGURE ENCRYPTION 的持久设置\nE.Password encryption只能用SET ENCRYPTION IDENTIFIED BY 来配置；CONFIGURE ENCRYPTION 仅用于设置透明加密（依赖 Keystore）"
+},
+{
+  "QuestionID": 76,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about performing an Oracle Database install on Linux? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The runfixup.sh script can install missing RPMs."},
+    {"label": "B", "text": "The Oracle Preinstallation RPM must be used to configure the Oracle database installation owner, the Oracle Inventory group, and an Oracle administrative privileges group."},
+    {"label": "C", "text": "It allows you to select the languages supported by the Oracle database server."},
+    {"label": "D", "text": "It can be done before installing Grid Infrastructure for a Standalone Server."},
+    {"label": "E", "text": "The Oracle Preinstallation RPM can be used to configure the Oracle database installation owner, the Oracle Inventory group, and an Oracle administrative privileges group."},
+    {"label": "F", "text": "It can be done after installing Grid Infrastructure for a Standalone Server."},
+    {"label": "G", "text": "The Oracle database administrator must be granted access to the root operating system account to run root privileged scripts."}
+  ],
+  "CorrectAnswer": ["D", "E", "F"],
+  "Explanation": "A.runfixup.sh 脚本主要用于修正内核参数、文件系统挂载选项和资源限制（ulimits）等设置，以符合 Oracle 的要求。它不能用于安装缺失的操作系统 RPM 包。安装 RPM 通常依赖于操作系统自带的包管理器\nB.虽然 Oracle 推荐使用预安装 RPM，但它不是强制性的。用户可以手动完成所有必需的配置\nC.数据库内部支持的字符集、语言环境（NLS settings）不是在安装时通过“选择语言”的界面设置的\nD.单实例环境可以先安装数据库软件，再安装或不安装 GI\nE.预安装 RPM 可以用于自动创建所需的用户和组，这是它的主要功能之一\nF.单实例环境可以先安装 GI（提供 ASM），再安装数据库软件\nG.DBA 用户不能直接访问 root 账户"
+},
+{
+  "QuestionID": 77,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about Recovery Manager (RMAN) in Oracle Database 19c and later releases? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is only possible for RMAN to connect to a pluggable database as a target if an RMAN Virtual Private Catalog is used."},
+    {"label": "B", "text": "It is always possible for RMAN to connect to a pluggable database as a target if any RMAN Catalog is used."},
+    {"label": "C", "text": "A Virtual Private Catalog used to register a container database must be created in a pluggable database."},
+    {"label": "D", "text": "A Virtual Private Catalog used to register a container database can be created in a pluggable database."},
+    {"label": "E", "text": "It is always possible for RMAN to connect to a pluggable database as a target."},
+    {"label": "F", "text": "A Virtual Private Catalog used to register a container database can be created in a non-container database."}
+  ],
+  "CorrectAnswer": ["D", "E", "F"],
+  "Explanation": "Virtual Private Catalog提供多用户隔离的备份元数据可见性,基于主 catalog,依赖一个中央 RMAN Catalog,给 VPC 用户创建专用视图,内容是从主 catalog 中“过滤”出来的可见数据\n\nA.连接到 PDB 作为目标数据库是 RMAN 的基本功能，与是否使用 VPC 或恢复目录无关.\nBE.RMAN 总是可以连接到 PDB 作为目标，无论是否使用目录\nCDF.恢复目录（或 VPC）不必须创建在 PDB 中。它也可以创建在一个 Non-CDB 中,或者甚至创建在它所注册的 CDB 根目录 (CDB$ROOT) 中（但不推荐）"
+},
+{
+  "QuestionID": 78,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true in Oracle 19c and later releases? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "If the password file location changes, then the new location is used automatically by the Oracle Server."},
+    {"label": "B", "text": "Schema Only accounts can be granted administrator privileges."},
+    {"label": "C", "text": "All the Oracle-supplied accounts are Schema Only accounts."},
+    {"label": "D", "text": "Privilege Analysis is included in Oracle Enterprise Edition and no longer requires Database Vault."},
+    {"label": "E", "text": "Unified Auditing can be configured to audit only events that are issued indirectly by an audited user."},
+    {"label": "F", "text": "Unified Auditing can be configured to audit only events that are issued directly by an audited user."}
+  ],
+  "CorrectAnswer": ["B", "D", "F"],
+  "Explanation": "A.Oracle Server 依赖于 sid 文件来查找密码文件。如果密码文件的位置发生变化，您通常需要重新配置或确保参数文件 (SPFILE/PFILE) 中的 REMOTE_LOGIN_PASSWORDFILE 参数正确设置，并且数据库实例需要重启才能识别新的密码文件位置。它不会“自动”使用新的位置\nB.Schema Only Accounts (仅模式账户没有密码) 是将数据库模式的所有权与用户登录/连接能力分开;仅模式账户不能用于登录或连接数据库。它们只是一个容器，用于存储表、索引等对象,可以给这些账户授予管理权限（如 DBA 角色）\n只有新创建的用于模式存储的账户推荐使用 Schema Only,已有账户都有密码\nD.从 Oracle Database 18c/19c 开始，权限分析已降级为 Oracle Enterprise Edition (EE) 的标准功能，不再需要购买和配置昂贵的 Database Vault 选件;\nEF.统一审计的默认行为是审计由用户直接发出的事件"
+},
+{
+  "QuestionID": 79,
+  "QuestionType": "multiple",
+  "QuestionText": "You have configured RMAN SBT channels to write backups to media. You then take an RMAN backup by using this command:\n\nRMAN> BACKUP AS COMPRESSED BACKUPSET DATABASE KEEP UNTIL TIME 'SYSDATE + 730' RESTORE POINT 'OLD_CONFIGURATION';\n\nWhich three are true? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The restore point is a label for the system change number (SCN) that will be saved two years after the archival backup was taken."},
+    {"label": "B", "text": "The data file backups in the self-contained archive backup are not considered obsolete for two years regardless of the retention policy."},
+    {"label": "C", "text": "All archive logs created after this backup are kept for two years."},
+    {"label": "D", "text": "The SPFILE is included in the self-contained archival backup."},
+    {"label": "E", "text": "The control file is included in the self-contained archival backup."},
+    {"label": "F", "text": "The restore point is a label for the system change number (SCN) before the archival backup was taken."}
+  ],
+  "CorrectAnswer": ["B", "D", "E"],
+  "Explanation": "这个命令创建了一个特殊的备份，称为 自包含归档备份 (Self-Contained Archival Backup) 或 KEEP 备份\nAS COMPRESSED BACKUPSET指定备份以备份集 (Backup Set) 形式创建，并且在创建过程中应用 压缩 (COMPRESSED)。这会减小备份文件的大小\nDATABASE指定备份整个数据库（所有数据文件）。这个备份是自包含的 (Self-Contained)，意味着它会自动包含 控制文件 和 SPFILE（如果使用)\nKEEP UNTIL TIME 'SYSDATE + 730'保留这个备份集，直到当前系统时间（SYSDATE）加上 730 天（约两年）\nRESTORE POINT 'OLD_CONFIGURATION'在备份操作开始之前，RMAN 会在控制文件中自动创建一个恢复点 (Restore Point)，并为其贴上标签 'OLD_CONFIGURATION'\n\nAF.RESTORE POINT 'OLD_CONFIGURATION'：标记了一个历史的、过去的时间点;KEEP UNTIL TIME 'SYSDATE + 730'：设置了一个未来的删除点，保护了备份集本身\nB.除非您在命令中明确使用 ARCHIVELOG ALL 或类似子句来备份归档日志，否则 BACKUP DATABASE 命令不会影响归档日志的保留策略。只有归档日志本身的备份集会受 KEEP 子句保护"
+},
+{
+  "QuestionID": 80,
+  "QuestionType": "multiple",
+  "QuestionText": "The USERS tablespace consists of data files 3 and 4 and must always be online in read/write mode. Which two are true about using RMAN to perform an open database backup of this tablespace? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Backups must be done incrementally."},
+    {"label": "B", "text": "Backups must be contained in backup sets."},
+    {"label": "C", "text": "Backups can be taken only if the database is in ARCHIVELOG mode."},
+    {"label": "D", "text": "Backups can be done incrementally."},
+    {"label": "E", "text": "The database must be registered in an RMAN catalog."},
+    {"label": "F", "text": "Only consistent backups can be created."}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": "AD.备份可以是完全 (Full) 备份，也可以是增量 (Incremental) 备份\nB.RMAN 备份可以以 备份集 (Backup Sets) 的形式存储，也可以以 映像副本 (Image Copies) 的形式存储\nC.打开数据库备份 (Open Database Backup) 指的是在数据库处于 OPEN 状态时进行的备份。当数据库处于 OPEN 状态且数据文件处于读/写模式时，数据文件正在不断发生变化。为了确保备份的数据块是一致且可恢复的，Oracle 必须能够应用在备份期间产生的所有 重做日志 (Redo Log)。这要求数据库必须启用 ARCHIVELOG 模式。如果数据库处于 NOARCHIVELOG 模式，则只能进行一致性关闭备份 (Consistent Closed Backup)\nE.RMAN 可以运行在 NOCATALOG 模式下，依靠数据库的控制文件来存储元数据。使用恢复目录是可选的\nF.如果数据库处于 OPEN 状态且启用了 ARCHIVELOG 模式，那么 RMAN 创建的是 非一致性备份 (Inconsistent Backup)。非一致性备份指的是备份文件在时间点上不统一（因为文件在备份时可能正在写入）。但是，可恢复性是有保证的，因为 RMAN 依赖于归档日志在恢复时将这些数据文件“前滚”到一致状态。一致性备份只能在数据库处于关闭 (SHUTDOWN) 状态或被挂起 (SUSPEND) 时创建"
 }
 
 
