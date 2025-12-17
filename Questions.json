@@ -6620,7 +6620,7 @@
     {"label": "G", "text": "converting an application container into another application container in the same CDB"}
   ],
   "CorrectAnswer": ["C", "D", "E"],
-  "Explanation": "A.不能简单地执行 ALTER 命令或者运行一个脚本就把 App PDB 变成 Regular PDB。如果你尝试将一个 Application PDB 直接 Unplug 然后 Plug 到 CDB$ROOT 中，Oracle 会报错（ORA-65267）。因为 App PDB 依赖于 Application Root 中的公共对象（Common Objects），一旦离开那个环境，PDB 内部的元数据链接就会断裂，导致数据库不可用。如果想“脱离应用根变成普通 PDB”，必须 导出数据（Data Pump 或类似方法），然后在新普通 PDB 中导入\n\nB.	应用根 PDB 和应用 PDB 的结构不同；应用根 PDB 包含管理应用 PDB 的元数据和特殊字典表。应用 PDB 只包含应用数据，不具备管理子 PDB 的功能。如果需要从应用 PDB 创建新的应用根，通常是 在 CDB$ROOT 下创建新的应用根 PDB，然后把数据迁移进去\n\n C。通过 Unplug + Plug，Plug 时不加 AS SEED\n\nD.通过 Unplug + Plug + AS SEED 来重新创建 Seed\n\nE.通过 Adoption 脚本 或 克隆到应用根 + 配置同步\n\nF.Oracle 不允许把一个应用容器（Application Container, AC）直接转换到另一个不同的 CDB 中。跨 CDB 只能做 PDB transport 或 应用 PDB 的迁移，而不是转换整个应用容器\n\nG.在同一个 CDB 内，也没有提供“把一个应用容器直接转换成另一个应用容器”的功能。你可以创建新的应用容器，然后把应用 PDB 移入，但不是直接转换整个容器。"
+  "Explanation": "A.不能简单地执行 ALTER 命令或者运行一个脚本就把 App PDB 变成 Regular PDB。如果你尝试将一个 Application PDB 直接 Unplug 然后 Plug 到 CDB$ROOT 中，Oracle 会报错（ORA-65267）。因为 App PDB 依赖于 Application Root 中的公共对象（Common Objects），一旦离开那个环境，PDB 内部的元数据链接就会断裂，导致数据库不可用。如果想“脱离应用根变成普通 PDB”，必须 导出数据（Data Pump 或类似方法），然后在新普通 PDB 中导入\n\nB.应用根 PDB 和应用 PDB 的结构不同；应用根 PDB 包含管理应用 PDB 的元数据和特殊字典表。应用 PDB 只包含应用数据，不具备管理子 PDB 的功能。如果需要从应用 PDB 创建新的应用根，通常是 在 CDB$ROOT 下创建新的应用根 PDB，然后把数据迁移进去\n\n C。通过 Unplug + Plug，Plug 时不加 AS SEED\n\nD.通过 Unplug + Plug + AS SEED 来重新创建 Seed\n\nE.通过 Adoption 脚本 或 克隆到应用根 + 配置同步\n\nF.Oracle 不允许把一个应用容器（Application Container, AC）直接转换到另一个不同的 CDB 中。跨 CDB 只能做 PDB transport 或 应用 PDB 的迁移，而不是转换整个应用容器\n\nG.在同一个 CDB 内，也没有提供“把一个应用容器直接转换成另一个应用容器”的功能。你可以创建新的应用容器，然后把应用 PDB 移入，但不是直接转换整个容器。"
 },
 {
   "QuestionID": 134,
