@@ -6418,7 +6418,321 @@
   ],
   "CorrectAnswer": ["B", "C", "D"],
   "Explanation": "BACKUP RECOVERY AREA不仅针对当前配置的快速恢复区（Fast Recovery Area, FRA），还会扫描并备份以前配置过的 FRA 位置中的恢复文件。Oracle 会记录恢复文件的位置(即使你改变了 DB_RECOVERY_FILE_DEST 参数，旧位置的文件信息仍然在控制文件中),该命令涵盖了(当前 FRA)和(以前的 FRA)\n\n默认情况下，RMAN 启用了备份优化 (Backup Optimization)。如果一个文件（如归档日志）已经被备份到了相同的设备类型上，RMAN 通常会跳过它。使用 FORCE 选项会覆盖这种优化行为。它强制 RMAN 备份所有符合条件的文件，无论它们之前是否已经被备份过。\n\n"
+},
+{
+  "QuestionID": 121,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about recovery operations done without using Recovery Manager (RMAN)? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A lost SPFILE can be recovered from memory using SQL*PLUS."},
+    {"label": "B", "text": "A lost password file can be re-created with SQL*PLUS."},
+    {"label": "C", "text": "A lost TEMPFILE must always be re-created manually."},
+    {"label": "D", "text": "A lost password file can be manually re-created with the orapwd utility."},
+    {"label": "E", "text": "A lost PFILE can be re-created alert.log using SQL*PLUS."},
+    {"label": "F", "text": "A lost index tablespace can be re-created without performing any recovery."}
+  ],
+  "CorrectAnswer": ["A", "D", "F"],
+  "Explanation": "在不使用 RMAN 时，恢复主要依赖两个工具的配合:\n1.操作系统命令 (OS Cmd):用于还原文件（如 cp, copy）\n--冷备 (Cold Backup)：必须 SHUTDOWN 数据库后才能拷贝。\n--热备 (Hot Backup)：这是 User-Managed 备份最容易考的地方。你必须先执行 SQL 命令让表空间进入备份模式，否则拷贝出来的文件是不一致的（Split Blocks 问题）。\nALTER TABLESPACE users BEGIN BACKUP;\n-- 此时去操作系统 cp 拷贝文件 --\nALTER TABLESPACE users END BACKUP;\n2.SQL*Plus：用于执行恢复逻辑（应用 Redo Log）和更改数据库状态。OS 拷贝只是把旧文件放回去（Restore），RECOVER 命令才是应用归档日志和 Redo Log 让数据变新（Recover）的过程\n3.使用 Trace 文件重建控制文件:当你所有控制文件都丢了，而且你没有二进制备份时。使用这种方法重建后，通常需要执行 RECOVER DATABASE，并且必须使用 OPEN RESETLOGS 打开数据库。\n使用备份控制文件 (Backup Control File):当你使用旧的控制文件（Binary Backup）恢复时，控制文件里的 SCN 肯定比数据文件旧,一旦使用了备份的控制文件，恢复完成后，必须使用 ALTER DATABASE OPEN RESETLOGS;。因为时间线（Incarnation）变了\n5. 使用日志重建 (CLEAR LOGFILE)\n\nA.如果 SPFILE 丢失（被删除或损坏），但数据库实例（Instance）仍然处于运行状态，内存中保留了当前的参数设置。你可以使用 SQL*Plus 执行以下命令来重新创建它:CREATE SPFILE FROM MEMORY;\n\nB.SQLPlus 本身没有直接创建密码文件的命令。虽然你可以通过 SQLPlus 调用主机命令，但创建密码文件的核心工具是操作系统层面的 orapwd，而不是 SQL 语言本身\n\nC.在使用 OMF (Oracle Managed Files) 或者 PDB 环境下:如果临时表空间定义了临时文件，且该文件在 OS 层面丢失，当数据库（或 PDB）重启/打开时，Oracle 往往会尝试根据 DB_CREATE_FILE_DEST 等参数自动重新创建该临时文件，而不需要 DBA 手动输入 ALTER TABLESPACE ... ADD TEMPFILE\n\nD.Oracle 提供了一个操作系统级别的实用程序 orapwd（Oracle Password Utility），专门用于创建密码文件。这是生成密码文件的标准方法，不依赖于 SQL*Plus 或 RMAN\n\nE.SQL*Plus 没有命令可以直接读取 Alert Log 并自动生成 PFILE\n\nF.索引（Index）只是表数据的一种冗余表示（Derived Data）如果索引表空间损坏，DBA 不需要 像恢复普通数据文件那样去还原备份并应用 Redo Log（介质恢复）删除损坏的索引表空间（DROP TABLESPACE ... INCLUDING CONTENTS）;创建一个新的空表空间;运行脚本重新创建索引（CREATE INDEX ...）"
+},
+{
+  "QuestionID": 122,
+  "QuestionType": "single",
+  "QuestionText": "Examine this configuration:\n1. CDB1 is a container database.\n2. APP_ROOT is an application root in CDB1.\n3. APP_PDB1 is an application PDB in APP_ROOT.\n4. FLASHBACK DATABASE is ON.\nYou execute these commands: Which table or set of tables will exist after the Flashback operation has completed?",
+  "ImageURL": "images/Q122.png",
+  "Options": [
+    {"label": "A", "text": "CDB1_TAB, APP_ROOT_TAB, and APP_PDB1_TAB"},
+    {"label": "B", "text": "CDB1_TAB and APP_PDB1_TAB"},
+    {"label": "C", "text": "none of the tables, because all three tables will be dropped"},
+    {"label": "D", "text": "CDB1_TAB only"},
+    {"label": "E", "text": "CDB1_TAB and APP_ROOT_TAB"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "闪回 root_app 时，只是闪回该 pdb 的数据，属于它的其它的 pdb 不会被闪回"
+},
+{
+  "QuestionID": 123,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about RMAN backups when using a media manager? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A media manager always writes RMAN requested backups to tape."},
+    {"label": "B", "text": "By default, a request for a proxy copy may result in a backup set being created."},
+    {"label": "C", "text": "A media manager is required to create RMAN proxy copies."},
+    {"label": "D", "text": "A media manager is required to create RMAN image copies."},
+    {"label": "E", "text": "The media manager layer (MML) routines provided by Oracle support any vendors' media management products."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "在 Oracle 的技术架构中，RMAN 本身不懂如何操作磁带机（Tape Drive）硬件，也不懂各个厂商云存储的 API。RMAN 只懂读写 Oracle 数据块。Media Manager（介质管理器） 就是夹在 RMAN 和存储硬件中间的软件层。它的核心组件：MML (Media Management Library)\n\nRMAN 不直接写磁带或云，它只是发指令; SBT(System Backup to Tape)是标准接口; MML(Media Manager Library)翻译成硬件命令；介质管理服务器执行命令；最终写入磁带或云存储\n\nA.虽然 SBT 通道传统上指System Backup to Tape，但现代的介质管理器可以将数据写入多种后端存储，包括 虚拟磁带库 (VTL)、光盘，甚至是 云对象存储 (Cloud Object Storage)（例如 Oracle Secure Backup Cloud Module）\n\nB.Proxy Copy代理副本:RMAN 将数据传输的控制权完全移交给媒体管理器（MML），由存储设备直接处理数据移动，而不是通过 RMAN 的内存缓冲区。如果 MML不支持代理模式或拒绝（例如配置不满足），RMAN 的默认行为是自动切换回标准模式，即创建一个常规的 Backup Set（备份集）\n\nC.Proxy Copy 的定义就是 RMAN 将控制权交给第三方媒体管理软件。普通磁盘（DISK 通道）不支持 Proxy Copy 机制，只有配置了 SBT（磁带/云）通道并加载了相应的 MML 库，才能执行 Proxy Copy\n\nD.Image Copy（镜像副本） 是数据文件的逐位拷贝，结构与原文件完全一致。RMAN 的 Image Copy 通常是在磁盘（DISK）上创建的，不需要介质管理器,RMAN 不能直接在磁带（SBT）上创建 Image Copy。在磁带上，RMAN 只能创建 Backup Sets（或者 Proxy Copies）。\nE.Oracle 提供的是一个标准的 API 接口规范（SBT 接口）。第三方厂商（如 Veritas, Commvault, IBM 等）负责编写和提供符合该接口的驱动库（Library/DLL）。Oracle 并不提供支持所有厂商的通用例程，而是厂商必须提供适配 Oracle 的库"
+},
+{
+  "QuestionID": 124,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about interpreting Recovery Manager (RMAN) error stacks returned to standard output? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Some messages in the error stack are not errors."},
+    {"label": "B", "text": "If an RMAN command fails, the output will only identify the command that failed."},
+    {"label": "C", "text": "If an RMAN command fails, the output will identify the channel ID where the failure occurred."},
+    {"label": "D", "text": "Media Management errors appear as a line with sbtio and a number."},
+    {"label": "E", "text": "Media Management errors appear as a line with sbtio"},
+    {"label": "F", "text": "Media Management errors appear as a line with Additional information and a number."}
+  ],
+  "CorrectAnswer": ["A", "C", "F"],
+  "Explanation": "A.RMAN 的错误错误堆栈Error Stack通常是一个 从上到下 或 从外到内 的列表,顶层消息通常是通用的包装器消息Wrapper Message,这条消息本身只是告诉你“有个命令失败了”，它更多是描述上下文（Context），而非具体的错误原因;堆栈中可能包含像 ORA-06512 这样的消息，它指示的是 PL/SQL 代码的行号位置，而不是错误本身\n\nB.RMAN的输出非常详细，不仅包含失败的命令Command，还包含一连串的错误堆栈Error Stack，从 RMAN自身的通用错误到底层的操作系统错误揭示了失败的根本原因，而不仅仅是命令本身\n\nC.当备份或恢复操作失败时，RMAN 会明确指出是哪个通道（Channel）遇到了问题。典型报错格式如下： RMAN-03009: failure of backup command on ORA_DISK_1 channel at ...这里的 ORA_DISK_1 就是channel ID。这对于多通道并行备份时的故障排查非常关键。\n\nDE.sbtio 通常与 跟踪文件（Trace File） 相关（如 sbtio.log），用于底层的调试。在标准输出（Standard Output）的错误堆栈中，用户看到的是标准化的 ORA-19511 格式，而不是 sbtio 这样的内部术语\n\nF.当 RMAN 与介质管理器（Media Manager, MML）交互出错时，Oracle 会抛出 ORA-19511 错误,由于 Oracle 不知道第三方厂商（如 Veritas, Commvault）具体的错误代码含义，它会把厂商返回的错误码直接显示在 Additional information 字段中。例如： ORA-19511: Error received from media manager layer, error text: ... Additional information: 4001,管理员需要拿着这个 4001 去查阅第三方备份软件的手册"
+},
+{
+  "QuestionID": 125,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about block media recovery? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The data file containing the block being recovered remains online."},
+    {"label": "B", "text": "To use it, Flashback Database must be enabled."},
+    {"label": "C", "text": "A block being recovered is not accessible."},
+    {"label": "D", "text": "It can be performed on noncorrupt blocks."},
+    {"label": "E", "text": "The target database for which one or more blocks are to be recovered must be in the OPEN state."},
+    {"label": "F", "text": "It cannot repair logical corruption."}
+  ],
+  "CorrectAnswer": ["A", "B", "C"],
+  "Explanation": "AC.这是块介质恢复（Block Media Recovery, BMR）相对于数据文件恢复的最大优势。BMR 允许你在数据库处于 OPEN 状态且数据文件 ONLINE 时，仅修复坏掉的那几个块，而不会影响该文件中其他正常数据的读写,在恢复过程中只有实际正在恢复的块不可用。\n\nB.Flashback Database必须在target database使用,RMAN 才能在flashback logs中搜索损坏数据块的正确副本\n\nD.只能对标记为损坏或未通过损坏检查的数据块执行block recovery\n\nE.数据库可以在 MOUNTED 状态下进行块恢复，并非必须是 OPEN 状态。\n\nF.Block media recovery可能无法修复所有逻辑损坏"
+},
+{
+  "QuestionID": 126,
+  "QuestionType": "multiple",
+  "QuestionText": "In which two situations can you use Database Upgrade Assistant? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "when the operating system (OS) needs to be changed as part of the upgrade"},
+    {"label": "B", "text": "when a character set conversion is required during the upgrade"},
+    {"label": "C", "text": "when multiple pluggable databases in a container database have to be upgraded in a specific sequence"},
+    {"label": "D", "text": "when the target and source database are on the same platform"},
+    {"label": "E", "text": "when the hardware platform needs to be changed as part of the upgrade"}
+  ],
+  "CorrectAnswer": ["C", "D"],
+  "Explanation": "Database Upgrade Assistant (DBUA) 是 Oracle 提供的一个基于图形用户界面 (GUI) 的工具，旨在简化将 Oracle 数据库从旧版本升级到新版本（例如从 12c/18c 升级到 19c）的过程。\n主要作用是自动化数据库升级过程中的繁琐步骤。它实际上是封装了手动升级命令的向导。\n执行方式:它引导用户完成升级配置，并自动执行 dbupgrade脚本。\n适用场景:1.原位升级 (In-place Upgrade)：通常用于源数据库和目标数据库在同一台服务器、同一个操作系统的情况。2.单实例与 RAC：既支持单实例数据库，也支持 RAC 数据库的升级\n\n关于 DBUA:\n1.它用于同平台升级。\n2.它在升级 CDB 时可以设置 PDB 优先级。\n3.它能利用闪回数据库技术进行失败回退。\n4.它的日志位于 cfgtoollogs 目录下。\n\nA.通常更改操作系统OS Change暗示着跨平台迁移（例如 Windows 转 Linux），这种情况下不能直接使用 DBUA，而需要使用数据泵（Data Pump）或传输表空间（Transportable Tablespaces）\nB.DBUA 不执行字符集转换。如果需要转换字符集（例如从非 Unicode 转为 AL32UTF8），通常需要使用 DMU (Database Migration Assistant for Unicode) 或通过导出/导入（Data Pump）来重建数据库\nC.DBUA（Database Upgrade Assistant）中，当升级一个多租户容器数据库（CDB）时，您可以在图形界面中看到所有关联的 PDB。DBUA 允许用户设置 PDB 的升级优先级（Priority）。通过设置优先级列（数字越小优先级越高），您可以控制 PDB 的升级顺序\nE.DBCA不能用于跨硬件平台时的数据库升级或迁移"
+},
+{
+  "QuestionID": 127,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about the Program Global Area (PGA) and its management in an Oracle database instance? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The private SQL area (UGA) is located in the System Global Area (SGA) when using dedicated servers."},
+    {"label": "B", "text": "PGA_AGGREGATE_LIMIT is a hard limit on the PGA size for any one session."},
+    {"label": "C", "text": "The entire PGA is located in the System Global Area (SGA) when using shared servers."},
+    {"label": "D", "text": "Sorts and Hash Joins use PGA memory."},
+    {"label": "E", "text": "The private SQL area (UGA) is located in the System Global Area (SGA) when using shared servers."}
+  ],
+  "CorrectAnswer": ["D", "E"],
+  "Explanation": "SGA(System Global Area) = 实例级Instance-level共享内存区域,，用来缓存数据、SQL、字典、Redo，以及公共执行内存，在实例启动时分配，实例关闭时释放\n\nPGA(Program Global Area)= 会话级Process-level私有内存区域,，用来做排序、哈希、中间结果和保存会话状态（含 UGA）,每个后台进程 / 用户进程私有，其他会话不能访问\n\nPGA 不在 SGA 里面，是独立的内存区域\n\nDedicated Server（专用服务器）UGA(Private SQL area私有 SQL 区)在 PGA\nShared Server（共享服务器）UGA 在 SGA（Large Pool 或 Shared Pool）\n\nB.PGA_AGGREGATE_LIMIT 是对 整个实例（Instance） 消耗的总 PGA 内存的硬性限制，而不是针对“某一个会话（any one session）”的限制"
+},
+{
+  "QuestionID": 128,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about creating RMAN backups for an Oracle container database? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Online Redo Log backups can be created while connected to the root container."},
+    {"label": "B", "text": "Control file backups can be created while connected to the root container."},
+    {"label": "C", "text": "The BACKUP TABLESPACE command can back up a PDB tablespace even if RMAN is connected to CDB$ROOT."},
+    {"label": "D", "text": "Archived Redo Log backups can be created while connected to an application root CDB."},
+    {"label": "E", "text": "Control file backups can be created while connected to a nonroot container."}
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "A.RMAN 永远无法直接备份“在线”重做日志（Online Redo Logs）。RMAN 只能备份归档重做日志（Archived Redo Logs）。如果要备份当前日志中的数据，必须先将其归档（Archive），然后再备份归档日志。这个规则适用于 CDB 和非 CDB。\n\nBE.控制文件（Control File）是整个 CDB 共享的物理文件，它属于 CDB 级别，而不是特定的 PDB。因此，必须连接到 CDB$ROOT（根容器）才能备份控制文件\n\nC.当 RMAN 连接到根容器时，它对整个 CDB 拥有完全的可见性。你可以使用 BACKUP TABLESPACE <pdb_name>:<tablespace_name> 的语法来备份特定 PDB 中的特定表空间\n\nD.重做日志（Redo Logs）和归档日志（Archived Logs）是**实例级别（Instance-level）**的文件，属于整个 CDB，而不是某个 PDB 或应用根容器（Application Root）。只有连接到 CDB$ROOT 时，才有权限备份归档日志。连接到 PDB（包括应用根容器）时，只能备份该 PDB 自己的数据文件，无法触及实例级别的归档日志。\n\n"
+},
+{
+  "QuestionID": 129,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about Automatic Workload Repository (AWR) snapshots? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "They are generated if STATISTICS_LEVEL is set to TYPICAL."},
+    {"label": "B", "text": "They are generated if STATISTICS_LEVEL is set to ALL."},
+    {"label": "C", "text": "They are always created automatically."},
+    {"label": "D", "text": "They are always created manually."},
+    {"label": "E", "text": "They can be retained forever."},
+    {"label": "F", "text": "They are generated if STATISTICS_LEVEL is set to BASIC."}
+  ],
+  "CorrectAnswer": ["A", "B", "E"],
+  "Explanation": "自动工作负载存储库Automatic Workload Repository (AWR)= MMON（Memory Monitor）自动收集性能数据的仓库，用来记录系统负载、SQL 性能、等待事件、实例状态等信息，用于性能诊断与调优。\n\nAB.STATISTICS_LEVEL 初始化参数控制数据库统计信息的收集级别。默认值是 TYPICAL。当设置为 TYPICAL 时，Oracle 会启用 AWR 统计信息的自动收集，并由 MMON 后台进程定期生成快照\nALL 级别包含了 TYPICAL 级别收集的所有统计信息，此外还包括了更详细的操作系统统计信息和执行计划统计信息。\n\nCD.默认情况下是由后台进程 MMON 自动创建，管理员可以通过将快照间隔（Interval）设置为 0 来禁用自动快照生成。管理员可以手动调用 DBMS_WORKLOAD_REPOSITORY.CREATE_SNAPSHOT 来创建快照，这部分并非自动创建\n\nE.AWR 快照的保留策略是可以修改的。虽然默认保留时间通常是 8 天，但管理员可以使用 DBMS_WORKLOAD_REPOSITORY.MODIFY_SNAPSHOT_SETTINGS 过程将保留时间retention设置为 0，这代表永久保留\n\nF.当 STATISTICS_LEVEL 设置为 BASIC 时，Oracle 会禁用 AWR 统计信息的收集和许多自动监控功能。在此模式下，不会自动生成 AWR 快照"
+},
+{
+  "QuestionID": 130,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about using Database Resource Manager in an Oracle multitenant environment? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "A PDB-level resource plan can limit session PGA memory."},
+    {"label": "B", "text": "A CDB-level resource plan can limit PDB CPU utilization."},
+    {"label": "C", "text": "A CDB-level resource plan can limit session CPU utilization."},
+    {"label": "D", "text": "PDB-level resource plans can limit uncommitted UNDO per consumer group."},
+    {"label": "E", "text": "A CDB-level resource plan can limit PDB UNDO use."},
+    {"label": "F", "text": "A CDB-level resource plan is mandatory when using PDB-level resource plans."}
+  ],
+  "CorrectAnswer": ["A", "B", "D"],
+  "Explanation": "Resource Manager 在多租户架构下的分层管理逻辑:\n1.CDB 层：管 PDB（分配 CPU shares, 限制 PDB CPU 上限）\n2.PDB 层:管会话（限制 Session PGA, 限制 Consumer Group Undo, 限制 Session 空闲时间等\n\nA.使用 SESSION_PGA_LIMIT 指令来限制特定资源消费者组（Consumer Group）中单个会话可以消耗的 PGA 内存量。如果会话超过此限制，该会话可能会被终止（报错 ORA-10260）\n\nB.这是 CDB 级资源计划的核心功能。CDB 计划将每个 PDB 视为一个实体，并通过 SHARES（份额）和 UTILIZATION_LIMIT（利用率限制）等指令来控制每个 PDB 可以使用的 CPU 资源比例或上限\n\nC.CDB 级计划管理的粒度是 PDB，而不是 PDB 内部的 会话（Session）。要管理会话级别的 CPU，需要在 PDB 级资源计划 中定义\n\nD.在 PDB 内部，您可以创建资源计划，通过 UNDO_POOL 指令限制某个消费组（如 BATCH_GROUP）可以生成的未提交 Undo 总量。当达到限额时，当前 DML 会被终止。这在多租户环境下（特别是使用 Local Undo 时）是完全支持的\n\nE.在 CDB 级资源计划的指令（Directives）中，主要支持的是 CPU (shares, utilization_limit) 和并行执行服务器 (parallel_server_limit) 的限制。目前并没有一个标准的指令直接限制“整个 PDB 的 Undo 总量”。Undo 的限制通常是在 PDB 内部通过 UNDO_POOL 对消费组进行的，或者是通过存储配额（Quota）来管理\n\nF.如果您在 PDB 中启用了资源计划（包含 CPU 或并行指令），Oracle 会自动在 CDB 层面启用一个默认的 DEFAULT_CDB_PLAN(如果管理员没有手动设置的话)"
+},
+{
+  "QuestionID": 131,
+  "QuestionType": "single",
+  "QuestionText": "How do you configure a CDB for local undo mode?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Open the CDB instance in upgrade mode. In CDB$ROOT, execute ALTER DATABASE LOCAL UNDO ON, and then restart the CDB instance."},
+    {"label": "B", "text": "Open the CDB instance in restricted mode. In CDB$ROOT, execute ALTER DATABASE LOCAL UNDO ON, and create an UNDO tablespace in each PDB, then restart the CDB instance."},
+    {"label": "C", "text": "Open the CDB instance in restricted mode. In CDB$ROOT, drop the UNDO tablespace. Execute ALTER DATABASE LOCAL UNDO ON in each PDB, and then restart the CDB instance."},
+    {"label": "D", "text": "Open the CDB instance in read-only mode. In CDB$ROOT, execute ALTER DATABASE LOCAL UNDO ON, and then change the CDB to read/write mode."},
+    {"label": "E", "text": "Open the CDB instance in upgrade mode. In each PDB, execute ALTER DATABASE LOCAL UNDO ON, create an UNDO tablespace, and then restart the CDB instance."}
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "SHUTDOWN IMMEDIATE;\nSTARTUP UPGRADE;\nALTER DATABASE LOCAL UNDO ON;\nSHUTDOWN IMMEDIATE;\n\nLocal Undo:每个 PDB 都有自己独立的 Undo 表空间。CDB$ROOT 也有自己的 Undo\nShared Undo:整个 CDB 实例共享同一个 Undo 表空间 (通常在 CDB$ROOT 中)。"
+},
+{
+  "QuestionID": 132,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about using an RMAN Recovery Catalog with a pluggable database (PDB) target connection in Oracle Database 19c and later releases? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The base catalog owner must give the Virtual Private Catalog access to metadata for one or more PDBs."},
+    {"label": "B", "text": "The base catalog must be enabled for Virtual Private Catalog use."},
+    {"label": "C", "text": "The target PDB must be registered in a base catalog."},
+    {"label": "D", "text": "The base catalog must be used by RMAN when performing point-in-time recovery for the PDB registered in the Virtual Private Catalog."},
+    {"label": "E", "text": "The target PDB must be registered in a Virtual Private Catalog."},
+    {"label": "F", "text": "The target PDB must be registered in both the base catalog and the Virtual Private Catalog."}
+  ],
+  "CorrectAnswer": ["A", "B", "C"],
+  "Explanation": "Base Catalog Owner = 掌握所有备份元数据生杀大权的那个专用数据库账户。\n工作原理：\n--物理存储:所有数据其实都存在同一套表里（由Base Catalog Owner拥有）。\n--逻辑隔离:Oracle 使用 VPD (Virtual Private Database) 技术，在查询时自动加上过滤条件（例如 WHERE db_name = 'MyPDB'），实现数据隔离。\n\nA.这是配置虚拟专用目录VPC的核心安全步骤,基础目录的所有者（Base Catalog Owner）必须显式地授予 VPC 用户对特定 PDB 元数据的访问权限。通常使用命令 GRANT CATALOG FOR PLUGGABLE DATABASE <pdb_name> TO <vpc_owner>; 来实现。这允许 PDB 管理员通过 VPC 查看和管理属于他们 PDB 的备份，而无法看到其他 PDB 或 CDB 的信息。\n\nB.当使用 PDB 作为目标数据库连接 RMAN 并使用恢复目录时，通常是为了实现职责分离（Separation of Duties），即 PDB 管理员只能看到自己 PDB 的备份信息。这需要使用 虚拟专用目录 (Virtual Private Catalog, VPC)。要创建和使用 VPC，基础恢复目录（Base Catalog）必须先通过 UPGRADE CATALOG 命令或相关过程启用 VPC 功能\n\nC.这是一个物理层面的事实。即使使用了虚拟专用目录（VPC），VPC 本质上只是基础目录（Base Catalog）上的一个安全视图或数据子集。所有的备份元数据（Metadata）物理上仍然存储在基础目录的表中。因此，目标 PDB 的注册信息最终必须存在于基础目录中\n\nD.当配置了 VPC 后，PDB 管理员在进行恢复操作（包括时间点恢复）时，应该连接并使用 VPC 目录账号，而不是基础目录账号。此外，时间点恢复在某些情况下仅依赖控制文件（Control File）也是可以完成的，并不绝对“必须”使用目录，但在 VPC 语境下，强调的是使用 VPC 凭据而非基础目录凭据\n\nE.数据库是注册在**恢复目录（Recovery Catalog）**中的。VPC 只是对基础目录中数据的一种访问控制机制（View/Synonym/Policy）\n\nF.数据库只需注册一次（物理上在基础目录中），然后通过权限控制在 VPC 中可见"
+},
+{
+  "QuestionID": 133,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three activities are possible for PDBs? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "converting an application PDB to a regular PDB"},
+    {"label": "B", "text": "converting an application PDB to an application root"},
+    {"label": "C", "text": "converting an application seed to an application PDB"},
+    {"label": "D", "text": "converting an application PDB to an application seed"},
+    {"label": "E", "text": "converting a regular PDB to an application PDB"},
+    {"label": "F", "text": "converting an application container into another application container in a different CDB"},
+    {"label": "G", "text": "converting an application container into another application container in the same CDB"}
+  ],
+  "CorrectAnswer": ["C", "D", "E"],
+  "Explanation": "A.不能简单地执行 ALTER 命令或者运行一个脚本就把 App PDB 变成 Regular PDB。如果你尝试将一个 Application PDB 直接 Unplug 然后 Plug 到 CDB$ROOT 中，Oracle 会报错（ORA-65267）。因为 App PDB 依赖于 Application Root 中的公共对象（Common Objects），一旦离开那个环境，PDB 内部的元数据链接就会断裂，导致数据库不可用。如果想“脱离应用根变成普通 PDB”，必须 导出数据（Data Pump 或类似方法），然后在新普通 PDB 中导入\n\nB.	应用根 PDB 和应用 PDB 的结构不同；应用根 PDB 包含管理应用 PDB 的元数据和特殊字典表。应用 PDB 只包含应用数据，不具备管理子 PDB 的功能。如果需要从应用 PDB 创建新的应用根，通常是 在 CDB$ROOT 下创建新的应用根 PDB，然后把数据迁移进去\n\n C。通过 Unplug + Plug，Plug 时不加 AS SEED\n\nD.通过 Unplug + Plug + AS SEED 来重新创建 Seed\n\nE.通过 Adoption 脚本 或 克隆到应用根 + 配置同步\n\nF.Oracle 不允许把一个应用容器（Application Container, AC）直接转换到另一个不同的 CDB 中。跨 CDB 只能做 PDB transport 或 应用 PDB 的迁移，而不是转换整个应用容器\n\nG.在同一个 CDB 内，也没有提供“把一个应用容器直接转换成另一个应用容器”的功能。你可以创建新的应用容器，然后把应用 PDB 移入，但不是直接转换整个容器。"
+},
+{
+  "QuestionID": 134,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about actions that can or cannot be performed by users with the SYSBACKUP privilege? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "They can view data from any data dictionary view or dynamic performance view."},
+    {"label": "B", "text": "They cannot create restore points."},
+    {"label": "C", "text": "They cannot drop tablespaces."},
+    {"label": "D", "text": "They can create any table."},
+    {"label": "E", "text": "They can drop any tablespace."},
+    {"label": "F", "text": "They can view data from any user-defined tables."}
+  ],
+  "CorrectAnswer": ["A", "D", "E"],
+  "Explanation": "SYSBACKUP privilege:\n1.数据库启动/关闭与管理类:\n--STARTUP启动数据库\n--SHUTDOWN关闭数据库\n--ALTER DATABASE修改数据库参数或状态（主要用于备份/恢复）\n--ALTER SYSTEM修改系统级参数（备份/恢复相关）\n--ALTER SESSION修改会话参数\n--CREATE SESSION可以连接数据库，即使数据库未完全打开\n\n2.表空间与文件管理类:\n--ALTER TABLESPACE修改表空间属性（备份/恢复相关）\n--DROP TABLESPACE删除表空间（只能在恢复上下文下，如 RMAN）\n--CREATE CONTROLFILE创建控制文件\n--CREATE PFILE创建初始化参数文件\n--CREATE SPFILE创建服务器参数文件\n--DROP DATABAS删除数据库（仅在恢复上下文使用）\n\n3.恢复/回滚相关:\n--CREATE RESTORE POINT (including GUARANTEED)创建恢复点\n--DROP RESTORE POINT (including GUARANTEED)删除恢复点\n--FLASHBACK DATABASE数据库闪回操作\n--RESUMABLE支持可恢复操作\n--UNLIMITED TABLESPACE用于备份/恢复操作不受表空间配额限制\n\n4.数据访问/查询类:\n--SELECT ANY DICTIONARY查询数据字典\n--SELECT ANY TRANSACTION查询事务信息\n--SELECT普通查询权限\n*** X$ tables固定表，可访问内部结构\n*** V$ and GV$ views动态性能视图\n*** APPQOSSYS.WLM_CLASSIFIER_PLAN特定系统对象\n*** SYSTEM.LOGSTDBY$PARAMETERS特定系统对象\n\n5.数据操作 / DML 类:\n--DELETE/INSERT删除或插入操作（通常用于恢复上下文）\n--SYS.APPLY$_SOURCE_SCHEMA数据应用操作（恢复/数据搬移）\n\n6.执行 PL/SQL 包:\n--EXECUTE执行对象或包\n*** SYS.DBMS_BACKUP_RESTORE(RMAN 备份/恢复包)\n*** SYS.DBMS_RCVMAN恢复管理包\n*** SYS.DBMS_DATAPUMP数据泵导入导出\n*** SYS.DBMS_IR索引重建/恢复\n*** SYS.DBMS_PIPE管道通信包\n*** SYS.SYS_ERROR错误管理包\n*** SYS.DBMS_TTS表分区/表移动\n*** SYS.DBMS_TDB表分区/表移动\n*** SYS.DBMS_PLUGTS插件/迁移相关\n*** SYS.DBMS_PLUGTSP插件/迁移相关\n\n7.角色类:\n--SELECT_CATALOG_ROLE可查询数据字典表和视图"
+},
+{
+  "QuestionID": 135,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about RMAN archival backups with the RESTORE POINT clause? (Choose three.)必考题",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "All archive logs are retained after an archival backup is taken, until the next archival backup is taken of the same database."},
+    {"label": "B", "text": "The SPFILE is included in the archival backup."},
+    {"label": "C", "text": "They are never considered obsolete by RMAN."},
+    {"label": "D", "text": "Archive logs are retained if they are necessary to allow the database to be recovered to a consistent state when an archival backup is restored."},
+    {"label": "E", "text": "The ARCHIVAL attribute for a backup overrides the RMAN retention policy."},
+    {"label": "F", "text": "They can optionally be written to a fast recovery area (FRA)."},
+    {"label": "G", "text": "Use of a recovery catalog is always required to support the creation and use of archival backups."}
+  ],
+  "CorrectAnswer": ["B", "D", "E"],
+  "Explanation": "RMAN 通过创建一个还原点作为“时间书签”，将数据文件、保障一致性的归档日志以及参数文件打包成一个“自包含”的备份集，并强制使其豁免于常规保留策略的删除限制（即长期保留）\n备份包含:数据文件 (Data Files); 控制文件 (Control Files); SPFILE; 归档日志 (Archived Log Files); 相关自动备份文件 (Relevant Autobackup Files) \n\nA.归档备份只会保留它自身恢复所需的那一部分日志。它不会冻结之后产生的所有日志的删除，否则磁盘空间会迅速耗尽。这描述的更像是“担保还原点（Guaranteed Restore Point）”在 Flashback Database 中的行为，而不是 RMAN 归档备份的行为\n\nB.归档备份的设计初衷是“自包含（Self-contained）”的长期存储。为了确保你在几年后恢复这个备份时拥有当时的环境配置，RMAN 会自动将 控制文件 (Control File) 和 服务器参数文件 (SPFILE) 包含在归档备份集中，即使你没有显式开启控制文件自动备份。\n\nC.这取决于你使用的是 KEEP FOREVER 还是 KEEP UNTIL TIME 'date'。如果是 KEEP UNTIL，一旦过了指定的日期，该备份就会被视为废弃（Obsolete）并可能被删除。只有 KEEP FOREVER 才是永不废弃。\n\nD.这是 RMAN KEEP 语法的一个核心功能。在进行在线（热）备份时，数据文件在不同的 SCN（System Change Number），因此备份本身并不一致。为了使该备份可用于恢复，RMAN 会保留并需要所有必要的归档重做日志，以便在恢复阶段通过前滚（roll forward）操作将数据库恢复到一致状态\n\nE.使用 KEEP 子句（例如 KEEP UNTIL TIME ... 或 KEEP FOREVER）创建的备份，会豁免于 RMAN 的标准保留策略（如 RETENTION POLICY TO RECOVERY WINDOW OF 7 DAYS）。即使过了 7 天，只要 KEEP 的时间没到，RMAN 就不会将其标记为废弃（Obsolete）\n\nF.带 KEEP 选项的 RMAN 归档备份不应存放在 FRA 中，因为 FRA 设计用于短期恢复和自动空间管理，而长期保留文件会阻塞 FRA 的空间回收策略，可能导致空间不足。\n\nG.Recovery Catalog 相关:\n--1.创建 OPEN 数据库的 Archival Backup,必须有 Recovery Catalog; 没有 Recovery Catalog:数据库必须在 MOUNT 状态,因为控制文件无法持久记录长期保留信息\n--2.KEEP FOREVER:没有 Recovery Catalog 的情况下，不能用 KEEP FOREVER; 控制文件有限，最终会覆盖旧的备份记录; Recovery Catalog 可以长期保存这些备份元数据"
+},
+{
+  "QuestionID": 136,
+  "QuestionType": "multiple",
+  "QuestionText": "Your container database, CDB1, is in local undo mode. You successfully execute this command while connected to CDB1:\nCREATE PLUGGABLE DATABASE pdb1\nADMIN USER pdb1_admin IDENTIFIED BY pdb123\nROLES=(CONNECT)\n CREATE_FILE_DEST='/u01/app/oracle/oradata/cdb1/pdb1';\nWhich three are true about PDB1? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Service PDB1 is created for remote logins to PDB1."},
+    {"label": "B", "text": "It is in mount state after creation."},
+    {"label": "C", "text": "It has no local users."},
+    {"label": "D", "text": "It has the same number of roles as CDB1."},
+    {"label": "E", "text": "It has the same common users defined as does CDB1."},
+    {"label": "F", "text": "It has only local roles."}
+  ],
+  "CorrectAnswer": ["A", "B", "E"],
+  "Explanation": "ROLES=(CONNECT):CONNECT 是最基本的角色，如果需要 DBA 权限，可以改成 DBA 或其他角色\n\nA.当创建一个新的 PDB 时，Oracle 会自动在数据库中注册一个与 PDB 同名的默认服务（Default Service）。这个服务允许客户端通过网络（如 SQL*Net）远程连接到该 PDB。虽然 PDB 在 MOUNT 状态下服务可能尚未启动，但服务对象本身已经被创建\n\nB.在使用 CREATE PLUGGABLE DATABASE 命令且未指定 OPEN 子句时，默认情况下，新创建的 PDB 会处于 MOUNTED（已挂载但未打开）状态。管理员需要执行 ALTER PLUGGABLE DATABASE pdb1 OPEN; 才能将其打开供用户访问\n\nC.命令中明确包含 ADMIN USER pdb1_admin ... 子句。这会在 PDB1 中创建一个名为 pdb1_admin 的本地用户，并赋予其管理权限（PDB_DBA 角色）\n\nD.虽然 PDB 会继承 CDB 中的公用角色 (Common Roles)，但 CDB$ROOT 可能包含仅属于 Root 容器的本地角色 (Local Roles)。这些 Root 本地角色不会传播到 PDB 中。因此，两者的角色总数并不一定相等（通常 CDB1 的角色数量 >= PDB1 的角色数量）。\n\nE.公用用户 (Common Users)（如 SYSTEM, SYS, 或以 C## 开头的自定义用户）是在 CDB$ROOT 中定义的，并且它们的定义对所有现有的和未来创建的 PDB 都是可见的。因此，PDB1 会继承并拥有与 CDB1 一致的公用用户集。\n\nF.PDB 中不仅可以有本地角色，还必须包含大量的公用角色（如 CONNECT, RESOURCE, DBA 等预定义的 Oracle 角色）。这些角色是 Common 的，不是 Local 的。"
+},
+{
+  "QuestionID": 137,
+  "QuestionType": "multiple",
+  "QuestionText": "Examine this configuration:\n1. CDB1 and CDB2 are two container databases.\n2. PDB1 is a pluggable database in CDB1.\n3. PDB1_C1_SRV is a service for PDB1.\n4. CDB1_LINK is a database link in CDB2 referring to PDB1.\n5. CDB2 is also an entry in tnsnames.ora pointing to the CDB2 database default service.\nYou execute these commands successfully:\n$ sqlplus sys/oracle_4U@cdb2 as sysdba\nSQL> CREATE PLUGGABLE DATABASE PDB1 FROM PDB1@CDB1_LINK\nSERVICE_NAME_CONVERT=('PDB1_C1_SRV','PDB1_C2_SRV');\nWhich two are true? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "PDB1 will be created in CDB2 and automatically opened."},
+    {"label": "B", "text": "PDB1 will be created in CDB2 and left in MOUNT state."},
+    {"label": "C", "text": "PDB1_C1_SRV in CDB1 will be renamed PDB1_C2_SRV."},
+    {"label": "D", "text": "PDB1_C2_SRV will be created and started automatically."},
+    {"label": "E", "text": "PDB1_C2_SRV will be created but not started."}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "3.PDB1_C1_SRV is a service for PDB1:这是源 PDB 的“门牌号”或“别名”,在 Oracle 中，用户通常不直接通过 SID 连接数据库，而是通过服务名（Service Name）,一个 PDB 可以有多个服务名。这里明确指出，源 PDB (PDB1) 有一个专门的服务叫 PDB1_C1_SRV\n\n4.CDB1_LINK is a database link in CDB2 referring to PDB1:这是从新家通往旧家的“搬家卡车路线”Database Link (DB Link) 是一个单向通道，允许一个数据库（CDB2）访问另一个数据库（CDB1/PDB1）的数据\n\n5. CDB2 is also an entry in tnsnames.ora...这是新家管理处的“导航地址”tnsnames.ora 是客户端（你的电脑）用来解析数据库地址的“电话簿”。这条配置说明你的电脑知道如何连接到目标数据库 CDB2\n\n配置 5 (TNS)：你通过电脑上的电话簿，成功拨通了 CDB2 的电话（登录进去了）。\n配置 4 (DB Link)：你在 CDB2 里下令：“用那个叫 CDB1_LINK 的专线，去对面把数据拉过来！”\n配置 3 (Service)：你补充道：“对了，那边的门牌号是 PDB1_C1_SRV，拉过来以后，记得把它改成 PDB1_C2_SRV。”\n\nABD.正常情况下刚克隆完成的 pdb 都是处于 mount 状态，但是 service 如果是跟 pdb 同名的一般都能够启动，为了能够通过service 连接到 pdb 进行管理，如果不同名，则会创建，但是不会启动\nC.源端 (CDB1) 的 PDB1 依然健在，它的服务名 PDB1_C1_SRV 完全不受影响，依然在对外提供服务。SERVICE_NAME_CONVERT 只修改副本（CDB2 里的 PDB1） 的配置"
+},
+{
+  "QuestionID": 138,
+  "QuestionType": "single",
+  "QuestionText": "Examine this configuration:\n1. CDB1 is a container database.\n2. COMMON_USER_PREFIX is set to an empty string.\n3. PDB1 is a pluggable database in CDB1.\n4. APP1_ROOT is an application container in CDB1.\n5. APP1_PDB1 is an application PDB in APP1_ROOT.\nYou execute these commands:\n$ sqlplus sys/oracle@localhost:1521/cdb1 as sysdba\nSQL> CREATE ROLE role1 CONTAINER=CURRENT;\nWhat is true?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It will return an error because creation of a local role is not allowed in CDB$ROOT."},
+    {"label": "B", "text": "ROLE1 will be created only in CDB$ROOT and APP1_ROOT."},
+    {"label": "C", "text": "ROLE1 will be created in CDB$ROOT, PDB1, APP1_ROOT, and APP1_PDB1."},
+    {"label": "D", "text": "ROLE1 will be created only in CDB$ROOT."},
+    {"label": "E", "text": "It will return an error because common roles must start with C##."}
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "COMMON_USER_PREFIX = '' (空字符串)，Oracle 强制要求所有 公用用户/角色 (Common Users/Roles) 必须以 C## 开头，设置为空字符串意味着 取消了这个强制命名限制,你现在可以创建一个名为 role1 的公用角色（Common Role），而不需要叫 C##role1\n\n$ sqlplus sys/oracle@localhost:1521/cdb1 as sysdba: /cdb1 服务通常指向 CDB$ROOT（CDB 根容器）,是拥有最高权限的 SYSDBA\n\nSQL> CREATE ROLE role1 CONTAINER=CURRENT:在 CDB$ROOT 中执行CONTAINER=CURRENT,结果会创建一个 CDB Root 级别的本地角色 (Local Role in CDB Root)\n公用角色，必须使用默认的 CONTAINER=ALL\n\n由于把 COMMON_USER_PREFIX 参数设置成空的，那么在创建用户和角色的时候就无法通过前缀来识别，但是在 CDB$ROOT 下是无法创建本地用户或角色，所以报错"
+},
+{
+  "QuestionID": 139,
+  "QuestionType": "single",
+  "QuestionText": "Which statement correctly describes the SQL profiling performed by the SQL Tuning Advisor?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It is a set of recommendations by the optimizer to create new indexes."},
+    {"label": "B", "text": "It is a set of recommendations by the optimizer to restructure a SQL statement to avoid suboptimal execution plans."},
+    {"label": "C", "text": "It is auxiliary information collected by the optimizer for a SQL statement to help use better joins orders."},
+    {"label": "D", "text": "It is auxiliary information collected by the optimizer for a SQL statement to eliminate estimation error."},
+    {"label": "E", "text": "It is a set of recommendations by the optimizer to change the access methods used."}
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "SQL Profile = 专门给优化器开的“小灶”（辅助统计信息Auxiliary Statistics），用来纠正它数学不好的毛病（消除估算误差）\n\n1.当运行 SQL Tuning Advisor 时，它会进行 “验证模式 (Verification Mode)” 的解析，甚至部分执行 SQL 语句\n2.它会将优化器根据现有统计信息计算出的 “估算行数 (Estimated Cardinality)” 与实际运行得到的 “真实行数 (Actual Cardinality)” 进行对比\n3.如果发现两者差距很大（即 Estimation Error，估算误差），Advisor 就会创建一个 SQL Profile\n4.这个 Profile 里存放的不是强制的执行计划（Plan），而是 修正系数（比如：“在这个过滤条件下，实际行数是估算的 10 倍”）\n5.下次运行该 SQL 时，优化器读取这个辅助信息，修正自己的数学计算，从而自然地推导出正确的执行计划。\nA.这是 Index Recommendation（索引建议）\nB.这是 Restructure SQL Recommendation（SQL 重写建议）\nD.SQL Profile 的内容并非直接指定“先连表 A 再连表 B”。它是通过修正行数估算，让优化器自己意识到join orders\nE.访问路径（Access Method，如全表扫描 vs 索引扫描）的改变是应用了正确的行数估算后的结果，而不是 SQL Profile 的定义"
+},
+{
+  "QuestionID": 140,
+  "QuestionType": "single",
+  "QuestionText": "Examine this configuration:\n1. CDB1 is a container database running in ARCHIVELOG mode.\n2. Multiple uncommitted transactions are running in CDB1.\n3. Redo log groups 1 and 2 are INACTIVE.\n4. Redo log group 3 is the CURRENT group.\nAll members of redo log group 3 are lost before it is archived.\nExamine these possible steps:\n1. SHUTDOWN ABORT\n2. STARTUP NOMOUNT\n3. STARTUP MOUNT\n4. ALTER DATABASE MOUNT\n5. RESTORE DATABASE\n6. RECOVER DATABASE NOREDO\n7. RECOVER DATABASE UNTIL AVAILABLE\n8. RESTORE ARCHIVELOG ALL\n9. ALTER DATABASE OPEN\n10. ALTER DATABASE OPEN RESETLOGS\nChoose the minimum required steps in the correct order to recover the database.",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "1, 3, 5, 8, 6, 10"},
+    {"label": "B", "text": "1, 3, 5, 6, 10"},
+    {"label": "C", "text": "1, 3, 5, 7, 10"},
+    {"label": "D", "text": "1, 2, 5, 7, 4, 10"},
+    {"label": "E", "text": "1, 3, 5, 6, 9"}
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "3. Group 1 & 2 are INACTIVE：这两组日志已经完成了使命。它们的数据已经写入数据文件（Checkpoint 完成），并且已经完成了归档\n4. Group 3 is CURRENT:这是“热点”。LGWR（日志写入进程）正在实时向这个组写入数据\nAll members of redo log group 3 are lost before it is archived.所有成员丢失，且未归档\n\n针对 丢失 CURRENT redo log，ARCHIVELOG 模式，最小步骤为:\n1.SHUTDOWN ABORT确保实例关闭，准备恢复\n3.STARTUP MOUNT装载控制文件(如果控制文件丢失或损坏，需要先 RESTORE CONTROLFILE 然后 MOUNT)\n5.RESTORE DATABASE恢复数据文件\n6.RECOVER DATABASE NOREDO因为 CURRENT redo log 丢失，不能用 redo 前滚,Oracle 允许在丢失 redo 时恢复数据文件\n10.ALTER DATABASE OPEN RESETLOGS打开数据库并重置 redo 日志"
 }
+
+
 
 
 
