@@ -6730,6 +6730,320 @@
   ],
   "CorrectAnswer": ["B"],
   "Explanation": "3. Group 1 & 2 are INACTIVE：这两组日志已经完成了使命。它们的数据已经写入数据文件（Checkpoint 完成），并且已经完成了归档\n4. Group 3 is CURRENT:这是“热点”。LGWR（日志写入进程）正在实时向这个组写入数据\nAll members of redo log group 3 are lost before it is archived.所有成员丢失，且未归档\n\n针对 丢失 CURRENT redo log，ARCHIVELOG 模式，最小步骤为:\n1.SHUTDOWN ABORT确保实例关闭，准备恢复\n3.STARTUP MOUNT装载控制文件(如果控制文件丢失或损坏，需要先 RESTORE CONTROLFILE 然后 MOUNT)\n5.RESTORE DATABASE恢复数据文件\n6.RECOVER DATABASE NOREDO因为 CURRENT redo log 丢失，不能用 redo 前滚,Oracle 允许在丢失 redo 时恢复数据文件\n10.ALTER DATABASE OPEN RESETLOGS打开数据库并重置 redo 日志"
+},
+{
+  "QuestionID": 141,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about an application container? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "It can contain a single application."},
+    {"label": "B", "text": "It can contain multiple applications."},
+    {"label": "C", "text": "It must have an application seed PDB."},
+    {"label": "D", "text": "It must have an application root PDB."},
+    {"label": "E", "text": "Two application containers can share an application seed PDB."},
+    {"label": "F", "text": "An application PDB can belong to multiple application containers."}
+  ],
+  "CorrectAnswer": ["A", "B", "D"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 142,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about the FLASHBACK DATABASE feature? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "FLASHBACK LOGS are archived after a log switch."},
+    {"label": "B", "text": "A database can be flashed back using SQL*PLUS."},
+    {"label": "C", "text": "Queries and DML have the same FLASHBACK LOG overhead when flashback is enabled for a database."},
+    {"label": "D", "text": "FLASHBACK DATABASE only uses FLASHBACK LOGS to get the database to the desired flashback time."},
+    {"label": "E", "text": "It always generates REDO and UNDO."},
+    {"label": "F", "text": "It requires that the target database be in ARCHIVELOG mode."}
+  ],
+  "CorrectAnswer": ["B", "E", "F"],
+  "Explanation": "A.闪回日志与重做日志（Redo Logs）不同。闪回日志不会被归档。它们由恢复写入器（RVWR）后台进程循环写入闪回恢复区（FRA）。如果磁盘空间不足，系统会自动删除旧的闪回日志\nB.虽然常用的工具是 RMAN，但你同样可以在 SQL*Plus 中使用 FLASHBACK DATABASE TO ... 命令。前提是数据库必须处于 MOUNT 状态\nC.闪回日志的开销主要发生在 DML（数据操纵语言） 操作上，因为 DML 会修改数据块，触发 RVWR 进程记录块的旧镜像。Queries（查询） 是只读操作，不会产生任何闪回日志开销\nD.闪回数据库并不只使用闪回日志。它通过闪回日志将数据块“倒带”到比目标时间点稍早的状态，然后利用 重做日志（Redo Logs） 将数据库前滚到精确的目标 SCN。\nE.这是一个核心机制问题。尽管 Flashback Database 使用的是闪回日志（Flashback Logs）来将数据块回退到过去，但在执行回退操作后，数据库通常需要应用重做日志（Redo Logs）来精确地对齐到目标 SCN 或时间点。此外，由于闪回操作本身也是对数据库的修改，它会记录相应的 Redo 和 Undo 逻辑\nF.这是启用闪回数据库的硬性前提条件。为了确保能够恢复到所需的任意时间点，数据库必须处于归档模式，以便结合归档日志处理数据的一致性。"
+},
+{
+  "QuestionID": 143,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about patchsets? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "They can be applied in a rolling fashion for Clusterware and the databases."},
+    {"label": "B", "text": "They can introduce new features."},
+    {"label": "C", "text": "They are installed via OPatch or OPatchAuto."},
+    {"label": "D", "text": "Installing a patchset is considered an upgrade."},
+    {"label": "E", "text": "They are only released quarterly."},
+    {"label": "F", "text": "A base release is not needed to install patchsets."}
+  ],
+  "CorrectAnswer": ["B", "D", "F"],
+  "Explanation": "RU(Release Updates) / PSU(Patch Set Updates) 是季度发布的累积补丁，用 OPatch 安装，不引入新功能，也不算升级；Patchset 是完整版本升级\nA.集群补丁集可以滚动应用,在大规模补丁集中，数据库通常需要停机进行数据字典更新。\nB.补丁集通常使用 OUI (Oracle Universal Installer) 或命令行安装程序进行安装，因为它们是完整的软件发行版,类似重新安装 / 升级.OPatch 和 OPatchAuto 主要用于安装 Interim Patches（临时补丁）、PSUs（补丁集更新）或 RUs（发行版更新）。\nD.PSUs (Patch Set Updates) 和 RUs (Release Updates) 是每季度发布的。而 Patchsets（如 12.1.0.2）的发布周期通常较长，不遵循固定的季度计划。\nF.补丁集已转变为“全量安装包（Full Installation Packages）”。这意味着你可以直接安装补丁集软件，而不需要先安装一个基础版本（Base Release）再进行叠加安装。"
+},
+{
+  "QuestionID": 144,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about backup set compression using RMAN default compression? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "Compressed backups can be written only to media."},
+    {"label": "B", "text": "Binary compression adds CPU overhead to backup operations."},
+    {"label": "C", "text": "Unused blocks below the high water mark are backed up."},
+    {"label": "D", "text": "Compressed backups cannot have a section size defined."},
+    {"label": "E", "text": "Compression can be done only for locally managed tablespaces."}
+  ],
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "RMAN 压缩备份集是在创建 backup set 时对数据块进行压缩，以减少备份空间消耗，只适用于 backup set，不适用于 image copy，并会增加 CPU 使用\nA.压缩备份集可以写入磁盘（Disk），也可以写入磁带（SBT/Media）。\nB.压缩是一个计算密集型的过程。RMAN 在将数据块写入备份集之前，需要通过算法（如默认的 BASIC 压缩）对数据进行处理。这会消耗额外的 CPU 资源。在选择压缩级别（HIGH, MEDIUM, LOW, BASIC）时，通常需要在 CPU 消耗和 I/O 节省之间进行权衡。\nC.RMAN backup set 默认可能包含 HWM 以下块，但在使用 unused block compression 时，会跳过未分配块（无论其是否在 HWM 以下）。\nD.SECTION SIZE:它是用于并行化的。当你指定 SECTION SIZE 1G 时，RMAN 会将一个大文件逻辑上划分为多个 1G 的“段（Sections）”。每个段由一个独立的通道（Channel）读取并处理。在压缩备份中： 每一个段Section会被读取、进行二进制压缩，然后写入一个独立的备份片Backup Piece\nE.只有 LMT 才有区位图（Extent Bitmap），RMAN 才能通过位图知道哪些块在 HWM 以下是“空闲”的。才能在“压缩备份”时“有效跳过未使用块”"
+},
+{
+  "QuestionID": 145,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about memory advisors? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "If Automatic Shared Memory Management is enabled, both the SGA Advisor and PGA Advisor are always available."},
+    {"label": "B", "text": "If Automatic Memory Management is enabled, no memory advisors are available."},
+    {"label": "C", "text": "All memory advisors use data from Automatic Workload Repository."},
+    {"label": "D", "text": "If Manual Shared Memory Management is enabled, only the Shared Pool Advisor and Buffer Cache Advisor are available."},
+    {"label": "E", "text": "If Automatic Memory Management is enabled, the Shared Pool Advisor and Buffer Cache Advisor are available to set the maximum size for these individual System Global Area components."}
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": "Memory Advisors用于评估和建议数据库内存分配。它帮助 DBA 根据负载情况调整 SGA/PGA 内存参数，从而提高性能或防止内存不足\n四种主要内存顾问:\n--SGA Advisor → SGA 结构优化(启用 ASMM 时可用)\n--PGA Advisor → 单实例排序/哈希操作优化(永远可用)\n--SQL Memory Advisor → SQL 查询内存需求(永远可用)\n--Memory Target Advisor → AMM(Automatic Memory Management)下 SGA+PGA 全局优化(仅在 AMM 下使用)\nSGA调结构，PGA调操作，SQL调单语句，Target调全局\n\nA.当启用 ASMM（即设置了 SGA_TARGET）时，系统会自动调整 SGA 组件。此时，SGA Advisor 依然可用，用于建议 SGA_TARGET 的最佳大小。同时，PGA Advisor 始终可用（无论是否启用自动 PGA 管理），用于建议 PGA_AGGREGATE_TARGET 的大小。\nB.当 AMM（设置了 MEMORY_TARGET）开启时，Memory Advisor 会变成可用状态（即 MEMORY_TARGET Advisor），而且内部的 SGA (AMM 包含 ASMM:开启 AMM，ASMM 自动作为子系统运行)和 PGA 顾问依然在后台运行并提供数据。\nC.内存顾问的建议是基于历史统计数据和负载预测的。这些底层数据（如 V$DB_CACHE_ADVICE 或 V$PGA_TARGET_ADVICE 等视图的数据源）会被定期捕捉到 AWR 中。内存顾问通过分析 AWR 存储的样本数据来提供不同内存配置下的预期性能指标\nD.PGA Advisor也会启用，它本质上是一个统计监控机制，它在实例启动后就是自动启用且持续运行的\nE.AMM 下 不能设置单个 SGA 组件的最大值，只能查看建议，调整内存大小是一个控制行为。在 AMM 下，这种控制权完全交给了后台进程（如 MMON），它根据建议自动调整。Advisor 本身没有任何权限去“设置”任何参数的上限或下限。"
+},
+{
+  "QuestionID": 146,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true? (Choose three.)",
+  "ImageURL": "images/Q146.png",
+  "Options": [
+    {"label": "A", "text": "PDB2 will be MOUNTED."},
+    {"label": "B", "text": "PDB1 will be MOUNTED."},
+    {"label": "C", "text": "PDB$SEED will be opened READ ONLY."},
+    {"label": "D", "text": "PDB2 will be opened READ WRITE."},
+    {"label": "E", "text": "PDB1 will be opened READ WRITE."},
+    {"label": "F", "text": "PDB$SEED will be MOUNTED."}
+  ],
+  "CorrectAnswer": ["A", "C", "E"],
+  "Explanation": "ALTER PLUGGABLE DATABASE pdb1 SAVE STATE;这条命令告诉 CDB：“记住 PDB1 现在是 OPEN 状态”，Oracle 会在数据字典中持久化记录该 PDB 的当前打开模式。\nALTER PLUGGABLE DATABASE pdb1 CLOSE;手动关闭并不会清除之前“SAVE STATE”保存的记录。即使现在它是 CLOSE 的，记录里它依然是需要自动开启的。\nPDB$SEED 的状态是受 CDB 根容器直接管理的，当 CDB1 重启后，PDB$SEED自动回归 READ ONLY\nPDB$SEED 是用来创建新的 PDB 的模板默认 READ ONLY,不能在常规操作中切换为 READ WRITE; 在进行 CDB 版本升级 或 打补丁操作（Patch/ PSU/RU） 时，Oracle 会临时将 PDB$SEED 切换到 MIGRATE 模式,MIGRATE 模式允许 Oracle 对 PDB$SEED 进行内部更新,管理员通常不直接操作"
+},
+{
+  "QuestionID": 147,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about Automatic Workload Repository (AWR) and Automatic Database Diagnostic Monitor (ADDM) in an Oracle multitenant environment? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "ADDM can run in a nonroot container."},
+    {"label": "B", "text": "AWR snapshots can be created in CDB$ROOT."},
+    {"label": "C", "text": "AWR reports can be generated while connected to any container."},
+    {"label": "D", "text": "All AWR data is stored in the CDB$ROOT SYSAUX tablespace."},
+    {"label": "E", "text": "AWR snapshots can be created in a PDB."},
+    {"label": "F", "text": "No AWR data is stored in the CDB$ROOT SYSAUX tablespace."}
+  ],
+  "CorrectAnswer": ["A", "B", "E"],
+  "Explanation": "A.从 Oracle 12.2 开始，ADDM 已经实现了 PDB 级别的支持。这意味着你可以直接在 PDB（非根容器）中运行 ADDM 来分析该特定可插拔数据库的性能问题，而无需在 CDB$ROOT 级别进行分析\nB.这是 AWR 最基本的行为。CDB$ROOT 负责收集整个容器数据库的全局统计信息以及根容器自身的负载数据，并将快照存储在根容器中\nC.AWR 不能链接到 PDB$SEED 专门去生成或管理快照,并且AWR报告的内容取决于你所连接的容器。你只能从当前连接的容器（或其子容器）中提取数据\nD.如果 PDB 启用了本地 AWR 快照（Local AWR），那么该 PDB 的快照数据将存储在 PDB 自己的 SYSAUX 表空间中，而不是全部挤在 CDB$ROOT 中\nE.在多租户环境下，每个 PDB 都可以拥有自己的 AWR 设置。你可以通过将初始化参数 AWR_PDB_AUTOSET 设置为 TRUE（19c 默认值），使 PDB 能够独立地生成和管理快照。\nF.CDB$ROOT 的 SYSAUX 表空间始终存储根容器及全局性的 AWR 数据"
+},
+{
+  "QuestionID": 148,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about Optimizer Statistics? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "They can be gathered by the DBMS_STATS package."},
+    {"label": "B", "text": "They are gathered by the SQL Tuning Advisor."},
+    {"label": "C", "text": "They provide real-time data about schema objects."},
+    {"label": "D", "text": "They are ignored by Optimizer if they are stale."},
+    {"label": "E", "text": "By default, they are automatically gathered by a maintenance job."}
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": "Optimizer Statistics（优化器统计信息）**是 Oracle 数据库提供的一种机制，用于 帮助成本优化器（CBO, Cost-Based Optimizer）选择最优执行计划。数据库不知道每张表有多少行、索引有多大时，优化器无法计算执行成本,统计信息为优化器提供 数据分布、表行数、列基数、索引深度等信息,优化器根据这些信息选择 扫描方式（全表扫描、索引访问等）、连接顺序、并行度等\nAB.DBMS_STATS是 Oracle 数据库收集和管理优化器统计信息的核心包,是 Oracle 官方推荐的、功能最全的统计信息管理工具。它可以收集表、索引、列（直方图）以及系统层面的统计信息，并支持统计信息的导出、导入、锁定等操作; DBMS_STATS 收集统计，表列索引全覆盖，直方图记高基数，锁表防止被覆盖。\nC.传统优化器统计信息（Static Optimizer Statistics）是 收集时刻的快照（snapshot）收集完成后不会随数据变化自动更新,直到下一次收集任务（自动或手动）才会更新,普通的优化器统计信息并不代表实时状态;实时统计信息（Real-time Statistics）主要用于大表插入、在线统计收集或分区表,允许在某些 DML 操作期间自动更新统计信息,增量更新，不需要手动收集针对特定操作，例如 INSERT/UPDATE,不会替代传统静态统计信息\nD.即使统计信息已过时（Stale），优化器仍然会使用它们，除非你开启了某些特殊功能（如自动重优化）。由于过时的统计信息可能导致错误的执行计划，因此定期更新非常重要，但优化器不会直接“忽略”它们\nE.在 Oracle 默认配置下，存在一个名为 GATHER_STATS_JOB 的预定义维护任务。该任务在维护窗口（Maintenance Window，通常是夜间和周末）内自动运行，针对统计信息缺失或已过时（Stale）的对象进行收集。"
+},
+{
+  "QuestionID": 149,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three resources are always shared among CDB$ROOT and pluggable databases (PDBs)? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "the data dictionary in CDB$ROOT"},
+    {"label": "B", "text": "temporary tablespaces"},
+    {"label": "C", "text": "the Process Monitor Process (PMON)"},
+    {"label": "D", "text": "SYSAUX tablespaces"},
+    {"label": "E", "text": "the log writer process (LGWR)"},
+    {"label": "F", "text": "undo tablespaces"}
+  ],
+  "CorrectAnswer": ["A", "C", "E"],
+  "Explanation": "A.虽然每个 PDB 都有自己的局部数据字典（存储该 PDB 特有的对象定义），但所有的 PDB 都共享存储在 CDB$ROOT 中的元数据（Metadata）\nB.每个 PDB 都可以（且通常应该）拥有自己独立的临时表空间。虽然可以在根容器定义默认临时表空间供 PDB 使用\nCE.后台进程 (PMON, LGWR, DBWR)整个实例级共享，负责所有 PDB 的物理操作\nD.每个 PDB 都有自己独立的 SYSAUX 表空间，用于存储该 PDB 特有的元数据(如本地 AWR 数据)\nF.默认启用的是本地重做模式（Local Undo Mode），这意味着每个 PDB 都有自己独立的 Undo 表空间,也可以共享 undo tablespace"
+},
+{
+  "QuestionID": 150,
+  "QuestionType": "multiple",
+  "QuestionText": "Which are three of the steps taken by Database Configuration Assistant (DBCA) to clone a remote pluggable database (PDB) starting from Oracle 19c? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "creating a database link from CDB$ROOT in the local database to the PDB in the remote system that is to be cloned"},
+    {"label": "B", "text": "creating a database link from CDB$ROOT in the local database to CDB$ROOT in the remote system that is to be cloned"},
+    {"label": "C", "text": "creating a new empty PDB in the local database from PDB$SEED"},
+    {"label": "D", "text": "creating a database link from CDB$ROOT in the remote database to be cloned to CDB$ROOT in the local database"},
+    {"label": "E", "text": "automatically dropping the database link to the remote database if it already exists"},
+    {"label": "F", "text": "creating a database link from CDB$ROOT in the remote database to the PDB in the local database"},
+    {"label": "G", "text": "opening the cloned PDB"}
+  ],
+  "CorrectAnswer": ["B", "E", "G"],
+  "Explanation": "DBCA（Database Configuration Assistant）远程克隆 PDB:\n创建前的准备:在本地 CDB$ROOT 上创建 DB Link，指向远程 CDB$ROOT\n1.目标服务器执行 DBCA，选择 “Create a Pluggable Database from ...(link)”\n2.DBCA 通过 TNS 连接到源 CDB,确认 PDB 存在且可访问,获取源 PDB 的元数据和服务信息\n3.选择克隆模式:Full Clone复制所有数据文件,Snapshot Clone创建基于存储快照的只读副本\n4.在目标 CDB 创建 PDB 元数据,分配 PDB 名称、管理员用户、表空间位置,更新 目标 CDB 的 CDB$ROOT 控制文件\n5.DBCA 自动在网络上传输源 PDB 的数据文件到目标 PDB 指定路径(full clone会复制源数据文件,snapshotot clone不复制源数据文件,通过 存储快照技术或 ASM 快照挂载这些数据文件,共享源数据文件,相当于创建了一个“虚拟副本”),使用 RMAN 或内部复制机制完成数据一致性\n6.在目标 CDB 注册 PDB 服务,更新监听器和 tnsnames.ora（如果需要）\n7.克隆完成后，目标 PDB 可通过 ALTER PLUGGABLE DATABASE <pdb> OPEN 打开,可以进行 只读或读写操作（取决于克隆类型）\n\nAB.DBCA 官方走 CDB$ROOT → CDB$ROOT，手动克隆灵活，可直连 PDB\nC.不是从 PDB$SEED 克隆，而是从 源 PDB（local 或 remote）克隆\nDE.当克隆远程 PDB 时，必须在本地 CDB$ROOT 中创建一个 database link，该链接能够连接到包含源 PDB 的远程 CDB。这个 database link 可以指向远程 CDB 的 root 或者远程 PDB\nE.为了确保克隆任务的配置是全新的、无冲突的，DBCA 会采取一种“清理并重建”的策略。如果检测到本地已存在一个指向同一远程目标的同名数据库链接，它会将其自动删除并重新创建，以确保连接凭证和权限是完全匹配当前克隆任务的"
+},
+{
+  "QuestionID": 151,
+  "QuestionType": "single",
+  "QuestionText": "A schema owner truncated a table in error and must recover the data. Which Oracle Flashback feature could be used to recover the data?",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "FLASHBACK TRANSACTION"},
+    {"label": "B", "text": "FLASHBACK VERSION QUERY"},
+    {"label": "C", "text": "FLASHBACK DATA ARCHIVE"},
+    {"label": "D", "text": "FLASHBACK TABLE"},
+    {"label": "E", "text": "FLASHBACK DATABASE"}
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "A.FLASHBACK TRANSACTION → 只针对某个事务回滚。TRUNCATE 是 DDL，不算事务可回滚操作\nB.FLASHBACK VERSION QUERY → 用于查询历史版本，不会真正恢复数据，只能查看修改历史。\nC.FLASHBACK DATA ARCHIVE → 只能针对已经开启了 FDA 的表长期追踪历史数据，支持少量 DDL（列增删改、约束、分区截断、TRUNCATE、重命名）。不支持 DROP、复杂分区移动、升级等操作，必须先解除 FDA 才能执行这些 DDL。\nD.FLASHBACK TABLE → 可以把整个表恢复到过去某个时间点,Flashback Table 只能恢复 DML 误操作的数据（INSERT/UPDATE/DELETE），无法恢复 DDL 操作（如 TRUNCATE/DROP）导致的数据丢失，因为 DDL 不会在 UNDO 中保存数据。\nE.FLASHBACK DATABASE → 整个数据库恢复，太大手术了，通常不为了一张表去用，如果没启用FDA的话，就只能用这个方法恢复"
+},
+{
+  "QuestionID": 152,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about using Database Upgrade Assistant (DBUA) to upgrade a database? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "The Pre-Upgrade Information Tool script is executed by DBUA."},
+    {"label": "B", "text": "DBUA must be launched from the target Oracle Home."},
+    {"label": "C", "text": "All pluggable databases are automatically upgraded as part of a container database upgrade."},
+    {"label": "D", "text": "A whole database backup must exist before upgrade"},
+    {"label": "E", "text": "The database must be opened in read-only mode."},
+    {"label": "F", "text": "Multiple databases with the same ORACLE_HOME can be upgraded simultaneously."}
+  ],
+  "CorrectAnswer": ["A", "B", "C"],
+  "Explanation": "A.当你运行 DBUA 时，它会自动调用预升级分析（Pre-Upgrade analysis）。它会执行类似于 preupgrade.jar 的检查逻辑，识别可能导致升级失败的问题，并提供修复建议。\nB.这是 DBUA 的基本操作要求。为了将数据库升级到新版本，你必须从目标版本（新版本）的 $ORACLE_HOME/bin 目录下启动 DBUA，例如，从 18c 升级到 19c 时，需在 19c 的 Oracle Home 中运行DBUA\nC.升级 CDB 时，所有关联的 PDB 会自动升级，因为它们共享 CDB 的数据字典和Oracle Home。DBUA 会统一处理 CDB 和其下所有 PDB 的升级流程，无需单独操作。\nD.尽管强烈建议备份，但 DBUA 不会强制要求备份。升级前备份是推荐的最佳实践，而非必要条件。E.升级需关闭数据库并以 UPGRADE 模式启动（STARTUP UPGRADE），而非只读模式\nF.DBUA 一次仅支持升级一个数据库，多个数据库需依次升级以避免冲突"
+},
+{
+  "QuestionID": 153,
+  "QuestionType": "multiple",
+  "QuestionText": "You must migrate a non-CDB Oracle 11g Database to a CDB without first performing an upgrade to the non-CDB. User-defined objects are stored in several tablespaces in the non-CDB. Which three methods can you use? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    {"label": "A", "text": "the DBMS_PDB package"},
+    {"label": "B", "text": "Data Pump full database export and import"},
+    {"label": "C", "text": "Data Pump transportable tablespaces"},
+    {"label": "D", "text": "replication using GoldenGate"},
+    {"label": "E", "text": "cloning the non-CDB as a PDB"},
+    {"label": "F", "text": "Data Pump full transportable database"}
+  ],
+  "CorrectAnswer": ["B", "D", "F"],
+  "Explanation": "不进行预先升级（Non-CDB to CDB without first upgrade）:这意味着你需要将一个还在 11g 版本的非 CDB 数据直接搬迁到 19c 的 PDB 中。在这种情况下，迁移过程必须能够处理跨版本的元数据转换或数据移动。\n\nA.DBMS_PDB 是一个非常核心的内置 PL/SQL 包。它主要用于多租户架构（Multitenant）的管理，尤其是将一个现有的数据库（无论是 Non-CDB 还是 PDB）“搬迁”或“转换”到另一个容器（CDB）中;\n--1.在源数据库（Non-CDB）上执行。这一步会生成一个 XML 文件，记录该库的数据文件位置、表空间信息、用户元数据等。前提条件：数据库必须处于 READ ONLY 模式（为了保证文件状态的一致性 SCN）\n--2.在目标数据库（CDB 的根容器 CDB$ROOT）执行。它会比对 XML 文件里的信息，看看目标 CDB 能否“装得下”这个库（例如：版本是否匹配、字符集是否冲突、补丁是否一致）\nDBMS_PDB.DESCRIBE 是从 12c 才开始引入的。你无法在 11g 数据库中直接运行这个存储过程\n\nB.这是最通用的方法。你可以使用 11g 的 expdp 进行全库导出，然后直接 impdp 到 19c 的 PDB 中。导入过程会自动在新版本的 PDB 中重新创建元数据并插入数据，这实际上是隐式升级\n\nC.Data Pump Transportable Tablespaces (TTS)，即 Data Pump 传输表空间，是 Oracle 提供的一种极其高效的数据迁移技术。核心思想是:只导元数据，物理拷贝数据文件。传统的 Data Pump 导出（expdp）会把表里的每一行数据都“读”出来写进 dump 文件。而 TTS 模式不读数据，它直接把数据库里的 数据文件（Datafiles） 像搬砖一样搬走。TTS要求:只要目标兼容级别高于或等于源，就可以用 TTS（例如 11g -> 19c）虽然 11g → 19c 在物理上是允许的，但如果使用 TTS，只能搬迁表空间文件;不会迁移所有 schema 依赖对象（如序列、索引组织表、LOBs、外部表等）对于 全库迁移，TTS 太局限，需要额外步骤补全\n\nD.GoldenGate 是 Oracle 提供的一款 实时数据复制和同步工具,它可以在不同数据库之间实时复制数据，保证源数据库和目标数据库的数据保持一致,支持不同版本甚至不同类型的数据库（Oracle → Oracle, Oracle → MySQL, Oracle → PostgreSQL 等）\n\nE.这种方法（CREATE PLUGGABLE DATABASE ... FROM NON$CDB@link）要求源非 CDB 的版本至少是 12.1.0.2。11g 不支持这种远程克隆迁移方式\n\nF.它结合了 TTS 的速度（拷贝数据文件）和 Data Pump 的便利（自动处理 SYSTEM/SYSAUX 中的元数据）。你只需在导出时指定 VERSION=12（或更高），即可直接导入到 19c 的 PDB。"
+},
+{
+  "QuestionID": 154,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about backing up the control file? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "It gets backed up automatically by RMAN when the BACKUP SPFILE command is used" },
+    { "label": "B", "text": "It can get backed up automatically as a binary copy" },
+    { "label": "C", "text": "It can be backed up manually as a binary copy" },
+    { "label": "D", "text": "It can be backed up manually as a trace file containing SQL statements for control file re-creation" },
+    { "label": "E", "text": "It gets backed up automatically by RMAN as a trace file containing SQL statements for control file re-creation when a database backup occurs" },
+    { "label": "F", "text": "It cannot be backed up manually as a binary copy" }
+  ],
+  "CorrectAnswer": ["B", "C", "D"],
+  "Explanation": "A.虽然控制文件和 SPFILE经常一起备份,但 BACKUP SPFILE 命令本身只备份服务器参数文件。只有当 CONTROLFILE AUTOBACKUP 为 ON 时，备份 SPFILE 才会触发控制文件的自动备份\nB.在 RMAN 中，如果开启了 CONFIGURE CONTROLFILE AUTOBACKUP ON，则在执行任何备份操作（如 BACKUP DATABASE 或 BACKUP DATAFILE）或者数据库结构发生变化（如添加表空间）后，RMAN 会自动创建一个控制文件的二进制备份（Binary Copy）\nCF.管理员可以通过两种方式手动创建二进制备份:1.RMAN 方式：执行 BACKUP CURRENT CONTROLFILE;2.SQL 方式：执行 ALTER DATABASE BACKUP CONTROLFILE TO '/path/to/backup/control.bkp';\nD.你可以手动生成一个文本格式的备份，该文件包含了重新创建控制文件的 SQL 语句:SQL 命令：ALTER DATABASE BACKUP CONTROLFILE TO TRACE;这会在 Trace 目录下生成一个 .trc 文件，在控制文件全部丢失且没有二进制备份的情况下，可以通过执行该文件中的 CREATE CONTROLFILE 语句来重建\nE.RMAN 的自动备份（Autobackup）生成的始终是二进制格式（Binary Copy），用于 RMAN 的恢复流程。RMAN 不会自动生成 Trace 格式的脚本文件"
+},
+{
+  "QuestionID": 155,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about PDB archive files? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "They contain all the data files only in compressed form for a PDB" },
+    { "label": "B", "text": "They contain a PDB manifest file and all the data files in uncompressed form for a PDB" },
+    { "label": "C", "text": "They contain all the data files only in uncompressed form for a PDB" },
+    { "label": "D", "text": "They must be created using the DBMS_PDB package" },
+    { "label": "E", "text": "They contain a PDB manifest file and all the data files in compressed form for a PDB" },
+    { "label": "F", "text": "DBMS_PDB.CHECK_PLUG_COMPATIBILITY can be run against a PDB archive" }
+  ],
+  "CorrectAnswer": ["E", "F"],
+  "Explanation": "ABCE.PDB 归档文件（通常以 .pdb 为扩展名）主要是为了简化跨服务器移动 PDB 的过程。它本质上是一个包含所有必要组件的压缩包,它封装了 PDB Manifest 文件（XML 格式，描述数据文件的布局和元数据）以及 所有数据文件。使用压缩格式是为了减少在网络上传输或存储时的空间占用。\nD.虽然可以使用 DBMS_PDB 包来处理 PDB，但创建 PDB 归档文件最常用的方式是通过 SQL 命令:ALTER PLUGGABLE DATABASE pdb_name CLOSE; ALTER PLUGGABLE DATABASE pdb_name UNPLUG INTO '/path/to/file.pdb';当指定的路径以 .pdb 结尾时，Oracle 会自动将其创建为压缩归档格式\nF.在将 PDB 插入到新的 CDB 之前，可以使用 DBMS_PDB.CHECK_PLUG_COMPATIBILITY 过程来检查该 PDB 归档文件与目标 CDB 是否兼容。可以直接指向该归档文件进行验证，而无需先手动解压"
+},
+{
+  "QuestionID": 156,
+  "QuestionType": "multiple",
+  "QuestionText": "You want to install Oracle Grid Infrastructure for a Standalone Server using Oracle Universal Installer (OUI). There is no existing Oracle installation on the server. Which two are prerequisites? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "a group called dba" },
+    { "label": "B", "text": "the Oracle Inventory group oinstall" },
+    { "label": "C", "text": "an operating system user to own this installation" },
+    { "label": "D", "text": "an operating system account called grid" },
+    { "label": "E", "text": "the installation of Oracle ASMLIB" }
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "在没有现有 Oracle 安装的服务器上安装 Oracle Grid Infrastructure (GI) for a Standalone Server（也称为 Oracle Restart）\nB.在任何服务器上安装首个 Oracle 软件（无论是数据库还是 Grid Infrastructure）之前，必须创建一个 Oracle Inventory 组（通常命名为 oinstall）。作用：该组用于拥有 Oracle 中央清单（Central Inventory），记录服务器上安装的所有 Oracle 软件的元数据。必要性：如果没有现有的 Oracle 安装，安装程序（OUI）会要求指定一个 OS 组作为清单组，以确保后续补丁升级和多软件管理。\nC.每个 Oracle 软件的安装都必须由一个专门的 操作系统用户（Software Owner） 来执行。作用：该用户（例如常用的 grid 或 oracle）拥有安装生成的二进制文件、日志文件以及运行相关的进程。必要性：你不能以 root 用户身份运行 OUI（尽管安装过程中需要执行 root.sh），必须有一个非特权用户来启动安装过程。\n\nA.虽然 dba 组通常被创建用于管理数据库实例（OSDBA 角色），但在 仅安装 Grid Infrastructure 时，强制要求的是 oinstall 和用于 ASM 管理的组（如 asmdba）。虽然在简化安装中常合并使用 dba，但它不是 Grid 安装的绝对通用先决条件。\nD.虽然 Oracle 推荐将 GI 的所有者命名为 grid 以实现角色分离，但这不是强制性的。你完全可以使用名为 oracle 的用户来同时拥有 GI 和数据库软件\nE.ASMLIB(Automatic Storage Management Support Library)只是配置 ASM 磁盘的一种方式。在 19c 中，你也可以使用 Oracle ASM Filter Driver (ASMFD) 或是简单的 udev 规则 来管理磁盘持久化，ASMLIB 并非必选项"
+},
+{
+  "QuestionID": 157,
+  "QuestionType": "single",
+  "QuestionText": "You execute this command successfully:\nSQL> ALTER DATABASE BACKUP CONTROLFILE TO TRACE;\nWhat is the outcome?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "It creates a file that contains SQL statements to re-create the control file" },
+    { "label": "B", "text": "It creates a file that contains RMAN scripts to create a duplicate database" },
+    { "label": "C", "text": "It creates a copy of the control file in the fast recovery area (FRA)" },
+    { "label": "D", "text": "It creates a binary backup of the control file" },
+    { "label": "E", "text": "It updates the alert log with the location and contents of the control file" }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 158,
+  "QuestionType": "multiple",
+  "QuestionText": "Which three are true about upgrading an application in an application container? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "The upgrade can be performed when connected either to CDB$ROOT or to PDB$SEED" },
+    { "label": "B", "text": "An application root clone gets created automatically" },
+    { "label": "C", "text": "After an application upgrade, the application container’s PDBs remain synchronized with the existing application root" },
+    { "label": "D", "text": "The upgrade must be performed when connected to CDB$ROOT" },
+    { "label": "E", "text": "An application name and version number must be specified to upgrade the application" },
+    { "label": "F", "text": "After an application upgrade, the application container’s PDBs are automatically synchronized with the application root clone" }
+  ],
+  "CorrectAnswer": ["B", "E", "F"],
+  "Explanation": "AD.应用程序的升级必须在对应的 Application Root 容器中进行，而不是在 CDB$ROOT 或 PDB$SEED 中执行。虽然 Application Root 本身是 CDB 的一部分，但管理应用生命周期的 DDL 必须在应用根容器内下达\nB.为了在升级期间保持应用 PDB 的可用性，Oracle 会自动克隆当前的 Application Root。这个克隆（Clone）处于只读模式，供尚未同步的应用 PDB 继续使用旧版本的应用元数据和共享数据\nCF.应用 PDB 并不会立即与“现有的（已升级的）”Application Root 同步。它们仍然同步于“克隆”（旧版本）。只有当管理员在每个 PDB 中运行 ALTER PLUGGABLE DATABASE APPLICATION <app_name> SYNC; 后，PDB 才会指向升级后的 Application Root。\nE.执行升级语句时，必须明确指定应用名称、起始版本号和目标版本号。典型的语法为：ALTER PLUGGABLE DATABASE APPLICATION <app_name> BEGIN UPGRADE '<old_version>' TO '<new_version>';"
+},
+{
+  "QuestionID": 159,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about RMAN virtual private catalogs (VPCs)? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "RMAN uses Oracle Virtual Private Database (VPD) to implement VPCs" },
+    { "label": "B", "text": "Each VPC is owned by the recovery catalog schema owner" },
+    { "label": "C", "text": "VPC functionality is enabled by default" },
+    { "label": "D", "text": "The RMAN catalog owner can grant access for an already registered database to a new virtual catalog owner" },
+    { "label": "E", "text": "Only one target database can be registered in a VPC" }
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "RMAN 虚拟专用目录 (Virtual Private Catalog, VPC)是 Recovery Catalog 的“子目录视图”，用于让不同用户只看到自己被授权的数据库备份信息，而不是整个 Recovery Catalog。\nA.RMAN 虚拟专用目录是基于 Oracle 数据库的 VPD（Virtual Private Database） 技术实现的。通过在基础目录（Base Catalog）的表上设置安全策略，VPD 能够限制 VPC 用户只能看到和管理授权给他们的特定数据库元数据\nB.VPC 是由专门的 VPC 用户（即不同的数据库 Schema 用户）拥有的。基础目录所有者Base Catalog Owner创建一个普通的数据库用户，并授予其recovery catalog权限，该用户才成为 VPC 的所有者\nC.VPC 功能默认不启用。必须先创建一个基础恢复目录（Base Recovery Catalog），然后显式地创建 VPC 用户并授予其访问权限（使用 CREATE VIRTUAL CATALOG 或相关的 GRANT 命令）\nD.这是 VPC 的核心功能之一。基础目录的所有者（Base Catalog Owner）可以使用 GRANT 命令，将已经注册在基础目录中的目标数据库的管理权限授予某个 VPC 用户;SQL 示例: RMAN> GRANT CATALOG FOR DATABASE prod1 TO vpc_user;\nE.一个 VPC 用户可以管理多个被授予权限的目标数据库，没有“只能管理一个”的限制"
+},
+{
+  "QuestionID": 160,
+  "QuestionType": "multiple",
+  "QuestionText": "Which two are true about backup encryption? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Keystore-based encryption is the default mode for RMAN backup encryption" },
+    { "label": "B", "text": "Vendor-specific media management software can be used for making encrypted RMAN backups to media" },
+    { "label": "C", "text": "Image copies can be encrypted" },
+    { "label": "D", "text": "Backup encryption can be enabled selectively for specific tablespaces" },
+    { "label": "E", "text": "The BACKUP BACKUPSET command can encrypt and decrypt backup sets" },
+    { "label": "F", "text": "The Transparent Data Encryption (TDE) keystore is backed up using RMAN" }
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "A.虽然 RMAN 默认不开启加密，但一旦你配置开启加密且未指定模式，它默认采用的就是基于 Keystore 的透明模式, Keystore 是 Oracle 的加密密钥存储库（Wallet）,透明模式（TDE，Transparent Data Encryption）:RMAN 自动从 Keystore 中获取 Master Key, 备份文件加密操作对用户“透明”，无需手工输入密码, 备份恢复时也自动解密（前提是 Keystore 可访问）\nB.Oracle Secure Backup 是唯一支持直接向磁带创建 RMAN 加密备份的接口,如果尝试使用其他厂商的 MML(第三方媒体管理库 Media Management Library)进行 RMAN 级别的加密备份，会触发 ORA-19919 错误\nC.备份加密仅适用于 备份集 (Backup Sets)。RMAN 的加密逻辑是在创建备份集的过程中对数据块进行处理的，镜像复制 (Image Copies) 是文件的原样复制，不支持 RMAN 级别的加密\nD.可以使用 CONFIGURE 命令指定是否对特定表空间的备份使用透明加密,命令示例：CONFIGURE ENCRYPTION FOR TABLESPACE users ON;\nE.BACKUP BACKUPSET 命令的作用是复制现有的备份集。虽然在 21c/23ai 等更高版本中引入了在备份备份集时重新加密的功能，但在 19c 标准文档中，该命令主要用于复制，并不能直接作为加密/解密的转换工具。\nF.RMAN 备份数据库文件，但不备份 Keystore 文件（如 ewallet.p12）。Keystore 必须通过操作系统命令手动备份。如果 Keystore 丢失，即便有 RMAN 备份也无法解密恢复"
 }
 
 
