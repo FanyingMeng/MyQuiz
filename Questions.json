@@ -5165,7 +5165,7 @@
     {"label": "F", "text": "Add the FILE_NAME_CONVERT clause to the statement and enable Oracle Managed Files (OMF)."}
   ],
   "CorrectAnswer": ["B", "C", "E"],
-  "Explanation": "CREATE PLUGGABLE DATABASE 命令缺少一个关键信息：新 PDB 数据文件的存放位置，要让该命令成功执行，数据库必须能够确定新数据文件的 位置 (Location) 和 名称 (Name)\n\nFILE_NAME_CONVERT = 在 SQL 语句里用的，一次性的路径替换。\nPDB_FILE_NAME_CONVERT = 参数，不写在 SQL 里，用一次设置长期使用\n\nA.FILE_NAME_CONVERT 和 PDB_FILE_NAME_CONVERT 只能二选一，不需要同时用\nC.PDB_FILE_NAME_CONVERT 参数是解决PDB克隆或创建时，文件路径转换问题的。如果该参数在 CDB 级别设置，它提供了一个“查找-替换”的规则，Oracle 会用这个规则来自动生成新 PDB 文件在磁盘上的位置和名称\nDF.开启 OMF 后不需要任何 file convert 参数,不能一起用"
+  "Explanation": "CREATE PLUGGABLE DATABASE 命令缺少一个关键信息：新 PDB 数据文件的存放位置，要让该命令成功执行，数据库必须能够确定新数据文件的 位置 (Location) 和 名称 (Name)\n\nFILE_NAME_CONVERT在 SQL 语句里用的，一次性的路径替换，用完失效。\nPDB_FILE_NAME_CONVERT是参数级别，不写在 SQL 里，用一次设置长期使用\n\nA.FILE_NAME_CONVERT 和 PDB_FILE_NAME_CONVERT 只能二选一，不需要同时用\nC.PDB_FILE_NAME_CONVERT 参数是解决PDB克隆或创建时，文件路径转换问题的。如果该参数在 CDB 级别设置，它提供了一个“查找-替换”的规则，Oracle 会用这个规则来自动生成新 PDB 文件在磁盘上的位置和名称\nDF.开启 OMF 后不需要任何 file convert 参数,不能一起用"
 },
 {
   "QuestionID": 41,
@@ -5197,7 +5197,7 @@
     {"label": "F", "text": "On Line Transaction Processing systems often use less Program Global Area than Decision Support Systems."}
   ],
   "CorrectAnswer": ["A", "B", "F"],
-  "Explanation": "1.Automatic Memory Management:控制参数MEMORY_TARGET;最全面的管理模式。数据库在 SGA 和 PGA 之间动态分配内存，以满足当前工作负载需求。\n\n2.Automatic Shared Memory Management:控制参数SGA_TARGET;仅管理 SGA 的大小，允许 SGA 内部组件（如共享池、大池、缓冲区缓存）之间动态调整大小,PGA 仍需独立管理\n\nC.在 ASMM 或 AMM 模式下,SGA 组件（如共享池、缓冲区缓存）的实际大小在实例关闭时不会恢复到其初始值，它们会保留在 SPFILE/PFILE 中设置的 SGA_TARGET 或各个组件的最小/初始限制值\nD.锁定 SGA（使用 LOCK_SGA=TRUE）是可选的，用于防止 SGA 被交换到磁盘Swap Out，以提高性能，但它不是使用 AMM 的强制要求\nF.(On Line Transaction Processing)OLTP联机事务处理的特点是大量短小的事务，它们主要执行索引查找和简单的 DML 操作，因此对 PGA 中所需的排序区和哈希区等工作区需求较少;(Decision Support Systems)DSS决策支持系统的特点是执行复杂的查询，涉及大量的全表扫描、大型连接和聚合。这些操作需要大量的内存来进行排序Sort和哈希连接Hash Join，因此对 PGA 的工作区需求非常高"
+  "Explanation": "1.Automatic Memory Management:控制参数MEMORY_TARGET;最全面的管理模式。数据库在 SGA 和 PGA 之间动态分配内存，以满足当前工作负载需求。\n\n2.Automatic Shared Memory Management:控制参数SGA_TARGET;仅管理 SGA 的大小，允许 SGA 内部组件（如共享池、大池、缓冲区缓存）之间动态调整大小,PGA 仍需独立管理\n\nC.在 ASMM 或 AMM 模式下,SGA 组件（如共享池、缓冲区缓存）的实际大小在实例关闭时不会恢复到其初始值，它们会保留在 SPFILE/PFILE 中设置的 SGA_TARGET 或各个组件的最小/初始限制值\nD.锁定 SGA（使用 LOCK_SGA=TRUE）是可选的，用于防止 SGA 被交换到磁盘Swap Out，以提高性能，但使用自动内存管理 AMM，无法开启 LOCK_SGA 或使用 HugePages\nF.(On Line Transaction Processing)OLTP联机事务处理的特点是大量短小的事务，它们主要执行索引查找和简单的 DML 操作，因此对 PGA 中所需的排序区和哈希区等工作区需求较少;(Decision Support Systems)DSS决策支持系统的特点是执行复杂的查询，涉及大量的全表扫描、大型连接和聚合。这些操作需要大量的内存来进行排序Sort和哈希连接Hash Join，因此对 PGA 的工作区需求非常高"
 },
 {
   "QuestionID": 43,
@@ -5274,13 +5274,13 @@
     {"label": "F", "text": "It is an Oracle Grid Infrastructure service."}
   ],
   "CorrectAnswer": ["B", "D","F"],
-  "Explanation": "Rapid Home Provisioning旨在实现 Oracle 软件（特别是数据库和网格基础设施）的集中式、标准化、快速部署和生命周期管理，它不是一个数据库实例，而是一个基础设施服务，它作为 Oracle Grid Infrastructure (GI) 的一部分运行;RHP 适用于管理拥有大量 Oracle 数据库安装的大型环境，通过集中管理黄金镜像Golden Images，将软件部署从繁琐、耗时的过程转变为快速、标准化的克隆操\n\nRHP 管理的对象:\n1.Software HomesOracle Database homes;\n2.Grid Infrastructure (GI) homes\n3.Oracle Engineered Systems Software:Exadata 等工程系统上的专用软件\n4.通用软件部署 (General Software Deployment):从 Oracle Database 19c/21c 开始，RHP 的功能已扩展，可以用于部署和管理通用软件(非 Oracle)应用程序和中间件的软件主目录。这个扩展功能打破了 RHP 仅限于 Oracle 软件的限制"
+  "Explanation": "Rapid Home Provisioning旨在实现 Oracle 软件（特别是数据库和网格基础设施）的集中式、标准化、快速部署和生命周期管理，它不是一个数据库实例，而是一个基础设施服务，它作为 Oracle Grid Infrastructure (GI) 的一部分运行;RHP 适用于管理拥有大量 Oracle 数据库安装的大型环境，通过集中管理黄金镜像Golden Images，将软件部署从繁琐、耗时的过程转变为快速、标准化的克隆操\n\nOracle Restart 是 Oracle Grid Infrastructure（GI）for Single Instance 提供的一种 高可用（High Availability）机制，主要用于单实例数据库环境,随 Oracle Grid Infrastructure（非 RAC 版） 一起安装\n\nRHP 管理的对象:\n1.Software Homes:Oracle Database homes;\n2.Grid Infrastructure (GI) homes\n3.Oracle Engineered Systems Software:Exadata 等工程系统上的专用软件\n4.通用软件部署 (General Software Deployment):从 Oracle Database 19c/21c 开始，RHP 的功能已扩展，可以用于部署和管理通用软件(非 Oracle)应用程序和中间件的软件主目录。这个扩展功能打破了 RHP 仅限于 Oracle 软件的限制"
 },
 {
   "QuestionID": 48,
   "QuestionType": "multiple",
   "QuestionText": "Examine this configuration:\n1). CDB1 is a container database.\n2). COMMON_USER_PREFIX is C##.\n3). PDB1 is a pluggable database contained in CDB1.\n4). APP1_ROOT is an application container contained in CDB1.\n5). APP1_PDB1 is an application PDB contained in APP1_ROOT.\nYou execute these commands successfully:\nWhich two are true? (Choose two.)",
-  "ImageURL": "images/Q48",
+  "ImageURL": "images/Q48.png",
   "Options": [
     {"label": "A", "text": "APP1_USER1 can be created in PDB1."},
     {"label": "B", "text": "APP1_USER1 can be created in CDB1."},
