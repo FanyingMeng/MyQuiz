@@ -5398,7 +5398,7 @@
     {"label": "G", "text": "A snapshot copy PDB can be created from a stand-alone clone PDB."}
   ],
   "CorrectAnswer": ["C", "G"],
-  "Explanation": "CF.快照拷贝 PDB 是一种存储效率很高、创建速度极快的 PDB 副本，但这种效率是通过利用底层文件系统提供的存储快照技术来实现的。不能在任何普通的文件系统上创建这种快照 PDB，而必须使用那些能够提供块级快照和写时复制功能的 特定文件系统（如 Oracle ACFS）作为数据文件的存储介质\nEF.PDB Snapshot依赖于它的源PDB (PDB Source)\n立克隆 PDB (Stand-Alone Clone PDB) 是 Oracle 多租户架构中克隆操作的一种类型，它指的是从一个源 PDB 创建一个完全独立、自给自足的副本;只要克隆 PDB 处于可写状态（READ WRITE 模式），即可基于其创建快照复制PDB"
+  "Explanation": "CF.快照拷贝 PDB 是一种存储效率很高、创建速度极快的 PDB 副本，但这种效率是通过利用底层文件系统提供的存储快照技术来实现的。不能在任何普通的文件系统上创建这种快照 PDB，而必须使用那些能够提供块级快照和写时复制功能的 特定文件系统（如 Oracle ACFS）作为数据文件的存储介质\n\nE.PDB Snapshot依赖于它的源PDB (PDB Source)\nF.Stand-Alone Clone PDB = 复制出来的独立 PDB，可以插入任意 CDB，源 PDB 和克隆互不依赖。只要克隆 PDB 处于可写状态（READ WRITE 模式），即可基于其创建快照复制PDB"
 },
 {
   "QuestionID": 56,
