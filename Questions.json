@@ -5586,7 +5586,7 @@
     {"label": "F", "text": "using the CREATE TABLE AS SELECT SQL statement"}
   ],
   "CorrectAnswer": ["B", "C", "F"],
-  "Explanation": "堆表数据迁移意味着要使用某些工具或语句，将数据逻辑地从旧位置读出，然后逻辑地写入到新位置（通常是新创建的表或数据库中）。SQL Developer 和 Data Pump主要用于跨数据库或跨 Schema 的数据复制;CTAS主要用于同一数据库内的碎片整理和空间管理。\n\nA.Database Replay 是 Real Application Testing (RAT) 工具集的一部分，用于测试升级或配置更改的影响，而不是用于实际的数据迁移\nD.不适用于堆表数据。 数据库文件（如数据文件）是以 Oracle 特定的格式存储的，不能简单地用操作系统命令（如 cp 或 copy）复制到另一个数据库中并直接使用。这仅适用于 Transportable Tablespaces 场景，且需配合 SQL 和 RMAN 命令"
+  "Explanation": "堆表就是默认的无序表，用来存储普通业务数据和临时数据，特点是插入快、全表扫描效率高，适合大部分 OLTP 场景\n\n堆表数据迁移意味着要使用某些工具或语句，将数据逻辑地从旧位置读出，然后逻辑地写入到新位置（通常是新创建的表或数据库中）。SQL Developer 和 Data Pump主要用于跨数据库或跨 Schema 的数据复制;CTAS主要用于同一数据库内的碎片整理和空间管理。\n\nA.Database Replay 是 Real Application Testing (RAT) 工具集的一部分，用于测试升级或配置更改的影响，而不是用于实际的数据迁移\nD.不适用于堆表数据。 数据库文件（如数据文件）是以 Oracle 特定的格式存储的，不能简单地用操作系统命令（如 cp 或 copy）复制到另一个数据库中并直接使用。这仅适用于 Transportable Tablespaces 场景，且需配合 SQL 和 RMAN 命令"
 },
 {
   "QuestionID": 68,
@@ -5652,7 +5652,7 @@
     {"label": "G", "text": "Unified auditing can be automatically synchronized to all application PDBs in an application container."}
   ],
   "CorrectAnswer": ["B", "D", "G"],
-  "Explanation": "虚拟私有数据库 (VPD)也称为 行级安全 (Row-Level Security, RLS)\nA.application root 定义了 VPD 策略，它 不会自动同步到所有 application PDBs需要手动在 PDB 中应用策略\nB.在 application root 中定义的 TSDP policy，对于 application-common 对象，如果要在某个 application PDB 中生效，需要在那个 PDB (container) 中enable该策略\nCD.TSDP 不能在 install/patch BEGIN-END block 中创建，必须使用匿名 PL/SQL 块创建；OLS 在 application root 中创建时，必须在 install/patch BEGIN-END block 内；如果在外部创建，会失败\n\n1.容器隔离：绝大多数安全策略是 container-specific，即使对象是 application-common，也不会自动同步策略\n2.策略传播：VPD / TSDP / FGA 策略需要手动 propagate 或在 PDB 分别启用\n3.创建限制：TSDP → 不能放在 application install/patch BEGIN-END block; OLS → 必须放在 install/patch block; VPD / FGA → 需通过 DBMS_RLS / DBMS_FGA 过程创建\n4.审计策略：Unified Audit 可以跨 PDB，但需要注意 common/local 用户和权限。一旦通用策略在应用根中被创建和启用，它就会被设计为自动传播到该应用容器中的所有应用 PDBs（Application PDBs）"
+  "Explanation": "虚拟私有数据库 (VPD)也称为 行级安全 (Row-Level Security, RLS)\nA.application root 定义了 VPD 策略，它 不会自动同步到所有 application PDBs需要手动在 PDB 中应用策略\nB.在 application root 中定义的 TSDP policy，对于 application-common 对象，如果要在某个 application PDB 中生效，需要在那个 PDB (container) 中enable该策略\nCD.TSDP 不能在 install/patch BEGIN-END block 中创建，必须使用匿名 PL/SQL 块创建；OLS 政策不能在 Application Root 或 CDB$ROOT 里创建；必须在业务 PDB 中注册并启用 OLS 后创建。\n\n1.容器隔离：绝大多数安全策略是 container-specific，即使对象是 application-common，也不会自动同步策略\n2.策略传播：VPD / TSDP / FGA 策略需要手动 propagate 或在 PDB 分别启用\n3.创建限制：TSDP → 不能放在 application install/patch BEGIN-END block; OLS → 必须放在 install/patch block; VPD / FGA → 需通过 DBMS_RLS / DBMS_FGA 过程创建\n4.审计策略：Unified Audit 可以跨 PDB，但需要注意 common/local 用户和权限。一旦通用策略在应用根中被创建和启用，它就会被设计为自动传播到该应用容器中的所有应用 PDBs（Application PDBs）"
 },
 {
   "QuestionID": 72,
@@ -5730,7 +5730,7 @@
     {"label": "G", "text": "The Oracle database administrator must be granted access to the root operating system account to run root privileged scripts."}
   ],
   "CorrectAnswer": ["D", "E", "F"],
-  "Explanation": "A.runfixup.sh 脚本主要用于修正内核参数、文件系统挂载选项和资源限制（ulimits）等设置，以符合 Oracle 的要求。它不能用于安装缺失的操作系统 RPM 包。安装 RPM 通常依赖于操作系统自带的包管理器\nB.虽然 Oracle 推荐使用预安装 RPM，但它不是强制性的。用户可以手动完成所有必需的配置\nC.数据库内部支持的字符集、语言环境（NLS settings）不是在安装时通过“选择语言”的界面设置的\nD.单实例环境可以先安装数据库软件，再安装或不安装 GI\nE.预安装 RPM 可以用于自动创建所需的用户和组，这是它的主要功能之一\nF.单实例环境可以先安装 GI（提供 ASM），再安装数据库软件\nG.DBA 用户不能直接访问 root 账户"
+  "Explanation": "RPM 原本是 Red Hat Package Manager 的缩写，现在已经成为事实上的 企业级 Linux 标准包格式\nRPM 包 = 已经编译好、带依赖关系的 Linux 软件安装包\n用来快速、规范、可管理地安装系统或 Oracle 相关软件\n\nA.runfixup.sh 脚本主要用于修正内核参数、文件系统挂载选项和资源限制（ulimits）等设置，以符合 Oracle 的要求。它不能用于安装缺失的操作系统 RPM 包。安装 RPM 通常依赖于操作系统自带的包管理器\nB.虽然 Oracle 推荐使用预安装 RPM，但它不是强制性的。用户可以手动完成所有必需的配置\nC.数据库内部支持的字符集、语言环境（NLS settings）不是在安装时通过“选择语言”的界面设置的\nD.单实例环境可以先安装数据库软件，再安装或不安装 GI\nE.预安装 RPM 可以用于自动创建所需的用户和组，这是它的主要功能之一\nF.单实例环境可以先安装 GI（提供 ASM），再安装数据库软件\nG.DBA 用户不能直接访问 root 账户"
 },
 {
   "QuestionID": 77,
@@ -5767,7 +5767,7 @@
 {
   "QuestionID": 79,
   "QuestionType": "multiple",
-  "QuestionText": "You have configured RMAN SBT channels to write backups to media. You then take an RMAN backup by using this command:\n\nRMAN> BACKUP AS COMPRESSED BACKUPSET DATABASE KEEP UNTIL TIME 'SYSDATE + 730' RESTORE POINT 'OLD_CONFIGURATION';\n\nWhich three are true? (Choose three.)",
+  "QuestionText": "You have configured RMAN SBT channels to write backups to media. You then take an RMAN backup by using this command:\n\nRMAN> BACKUP AS COMPRESSED BACKUPSET\n DATABASE\n KEEP UNTIL TIME 'SYSDATE + 730'\n RESTORE POINT 'OLD_CONFIGURATION';\n\nWhich three are true? (Choose three.)",
   "ImageURL": "",
   "Options": [
     {"label": "A", "text": "The restore point is a label for the system change number (SCN) that will be saved two years after the archival backup was taken."},
@@ -5859,7 +5859,7 @@
     {"label": "E", "text": "This cannot be done due to the lack of a clean restore point."}
   ],
   "CorrectAnswer": ["E"],
-  "Explanation": "PDB_NAME: PDB1\nPDB_RESTORE_POINT: R1\nPDB_RESTORE_POINT 存在：YES\nCLEAN_PDB_RESTORE_POINT：NO（意味着这不是一个关闭后创建的“干净”恢复点，而是一个保证数据一致性的“不干净”恢复点，通常需要介质恢复/日志应用\nPROPERTY_NAME: LOCAL_UNDO_ENABLED\nPROPERTY_VALUE: FALSE (这意味着 PDB1 使用的是 共享撤销（Shared Undo），即 CDB 的撤销表空间)。\n\nAD.FLASHBACK PLUGGABLE DATABASE 命令是 SQL 语句，而不是 RMAN 命令\nB.只有 CDB root 才拥有 CREATE PLUGGABLE DATABASE、DROP PLUGGABLE DATABASE、FLASHBACK PLUGGABLE DATABASE 等全局权限。普通 PDB 下没有足够权限执行这些操作\nDE.如果 CDB 是共享 UNDO 模式，要使用简化的 FLASHBACK PLUGGABLE DATABASE PDB1 TO RESTORE POINT R1 SQL 命令，该恢复点必须是 CLEAN 恢复点\n\nCLEAN_PDB_RESTORE_POINT这个恢复点是在 PDB 被关闭 (Closed) 且 没有任何活动事务 的情况下创建的"
+  "Explanation": "PDB_NAME: PDB1\nPDB_RESTORE_POINT: R1\nPDB_RESTORE_POINT 存在：YES\nCLEAN_PDB_RESTORE_POINT：NO（意味着这不是一个关闭后创建的“干净”恢复点，而是一个保证数据一致性的“不干净”恢复点，通常需要介质恢复/日志应用\nPROPERTY_NAME: LOCAL_UNDO_ENABLED\nPROPERTY_VALUE: FALSE (这意味着 PDB1 使用的是 共享撤销（Shared Undo），即 CDB 的撤销表空间)。\n\nAD.FLASHBACK PLUGGABLE DATABASE 命令是 SQL 语句，而不是 RMAN 命令\nB.只有 CDB root 才拥有 CREATE PLUGGABLE DATABASE、DROP PLUGGABLE DATABASE、FLASHBACK PLUGGABLE DATABASE 等全局权限。普通 PDB 下没有足够权限执行这些操作\nCE.如果 CDB 是共享 UNDO 模式，要使用简化的 FLASHBACK PLUGGABLE DATABASE PDB1 TO RESTORE POINT R1 SQL 命令，该恢复点必须是 CLEAN 恢复点\n\nCLEAN_PDB_RESTORE_POINT这个恢复点是在 PDB 被关闭 (Closed) 且 没有任何活动事务 的情况下创建的"
 },
 {
   "QuestionID": 85,
@@ -5874,7 +5874,7 @@
     {"label": "E", "text": "Data Recovery Advisor can proactively check for failures."}
   ],
   "CorrectAnswer": ["C", "E"],
-  "Explanation": "Data Recovery Advisor (DRA)集成在 RMAN (Recovery Manager) 中，目的是将复杂的数据库恢复过程自动化、智能化，从而简化数据库管理员（DBA）处理数据故障的工作\nDRA 的工作分为三个核心阶段，对应 RMAN 中的三个主要命令:\n1.诊断:RMAN 命令LIST FAILURE,DRA 通过访问 自动诊断存储库ADR中的信息，列出所有已识别的持久性（需要干预）故障\n2.建议:RMAN 命令ADVISE FAILURE,DRA 分析列出的故障，考虑所有可用的备份和归档日志，并生成一个或多个修复选项 (Repair Options)，包括成本、数据丢失风险等信息\n3.修复:RMAN 命令REPAIR FAILURE,DBA 确认建议后，执行此命令。DRA 会自动生成并执行所有必要的 RMAN 语句（例如，恢复数据文件、应用归档日志等），完成故障修复\n\n使用 DRA，数据库需要满足以下关键前提:\n1.Fast Recovery Area (FRA) 已配置： 闪回日志和备份文件通常存储在 FRA 中。\n2.Flashback Database 已启用（推荐）： 启用后，DRA 可以利用闪回功能提供更快、数据丢失风险更小的修复选项。\n3.数据库处于 MOUNT 或 OPEN 状态： 多数诊断和修复操作需要数据库实例至少处于 MOUNT 状态才能访问控制文件和数据文件\n\nA.数据库不一定非得 MOUNT，也可以OPEN 状态执行。只有某些 failure types（如丢失控制文件）需要 MOUNT，但并非全部\nB.DRA 允许你 手动关闭未修复的故障，比如你决定暂时不修复某个故障或者故障不影响生产，关闭后 DRA 不再在列表中显示\nDCHANGE FAILURE 命令可以用于修改故障的优先级 (PRIORITY)，也可以用于修改故障的状态 (STATUS)，例如从 OPEN 修改为 CLOSED（但只能在修复后）\nE.DRA 是作为 故障自动诊断存储库 (ADR) 的一部分,会主动proactively运行健康检查（如数据文件头检查、块检查等），并在检测到持续或严重的故障时自动创建故障记录，即使 DBA 没有手动执行 ADVISE FAILURE 命令\n\n这题注意，网上查到C选项是错误的"
+  "Explanation": "Data Recovery Advisor (DRA)集成在 RMAN (Recovery Manager) 中，目的是将复杂的数据库恢复过程自动化、智能化，从而简化数据库管理员（DBA）处理数据故障的工作\nDRA 的工作分为三个核心阶段，对应 RMAN 中的三个主要命令:\n1.诊断:RMAN 命令LIST FAILURE,DRA 通过访问 自动诊断存储库ADR中的信息，列出所有已识别的持久性（需要干预）故障\n2.建议:RMAN 命令ADVISE FAILURE,DRA 分析列出的故障，考虑所有可用的备份和归档日志，并生成一个或多个修复选项 (Repair Options)，包括成本、数据丢失风险等信息\n3.修复:RMAN 命令REPAIR FAILURE,DBA 确认建议后，执行此命令。DRA 会自动生成并执行所有必要的 RMAN 语句（例如，恢复数据文件、应用归档日志等），完成故障修复\n\n使用 DRA，数据库需要满足以下关键前提:\n1.Fast Recovery Area (FRA) 已配置： 闪回日志和备份文件通常存储在 FRA 中。\n2.Flashback Database 已启用（推荐）： 启用后，DRA 可以利用闪回功能提供更快、数据丢失风险更小的修复选项。\n3.数据库处于 MOUNT 或 OPEN 状态： 多数诊断和修复操作需要数据库实例至少处于 MOUNT 状态才能访问控制文件和数据文件\n\nA.数据库不一定非得 MOUNT，也可以OPEN 状态执行。只有某些 failure types（如丢失控制文件）需要 MOUNT，但并非全部\nB.DRA 允许你 手动关闭未修复的故障，比如你决定暂时不修复某个故障或者故障不影响生产，关闭后 DRA 不再在列表中显示\nD.CHANGE FAILURE 命令可以用于修改故障的优先级 (PRIORITY)，也可以用于修改故障的状态 (STATUS)，例如从 OPEN 修改为 CLOSED（但只能在修复后）\nE.DRA 是作为 故障自动诊断存储库 (ADR) 的一部分,会主动proactively运行健康检查（如数据文件头检查、块检查等），并在检测到持续或严重的故障时自动创建故障记录，即使 DBA 没有手动执行 ADVISE FAILURE 命令\n\n这题注意，网上查到C选项是错误的"
 },
 {
   "QuestionID": 86,
@@ -5982,7 +5982,7 @@
     {"label": "F", "text": "The Data Recovery Advisor uses the ADR."}
   ],
   "CorrectAnswer": ["A", "B", "F"],
-  "Explanation": "A.ADRCI (ADR Command-Line Utility) 是用于管理 ADR (Automatic Diagnostic Repository) 内容的工具。当数据库发生关键错误并记录为一个 Incident 时，ADRCI 可以使用 IPS CREATE PACKAGE 命令将相关的诊断文件（如跟踪文件、日志、dump 文件等）收集并打包成一个文件，这个文件可以方便地上传给 Oracle Support 进行分析\nB.ADR 是一个基于文件系统的层次结构目录，用于存储所有诊断数据,其结构通常是\n--ADR Base:ADR 的根目录\n--ADR Home：在 ADR Base 下，每个 Oracle 产品（如数据库、ASM、Listener）的每个实例都有一个独立的 ADR Home 目录。例如，如果您在同一台机器上运行了两个不同的数据库实例 (DB1 和 DB2)，ADR 会为每个实例创建一个单独的 Home 目录来隔离诊断数据\nC.Flashback 命令（如 Flashback Database, Flashback Table, Flashback Query）用于逻辑错误（例如人为误操作、意外删除数据）的恢复,物理错误通常需要 RMAN 恢复或块介质恢复\nD.RMAN 可以修复可修复的损坏块，前提是存在一个未损坏的备份或副本。如果一个损坏的块没有任何可用的备份来恢复，RMAN 就无法修复它\nE.ADR 是一个基于文件系统的诊断数据存储库。它的设计目标是即使数据库完全不可用，诊断信息也能被访问。因此，它不会将其元数据存储在它所诊断的 Oracle 数据库 存储库（即数据文件）中\nF.Data Recovery Advisor (DRA) 是一个诊断工具，用于自动检测、分析持久性故障，并建议修复方案。DRA 的工作流程和诊断信息（如故障、修复建议）都依赖于从 ADR 中收集的元数据和详细信息。"
+  "Explanation": "A.ADRCI（Automatic Diagnostic Repository Command Interpreter）是用于管理 ADR (Automatic Diagnostic Repository) 的命令行工具。当数据库发生关键错误并记录为一个 Incident 时，ADRCI 可以使用 IPS CREATE PACKAGE 命令将相关的诊断文件（如跟踪文件、日志、dump 文件等）收集并打包成一个文件，这个文件可以方便地上传给 Oracle Support 进行分析\nB.ADR 是一个基于文件系统的层次结构目录，用于存储所有诊断数据,其结构通常是\n--ADR Base:ADR 的根目录\n--ADR Home：在 ADR Base 下，每个 Oracle 产品（如数据库、ASM、Listener）的每个实例都有一个独立的 ADR Home 目录。例如，如果您在同一台机器上运行了两个不同的数据库实例 (DB1 和 DB2)，ADR 会为每个实例创建一个单独的 Home 目录来隔离诊断数据\nC.Flashback 命令（如 Flashback Database, Flashback Table, Flashback Query）用于逻辑错误（例如人为误操作、意外删除数据）的恢复,物理错误通常需要 RMAN 恢复或块介质恢复\nD.RMAN 可以修复可修复的损坏块，前提是存在一个未损坏的备份或副本。如果一个损坏的块没有任何可用的备份来恢复，RMAN 就无法修复它\nE.ADR 是一个基于文件系统的诊断数据存储库。它的设计目标是即使数据库完全不可用，诊断信息也能被访问。因此，它不会将其元数据存储在它所诊断的 Oracle 数据库 存储库（即数据文件）中\nF.Data Recovery Advisor (DRA) 是一个诊断工具，用于自动检测、分析持久性故障，并建议修复方案。DRA 的工作流程和诊断信息（如故障、修复建议）都依赖于从 ADR 中收集的元数据和详细信息。"
 },
 {
   "QuestionID": 93,
@@ -6028,7 +6028,7 @@
     {"label": "E", "text": "It can be used for both Oracle Database and Oracle Grid Infrastructure, excluding Oracle Restart."}
   ],
   "CorrectAnswer": ["A", "D"],
-  "Explanation": "Rapid Home Provisioning (RHP) 是 Oracle Clusterware 的一项功能，它提供了一个集中的、自动化的框架，用于管理和部署 Oracle 软件映像（Software Images）\nRHP 允许管理员在共享存储上集中存储 Oracle Database、Oracle Grid Infrastructure、Oracle Restart、应用程序和中间件的黄金映像（Golden Images）,它能够快速地将这些黄金映像部署到集群节点或单实例服务器上,RHP 极大地简化了打补丁（Patching）、升级和回滚操作，通过管理和分发新的或更新的软件映像来完成\n"
+  "Explanation": "Rapid Home Provisioning (RHP) 是 Oracle Clusterware 的一项功能，它提供了一个集中的、自动化的框架，用于管理和部署 Oracle 软件映像（Software Images）\nRHP 允许管理员在共享存储上集中存储 Oracle Database、Oracle Grid Infrastructure、Oracle Restart、应用程序和中间件的黄金映像（Golden Images）,它能够快速地将这些黄金映像部署到集群节点或单实例服务器上,RHP 极大地简化了打补丁（Patching）、升级和回滚操作，通过管理和分发新的或更新的软件映像来完成\n\nOracle Restart 是 Oracle Grid Infrastructure（GI）中的一个组件，用于在单机环境中自动监控并重启 Oracle 资源（如数据库、监听器等）"
 },
 {
   "QuestionID": 96,
@@ -6044,7 +6044,7 @@
     {"label": "F", "text": "the DB_RECOVERY_FILE_DEST parameter setting"}
   ],
   "CorrectAnswer": ["A", "C"],
-  "Explanation": "数据库处于 ARCHIVELOG 模式，并且计划使用 Flashback Database。这意味着 Oracle 会在 快速恢复区（Fast Recovery Area, FRA） 中存储 闪回日志（flashback logs） 和 归档日志（archived redo logs）。为了保证这些功能正常工作，需要管理 FRA 的空间。\nA.Archived log deletion policy归档日志删除策略:控制何时可以从 FRA 删除归档日志。可以根据备份或保留策略自动释放 FRA 空间。\nB.Backup optimization policy备份优化策略:用于跳过未改变的文件备份，不直接管理 FRA 空间\nC.Backup retention policy备份保留策略:控制备份的保留时间，间接影响 FRA 空间，因为过期备份可以被删除\nD.Using guaranteed UNDO retention保证 UNDO保留:针对 UNDO 表空间的策略，不管理FRA空间\nE.DB_CREATE_ONLINE_LOG_DEST_n 参数:这是设置联机 redo 日志文件位置的参数，不管理 FRA\nF.DB_RECOVERY_FILE_DEST 参数:这个是设置 FRA 的位置，不直接管理空间 "
+  "Explanation": "数据库处于 ARCHIVELOG 模式，并且计划使用 Flashback Database。这意味着 Oracle 会在 快速恢复区（Fast Recovery Area, FRA） 中存储 闪回日志（flashback logs） 和 归档日志（archived redo logs）。为了保证这些功能正常工作，需要管理 FRA 的空间。\n\nFRA 主要存放用于数据库恢复的文件，包括 RMAN 备份、归档日志、Flashback 日志以及控制文件和 SPFILE 的自动备份。\n\nA.Archived log deletion policy归档日志删除策略:控制何时可以从 FRA 删除归档日志。可以根据备份或保留策略自动释放 FRA 空间。\nB.Backup optimization policy备份优化策略:用于跳过未改变的文件备份，不直接管理 FRA 空间\nC.Backup retention policy备份保留策略:控制备份的保留时间，间接影响 FRA 空间，因为过期备份可以被删除\nD.Using guaranteed UNDO retention保证 UNDO保留:针对 UNDO 表空间的策略，不管理FRA空间\nE.DB_CREATE_ONLINE_LOG_DEST_n 参数:这是设置联机 redo 日志文件位置的参数，不管理 FRA\nF.DB_RECOVERY_FILE_DEST 参数:这个是设置 FRA 的位置，不直接管理空间 "
 },
 {
   "QuestionID": 97,
@@ -6075,7 +6075,7 @@
     {"label": "F", "text": "acting as an I/O server to read data file blocks from ASM disks on behalf of database server processes"}
   ],
   "CorrectAnswer": ["A", "B", "E"],
-  "Explanation": "Oracle Automatic Storage Management (ASM) 实例是一个轻量级、专门的 Oracle 实例，它不包含用户表和数据，其主要职责是管理数据库的存储元数据并为数据库实例提供存储服务\n主要功能:\n1.磁盘组（Disk Group）管理:挂载与卸载磁盘组 (Mount/Dismount Disk Groups),数据库 (datafiles)、控制文件 (control files)、日志文件 (redo/undo logs)、归档日志 (archive logs)、备份 (RMAN backups) 等都可以存放在这些磁盘组里\n2.ASM Instance (ASM 实例)：ASM 有自己的实例 (instance)，类似于数据库实例，但轻量很多，仅负责存储管理 (metadata + IO 管理)，不处理 SQL\n3.SM Files：存放在 disk groups 中的文件 (datafiles, redo logs, control files 等) 被称为 ASM 文件。ASM 管理这些文件的命名、分布、分配，不要 DBAs 手动处理底层路径。\n\nB.Allocation Unit (AU) 是 Oracle Automatic Storage Management (ASM) 中分配存储的最小基本单位。ASM 通过管理 AU 来实现其高性能、高可用性和灵活性的存储管理目标,ASM 文件（如数据文件）的空间是以 Extent 为单位分配的。一个 Extent 由一个或多个 AU 组成,ASM 实例负责 AU 内容的动态管理，其核心是自动条带化 (Striping)、镜像 (Mirroring) 和重平衡 (Rebalancing)。\nC.extent分配由数据库实例管理（如段空间管理），与 ASM 无关,\nDF.分别是后台进程和服务器进程,不是 ASM实例"
+  "Explanation": "Oracle Automatic Storage Management (ASM) 实例是一个轻量级、专门的 Oracle 实例，它不包含用户表和数据，其主要职责是管理数据库的存储元数据并为数据库实例提供存储服务\n主要功能:\n1.磁盘组（Disk Group）管理:挂载与卸载磁盘组 (Mount/Dismount Disk Groups),数据库 (datafiles)、控制文件 (control files)、日志文件 (redo/undo logs)、归档日志 (archive logs)、备份 (RMAN backups) 等都可以存放在这些磁盘组里\n2.ASM Instance (ASM 实例)：ASM 有自己的实例 (instance)，类似于数据库实例，但轻量很多，仅负责存储管理 (metadata + IO 管理)，不处理 SQL\n3.SM Files：存放在 disk groups 中的文件 (datafiles, redo logs, control files 等) 被称为 ASM 文件。ASM 管理这些文件的命名、分布、分配，不要 DBAs 手动处理底层路径。\n\nB.Allocation Unit (AU) 是 Oracle Automatic Storage Management (ASM) 中分配存储的最小基本单位。ASM 通过管理 AU 来实现其高性能、高可用性和灵活性的存储管理目标,ASM 文件（如数据文件）的空间是以 Extent 为单位分配的。一个 Extent 由一个或多个 AU 组成,ASM 实例负责 AU 内容的动态管理，其核心是自动条带化 (Striping)、镜像 (Mirroring) 和重平衡 (Rebalancing)。\nC.数据库区Database extent分配由数据库实例管理（如段空间管理），通常通过本地管理表空间（Locally Managed Tablespaces, LMT）中的位图（Bitmap）来管理。ASM区 (ASM Extents)当你将数据文件放在 ASM 上时，ASM 会引入它自己的 Extent 概念,由 ASM 实例管理，一个 ASM 文件由多个 ASM Extent 组成。每个 ASM Extent 由一个或多个 分配单元（Allocation Units, AU）组成\nDF.分别是后台进程和服务器进程,不是 ASM实例"
 },
 {
   "QuestionID": 99,
@@ -6135,7 +6135,7 @@
     {"label": "E", "text": "The four sections must be contained in backup sets."}
   ],
   "CorrectAnswer": ["B", "D"],
-  "Explanation": "RMAN 多段式备份 (Multisection Backups)允许将一个非常大的数据文件分成多个连续的段（sections），从而提高备份性能\nMultisection backup 把 一个大 datafile 分成多个 sections 并行备份，通过 SECTION SIZE 实现，配合多个 channel 提高性能，只适用于 datafile，不适用于归档日志或控制文件。\n\n A.processed seriall串行处理，表示一个接一个的按顺序完成\nB.即使文件被分成了多个段，如果您只分配了一个 RMAN 通道 (CHANNEL)，或者并行度设置较低，这些段也会被串行（逐个）处理\nCE.Multisection Backup（多段式备份）确实既可以用于 Backup Set，也可以用于 Image Copy"
+  "Explanation": "RMAN 多段式备份 (Multisection Backups)允许将一个非常大的数据文件分成多个连续的段（sections），从而提高备份性能\nMultisection backup 把 一个大 datafile 分成多个 sections 并行备份，通过 SECTION SIZE 实现，配合多个 channel 提高性能，只适用于 datafile，不适用于归档日志或控制文件。\n\n A.processed serially串行处理，表示一个接一个的按顺序完成\nB.即使文件被分成了多个段，如果您只分配了一个 RMAN 通道 (CHANNEL)，或者并行度设置较低，这些段也会被串行（逐个）处理\nCE.Multisection Backup（多段式备份）确实既可以用于 Backup Set，也可以用于 Image Copy"
 },
 {
   "QuestionID": 103,
@@ -6151,7 +6151,7 @@
     {"label": "F", "text": "It can only use SQL Plan Directives tied to the SQL statement for which a plan is being generated."}
   ],
   "CorrectAnswer": ["B", "C", "D"],
-  "Explanation": "Oracle 优化器是数据库管理系统（DBMS）中最核心、最复杂的组件之一。它的主要职责是确定执行一个 SQL 语句的最有效方法\nA.优化器不一定会遵守所有提示。如果提示与对象不存在、语法错误或与其他提示冲突，优化器可能会忽略它\nB.优化器是基于成本的，它需要知道不同访问路径（如全表扫描、索引扫描）和连接方法（如嵌套循环、哈希连接）的成本。WHERE子句中的过滤器Filters决定了查询将返回多少行（即选择性）。这是计算成本的关键输入。选择性高的过滤器会促使优化器选择使用索引\nC.如果优化器最初的计划在运行时被发现是次优的（例如，基数（Cardinality）估计不准确，导致选择了错误的连接方法），系统可以在后续执行中调整或重新优化该计划，或收集新的 SQL Plan Directives (SQL 计划指令) 来改进未来的执行\nD.对象统计信息（如表中的行数、列的唯一值数量、数据块数等）是优化器计算成本和基数估计的核心数据。优化器使用这些统计信息来估计每一步操作的 I/O 和 CPU 成本，从而选择总体成本最低的执行计划\nE.优化器使用统计信息来生成计划，但不负责更新统计信息。更新统计信息的任务由 DBMS_STATS 包（通常通过自动作业执行）或用户显式地完成\nF.SQL Plan Directives 可以与多个使用相同表和列的查询共享，即使这些查询的文本不完全相同。"
+  "Explanation": "Oracle 优化器是数据库管理系统（DBMS）中最核心、最复杂的组件之一。它的主要职责是确定执行一个 SQL 语句的最有效方法\nA.优化器不一定会遵守所有提示。如果提示与对象不存在、语法错误或与其他提示冲突，优化器可能会忽略它\nB.优化器是基于成本的，它需要知道不同访问路径（如全表扫描、索引扫描）和连接方法（如嵌套循环、哈希连接）的成本。WHERE子句中的过滤器Filters决定了查询将返回多少行（即选择性）。这是计算成本的关键输入。选择性高的过滤器会促使优化器选择使用索引\nC.如果优化器最初的计划在运行时被发现是次优的（例如，基数（Cardinality）估计不准确，导致选择了错误的连接方法），系统可以在后续执行中调整或重新优化该计划，或收集新的 SQL Plan Directives (SQL 计划指令) 来改进未来的执行\nD.对象统计信息（如表中的行数、列的唯一值数量、数据块数等）是优化器计算成本和基数估计的核心数据。优化器使用这些统计信息来估计每一步操作的 I/O 和 CPU 成本，从而选择总体成本最低的执行计划\nE.优化器使用统计信息来生成计划，但不负责更新统计信息。更新统计信息的任务由 DBMS_STATS 包（通常通过自动作业执行）或用户显式地完成\nF.这句话的原意是说 优化器使用 SPD 时，只考虑和当前 SQL 语句相关的指令，不过严格来说，Oracle 可以跨类似 SQL 重用 SPD，而不一定要求 SQL 文本完全相同\n\nSQL Plan Directives 是 Oracle Optimizer 用来改进执行计划选择的辅助信息，当统计信息不足或数据分布不明确时，Optimizer 会自动参考这些 Directive 生成更优的执行计划。"
 },
 {
   "QuestionID": 104,
