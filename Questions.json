@@ -6181,8 +6181,8 @@
     {"label": "E", "text": "The source and target platforms must have the same endianness."},
     {"label": "F", "text": "Automatic conversion of endianness occurs."}
   ],
-  "CorrectAnswer": ["A", "E"],
-  "Explanation": "XTTS（Cross-Platform Transportable Tablespaces）进行跨平台 PDB 传输是实现跨字节序（Endianness）迁移且停机时间最短\n\nA.为了处理跨平台的数据格式差异（尤其是字节序/Endianness不同），必须使用 RMAN 生成一个特殊的备份集。使用的命令正是 BACKUP ... TO PLATFORM 'target_platform_name'。这个命令会自动处理字节序转换（如果是跨字节序平台）并生成可以传输到目标端的备份文件。相比之下，如果只是同字节序传输，通常使用 BACKUP FOR TRANSPORT。但 TO PLATFORM 是处理跨平台（含跨字节序）的标准子句\nB.执行 BACKUP TO PLATFORM 时，PDB 可以是 Closed (MOUNT) 或者是 Open Read-Only\nC.使用 BACKUP TO PLATFORM 命令对 Application Root 进行跨平台备份在技术上是支持的\nD.为了数据一致性，PDB 必须是 Read-Only 或 Mounted。如果 PDB 处于 Read-Write 的 OPEN 状态，是无法生成一致性的传输备份的（除非使用不一致备份+增量恢复的高级 XTTS 流程，但题目描述的是标准 PDB Transport）\nEF.只有 单个表空间 transport 可以使用 RMAN 的自动 endian 转换。对于整个 PDB / application root，Oracle 不会自动做 endian 转换。必须手动在 RMAN BACKUP FOR TRANSPORT 时指定 TO PLATFORM 并做转换"
+  "CorrectAnswer": ["B", "E"],
+  "Explanation": "此题存疑，网友测试BE可以\n\nXTTS（Cross-Platform Transportable Tablespaces）进行跨平台 PDB 传输是实现跨字节序（Endianness）迁移且停机时间最短\nXTTS = 表空间搬家工具，不管 PDB 有多大，关键是“哪些表空间可以搬”，不是整 PDB\n\nCross-platform PDB transport using XTTS = 通过 XTTS 技术，把 PDB 中一个或多个表空间跨平台搬到另一 CDB，并在必要时自动转换字节序\n\nXTTS 必须遵循你提到的“物理搬运”逻辑：\n1.自包含检查： DBMS_TTS.TRANSPORT_SET_CHECK\n2.源端转换（可选）： 如果在源端转换，使用 RMAN CONVERT TABLESPACE ... TO PLATFORM 生成 Image Copy\n3.物理传输： 将 Image Copy 拷贝到目标平台\n4.目标端转换（可选）： 如果源端没转，在目标端使用 RMAN CONVERT DATAFILE\n5.元数据挂载： 使用 impdp 配合 TRANSPORT_DATAFILES 参数\n\nBACKUP … TO PLATFORM 属于 RMAN 的 BACKUP 命令，技术归类是：Cross-Platform Backup（跨平台备份与恢复）。\n\nA.BACKUP FOR TRANSPORT = 传表空间（同 endian）\nBACKUP TO PLATFORM = 跨平台备份（可转 endian）\nXTTS = CONVERT + image copy\nB.执行 BACKUP TO PLATFORM 时，PDB 可以是 Closed (MOUNT) 或者是 Open Read-Only\nC.使用 BACKUP TO PLATFORM 命令对 Application Root 进行跨平台备份在技术上是支持的\nD.为了数据一致性，PDB 必须是 Read-Only 或 Mounted。如果 PDB 处于 Read-Write 的 OPEN 状态，是无法生成一致性的传输备份的\nEF.只有 单个表空间 transport 可以使用 RMAN 的自动 endian 转换。对于整个 PDB / application root，Oracle 不会自动做 endian 转换。必须手动在 RMAN BACKUP FOR TRANSPORT 时指定 TO PLATFORM 并做转换"
 },
 {
   "QuestionID": 106,
@@ -6219,7 +6219,7 @@
 {
   "QuestionID": 108,
   "QuestionType": "single",
-  "QuestionText": "You want to transport the UNIVERSITY tablespace from one database to another.\nThe UNIVERSITY tablespace is currently open read/write.\nThe source and destination platforms have the same endian format.\nExamine this list of steps:\n1.Make the UNIVERSITY tablespace read-only on the source system.\n2.Export the UNIVERSITY tablespace metadata using EXPDP.\n3.Create a cross-platform backup set from the UNIVERSITY tablespace on the source system, using an RMAN command that includes the DATAPUMP clause.\n4.Copy the cross-platform backup sets to the destination system.\n5.Copy the Data Pump dump set from the source to the destination system.\n6.Restore the cross-platform backup set on the destination system using an RMAN command that includes the DATAPUMP clause.\n7.Import the UNIVERSITY tablespace metadata using IMPDP.8. Make the UNIVERSITY tablespace read/write on the destination system.\nWhich are the minimum number of steps required, in the correct order, to transport the UNIVERSITY tablespace?",
+  "QuestionText": "You want to transport the UNIVERSITY tablespace from one database to another.\nThe UNIVERSITY tablespace is currently open read/write.\nThe source and destination platforms have the same endian format.\nExamine this list of steps:\n1.Make the UNIVERSITY tablespace read-only on the source system.\n2.Export the UNIVERSITY tablespace metadata using EXPDP.\n3.Create a cross-platform backup set from the UNIVERSITY tablespace on the source system, using an RMAN command that includes the DATAPUMP clause.\n4.Copy the cross-platform backup sets to the destination system.\n5.Copy the Data Pump dump set from the source to the destination system.\n6.Restore the cross-platform backup set on the destination system using an RMAN command that includes the DATAPUMP clause.\n7.Import the UNIVERSITY tablespace metadata using IMPDP.\n8. Make the UNIVERSITY tablespace read/write on the destination system.\nWhich are the minimum number of steps required, in the correct order, to transport the UNIVERSITY tablespace?",
   "ImageURL": "",
   "Options": [
     {"label": "A", "text": "1, 3, 4, 6, 8"},
@@ -6291,7 +6291,7 @@
     {"label": "F", "text": "SGA_MIN_SIZE cannot be set for a PDB."}
   ],
   "CorrectAnswer": ["A", "C"],
-  "Explanation": "A.在 PDB 级别设置具体的组件大小参数（如 DB_CACHE_SIZE 和 SHARED_POOL_SIZE）时，这些设置代表了最小保证值 (Minimum Guarantee)\nBC.SHARED_POOL_SIZE 的限制也是遵循最小保证值,和不能超过 CDB 限制的一定比例（通常是50% 安全规则）\nDE.PDB 中的 SGA_TARGET 值必须小于或等于 CDB 级别的 SGA_TARGET 值。\n\nSGA_MIN_SIZE 用来保证这个 PDB 的最小 SGA 内存（minimum guaranteed SGA）它是一个 下限（floor），Oracle 必须保证至少给到这么多 SGA，不能超过50%\n\n看到Guarantee、Minimum、Min_Size或者具体的 Component Size，脑子里马上要跳出50%这个红线"
+  "Explanation": "A.在 PDB 级别设置具体的组件大小参数（如 DB_CACHE_SIZE 和 SHARED_POOL_SIZE）时，这些设置代表了最小保证值 (Minimum Guarantee)\nBC.SHARED_POOL_SIZE 的限制也是遵循最小保证值,和不能超过 CDB 限制的一定比例（通常是50% 安全规则）\nD.PDB 中的 SGA_TARGET 值必须小于或等于 CDB 级别的 SGA_TARGET 值。 50% 限制是 官方建议，不是硬性限制\nE.SGA_TARGET 是 自动内存管理参数，表示 该 PDB 可以使用的最大 SGA 内存，不是保证最小值\n\nSGA_MIN_SIZE 用来保证这个 PDB 的最小 SGA 内存（minimum guaranteed SGA）它是一个 下限（floor），Oracle 必须保证至少给到这么多 SGA，不能超过50%\n\n看到Guarantee、Minimum、Min_Size或者具体的 Component Size，脑子里马上要跳出50%这个红线"
 },
 {
   "QuestionID": 113,
@@ -6307,7 +6307,7 @@
     {"label": "F", "text": "creating an Oracle Automatic Storage Management (ASM) instance with ASM Configuration Assistant (ASMCA)"}
   ],
   "CorrectAnswer": ["B", "E", "F"],
-  "Explanation": "A.修改初始化参数 SERVICE_NAMES 只会在数据库内部（内存/数据字典）生效。它不会在 Oracle Restart 层级创建服务资源（Oracle Restart 无法管理、无法自动重启这种服务）。必须使用 srvctl add service 才能添加受管服务。\nB.只要 ASM 实例是由 Oracle Restart 管理的，当你通过 SQL（甚至是在 SQL*Plus 中）创建磁盘组时，ASM 实例会通知 Grid Infrastructure，自动添加该磁盘组资源（如 ora.DATA.dg）到配置中。这是磁盘组特有的行为\nC.手动建库后，你必须手动运行 srvctl add database 命令，才能将其纳入 Oracle Restart 的管理\nD.DBMS_SERVICE 包是 PL/SQL 接口，它只在数据库的数据字典（service$）中创建服务，不负责通知 Oracle Restart（Clusterware）。这种服务被称为字典管理的服务，而不是Grid 管理的服务”\nE.DBCA 是一个“集群感知”（Cluster-aware）的工具。当你使用 DBCA 创建数据库或服务时，它会同时调用后台 API 将这些组件注册到 Oracle Restart 配置中（即自动执行了类似 srvctl add ... 的操作）\nF.ASMCA 是配置 ASM 的官方推荐工具，它完全集成了 Oracle Restart。使用它创建 ASM 实例或磁盘组，都会自动完成资源注册"
+  "Explanation": "Oracle Restart 是 Grid Infrastructure for a Standalone Server 的核心组件。它专门用于单机环境，为单实例数据库、监听器、ASM 等提供高可用性（自动重启和启动顺序管理）\n\nsrvctl（Server Control Utility）属于 Oracle Grid Infrastructure (GI) 的核心组件。\n在 RAC（集群）环境下： 它属于 Oracle Clusterware 的一部分。\n在单机环境下： 它属于 Oracle Restart 的一部分。\n如果是 srvctl 定义的（Managed）： Oracle Restart 发现数据库启动了，它会查看配置，发现“我还有一个关联的 my_service 资源需要启动”，于是它会主动下达指令确保服务上线。\n\nA.修改初始化参数 SERVICE_NAMES 只会在数据库内部（内存/数据字典）生效。它不会在 Oracle Restart 层级创建服务资源（Oracle Restart 无法管理、无法自动重启这种服务）。必须使用 srvctl add service 才能添加受管服务。\nB.只要 ASM 实例是由 Oracle Restart 管理的，当你通过 SQL（甚至是在 SQL*Plus 中）创建磁盘组时，ASM 实例会通知 Grid Infrastructure，自动添加该磁盘组资源（如 ora.DATA.dg）到配置中。这是磁盘组特有的行为\nC.手动建库后，你必须手动运行 srvctl add database 命令，才能将其纳入 Oracle Restart 的管理\nD.DBMS_SERVICE 包是 PL/SQL 接口，它只在数据库的数据字典（service$）中创建服务，不负责通知 Oracle Restart（Clusterware）。这种服务被称为字典管理的服务，而不是Grid 管理的服务”\nE.DBCA 是一个“集群感知”（Cluster-aware）的工具。当你使用 DBCA 创建数据库或服务时，它会同时调用后台 API 将这些组件注册到 Oracle Restart 配置中（即自动执行了类似 srvctl add ... 的操作）\nF.ASMCA 是配置 ASM 的官方推荐工具，它完全集成了 Oracle Restart。使用它创建 ASM 实例或磁盘组，都会自动完成资源注册"
 },
 {
   "QuestionID": 114,
@@ -6339,7 +6339,7 @@
     {"label": "E", "text": "It requires Oracle Automatic Storage Management (ASM) components to be installed separately."}
   ],
   "CorrectAnswer": ["A", "C"],
-  "Explanation": "Oracle GI for Standalone Server 是一个集成的软件堆栈，它包含了三个核心组件:\n--Oracle ASM (Automatic Storage Management): 提供卷管理（Volume Management）功能，包括 ADVM (ASM Dynamic Volume Manager)\n--Oracle ACFS (ASM Cluster File System): 提供文件系统支持\n--Oracle Restart: 提供高可用性（HA）和自动重启能力（当数据库、监听器或 ASM 实例失败时自动重启它们）\nB.可以先安装数据库软件，稍后再安装 GI，然后使用 srvctl add database 命令手动将数据库注册到 Oracle Restart 中\nC.即使是单机（Standalone）环境，Oracle ASM 实例的运行也依赖于 CSS (Cluster Synchronization Services) 服务来管理状态同步（在单机中称为 Local CSS 或 Single-node CSS）。CSS daemon守护进程（在 Linux 上通常是 ocssd.bin）是 Grid Infrastructure 的一部分。它的二进制文件存放在 GI Home（Grid Infrastructure 的安装目录）的 bin 目录下，并从那里运行\nD.Standalone 的定义： Oracle Restart（GI for Standalone）的设计初衷就是管理当前服务器Local Server上的资源。跨服务器管理:如果要管理不同服务器上的资源，那是 Oracle RAC (Real Application Clusters) 的功能，属于 Grid Infrastructure for Cluster，而不是 Standalone\nE.Oracle ASM 是直接包含在 Oracle Grid Infrastructure 安装包里的。当你安装 GI 时，ASM 是内置组件，不需要去下载或安装另一个独立的软件包"
+  "Explanation": "Oracle GI for Standalone Server 是一个集成的软件堆栈，它包含了三个核心组件:\n--Oracle ASM (Automatic Storage Management): 提供卷管理（Volume Management）功能，包括 ADVM (ASM Dynamic Volume Manager)\n--Oracle ACFS (ASM Cluster File System): 提供文件系统支持\n--Oracle Restart: 提供高可用性（HA）和自动重启能力（当数据库、监听器或 ASM 实例失败时自动重启它们）\nB.可以先安装数据库软件，稍后再安装 GI，然后使用 srvctl add database 命令手动将数据库注册到 Oracle Restart 中\nC.即使是单机（Standalone）环境，Oracle ASM 实例的运行也依赖于 CSS (Cluster Synchronization Services) 服务来管理状态同步（在单机中称为 Local CSS 或 Single-node CSS）。CSS daemon守护进程（在 Linux 上通常是 ocssd.bin）是 Grid Infrastructure 的一部分。它的二进制文件存放在 GI Home（Grid Infrastructure 的安装目录）的 bin 目录下，并从那里运行\nCSS daemon = 集群心跳 + 资源锁管理 + 节点状态管理, RAC 核心进程之一，停止会导致集群不可用, 进程名：ocssd.bin / CSSD, 与 CRS(Cluster Ready Services)协作，保证集群节点协调\nD.Standalone 的定义： Oracle Restart（GI for Standalone）的设计初衷就是管理当前服务器Local Server上的资源。跨服务器管理:如果要管理不同服务器上的资源，那是 Oracle RAC (Real Application Clusters) 的功能，属于 Grid Infrastructure for Cluster，而不是 Standalone\nE.Oracle ASM 是直接包含在 Oracle Grid Infrastructure 安装包里的。当你安装 GI 时，ASM 是内置组件，不需要去下载或安装另一个独立的软件包"
 },
 {
   "QuestionID": 116,
@@ -6354,7 +6354,7 @@
     {"label": "E", "text": "It requires an Unbreakable Linux Network (ULN) subscription."}
   ],
   "CorrectAnswer": ["B", "C"],
-  "Explanation": "RPM-based installation 理解为 Oracle 的“极速安装模式”。仅支持安装 单实例 (Single-instance) Oracle 数据库软件,仅软件安装 (Software-only)：RPM 安装本身只完成软件的部署，并创建一个 Oracle Home\nD.数据库 RPM 包（oracle-database-ee-19c）依赖于预安装 RPM（oracle-database-preinstall-19c），但并不“包含”它。通常你是通过 yum 自动解决依赖关系来安装预安装包，或者是分开下载安装，它们是两个独立的包。\nE.虽然企业环境通常使用 ULN，但这并不是硬性技术要求。你可以从 Oracle Linux Yum Server (public-yum) 免费获取并安装这些 RPM 包，或者直接从 Oracle 官网下载 RPM 包进行安装。"
+  "Explanation": "RPM-based installation 理解为 Oracle 的“极速安装模式”。仅支持安装 单实例 (Single-instance) Oracle 数据库软件,仅软件安装 (Software-only)：RPM 安装本身只完成软件的部署，并创建一个 Oracle Home\nA.在使用 RPM 安装 Oracle Database（例如 oracle-database-ee-19c-1.0-1.x86_64.rpm）时，安装过程本身并不会创建数据库。RPM 安装阶段： 仅仅是解压二进制文件、设置权限并建立目录结构（类似于 runInstaller -silent -softwareOnly）。配置脚本阶段： 安装完成后，RPM 会提示你运行一个配置脚本（通常是 /etc/init.d/oracledb_ORCLCDB-19c configure）。只有当你运行这个脚本时，数据库才会被创建。\nD.数据库 RPM 包（oracle-database-ee-19c）依赖于预安装 RPM（oracle-database-preinstall-19c），但并不“包含”它。通常你是通过 yum 自动解决依赖关系来安装预安装包，或者是分开下载安装，它们是两个独立的包。\nE.虽然企业环境通常使用 ULN，但这并不是硬性技术要求。你可以从 Oracle Linux Yum Server (public-yum) 免费获取并安装这些 RPM 包，或者直接从 Oracle 官网下载 RPM 包进行安装。"
 },
 {
   "QuestionID": 117,
@@ -6400,7 +6400,7 @@
     {"label": "E", "text": "issuing multiple savepoints during a transaction"}
   ],
   "CorrectAnswer": ["A", "C"],
-  "Explanation": "A.编写糟糕的 SQL（例如未能使用索引导致全表扫描、笛卡尔积、过度的行级处理等）会消耗过多的 CPU、内存和 I/O 资源。这是导致性能无法扩展的最常见原因之一。\nBD.包含事务更新表的表空间数量:事务跨越多个表空间通常不会阻碍扩展性。相反，将数据分布在多个表空间（及底层的数据文件）上有时有助于分散 I/O 负载，反而可能提升性能\nC.未提交事务:锁争用 (Locking & Blocking):Oracle 使用锁机制来保证数据一致性。如果用户或应用程序更新了数据但长时间不提交（COMMIT），这些行级锁（TX locks）就会一直被持有。阻塞:其他试图修改相同数据的用户会被阻塞，处于等待状态。随着用户数量增加，这种“排队”现象会迅速恶化，导致大量的会话挂起，严重降低系统的并发处理能力和扩展性。\nE.在事务期间发布多个保存点 (Savepoints)： 虽然保存点会产生少量的系统开销（用于维护回滚所需的上下文），但这通常是微不足道的，不会成为阻碍系统扩展到大量用户的主要瓶颈"
+  "Explanation": "题目的意思：这个应用 原本可能支持更多用户，但由于某些原因（比如设计缺陷、资源限制、性能瓶颈），它 不能轻松应对更多用户。\n\nA.编写糟糕的 SQL（例如未能使用索引导致全表扫描、笛卡尔积、过度的行级处理等）会消耗过多的 CPU、内存和 I/O 资源。这是导致性能无法扩展的最常见原因之一。\nBD.包含事务更新表的表空间数量:事务跨越多个表空间通常不会阻碍扩展性。相反，将数据分布在多个表空间（及底层的数据文件）上有时有助于分散 I/O 负载，反而可能提升性能\nC.未提交事务:锁争用 (Locking & Blocking):Oracle 使用锁机制来保证数据一致性。如果用户或应用程序更新了数据但长时间不提交（COMMIT），这些行级锁（TX locks）就会一直被持有。阻塞:其他试图修改相同数据的用户会被阻塞，处于等待状态。随着用户数量增加，这种“排队”现象会迅速恶化，导致大量的会话挂起，严重降低系统的并发处理能力和扩展性。\nE.在事务期间发布多个保存点 (Savepoints)： 虽然保存点会产生少量的系统开销（用于维护回滚所需的上下文），但这通常是微不足道的，不会成为阻碍系统扩展到大量用户的主要瓶颈"
 },
 {
   "QuestionID": 120,
@@ -6417,7 +6417,7 @@
     {"label": "G", "text": "All files in any previous FRA that have been backed up already, are backed up."}
   ],
   "CorrectAnswer": ["B", "C", "D"],
-  "Explanation": "BACKUP RECOVERY AREA不仅针对当前配置的快速恢复区（Fast Recovery Area, FRA），还会扫描并备份以前配置过的 FRA 位置中的恢复文件。Oracle 会记录恢复文件的位置(即使你改变了 DB_RECOVERY_FILE_DEST 参数，旧位置的文件信息仍然在控制文件中),该命令涵盖了(当前 FRA)和(以前的 FRA)\n\n默认情况下，RMAN 启用了备份优化 (Backup Optimization)。如果一个文件（如归档日志）已经被备份到了相同的设备类型上，RMAN 通常会跳过它。使用 FORCE 选项会覆盖这种优化行为。它强制 RMAN 备份所有符合条件的文件，无论它们之前是否已经被备份过。\n\n"
+  "Explanation": "BACKUP RECOVERY AREA不仅针对当前配置的快速恢复区（Fast Recovery Area, FRA），还会扫描并备份以前配置过的 FRA 位置中的恢复文件。Oracle 会记录恢复文件的位置(即使你改变了 DB_RECOVERY_FILE_DEST 参数，旧位置的文件信息仍然在控制文件中),该命令涵盖了(当前 FRA)和(以前的 FRA)\n\n备份的是 FRA 中的 recovery 文件，而不是 FRA 里所有的文件，FRA 里不是 recovery 的文件（比如临时缓存文件）不会被备份\n\n默认情况下，RMAN 启用了备份优化 (Backup Optimization)。如果一个文件（如归档日志）已经被备份到了相同的设备类型上，RMAN 通常会跳过它。使用 FORCE 选项会覆盖这种优化行为。它强制 RMAN 备份所有符合条件的文件，无论它们之前是否已经被备份过。\n\n"
 },
 {
   "QuestionID": 121,
@@ -6433,7 +6433,7 @@
     {"label": "F", "text": "A lost index tablespace can be re-created without performing any recovery."}
   ],
   "CorrectAnswer": ["A", "D", "F"],
-  "Explanation": "在不使用 RMAN 时，恢复主要依赖两个工具的配合:\n1.操作系统命令 (OS Cmd):用于还原文件（如 cp, copy）\n--冷备 (Cold Backup)：必须 SHUTDOWN 数据库后才能拷贝。\n--热备 (Hot Backup)：这是 User-Managed 备份最容易考的地方。你必须先执行 SQL 命令让表空间进入备份模式，否则拷贝出来的文件是不一致的（Split Blocks 问题）。\nALTER TABLESPACE users BEGIN BACKUP;\n-- 此时去操作系统 cp 拷贝文件 --\nALTER TABLESPACE users END BACKUP;\n2.SQL*Plus：用于执行恢复逻辑（应用 Redo Log）和更改数据库状态。OS 拷贝只是把旧文件放回去（Restore），RECOVER 命令才是应用归档日志和 Redo Log 让数据变新（Recover）的过程\n3.使用 Trace 文件重建控制文件:当你所有控制文件都丢了，而且你没有二进制备份时。使用这种方法重建后，通常需要执行 RECOVER DATABASE，并且必须使用 OPEN RESETLOGS 打开数据库。\n使用备份控制文件 (Backup Control File):当你使用旧的控制文件（Binary Backup）恢复时，控制文件里的 SCN 肯定比数据文件旧,一旦使用了备份的控制文件，恢复完成后，必须使用 ALTER DATABASE OPEN RESETLOGS;。因为时间线（Incarnation）变了\n5. 使用日志重建 (CLEAR LOGFILE)\n\nA.如果 SPFILE 丢失（被删除或损坏），但数据库实例（Instance）仍然处于运行状态，内存中保留了当前的参数设置。你可以使用 SQL*Plus 执行以下命令来重新创建它:CREATE SPFILE FROM MEMORY;\n\nB.SQLPlus 本身没有直接创建密码文件的命令。虽然你可以通过 SQLPlus 调用主机命令，但创建密码文件的核心工具是操作系统层面的 orapwd，而不是 SQL 语言本身\n\nC.在使用 OMF (Oracle Managed Files) 或者 PDB 环境下:如果临时表空间定义了临时文件，且该文件在 OS 层面丢失，当数据库（或 PDB）重启/打开时，Oracle 往往会尝试根据 DB_CREATE_FILE_DEST 等参数自动重新创建该临时文件，而不需要 DBA 手动输入 ALTER TABLESPACE ... ADD TEMPFILE\n\nD.Oracle 提供了一个操作系统级别的实用程序 orapwd（Oracle Password Utility），专门用于创建密码文件。这是生成密码文件的标准方法，不依赖于 SQL*Plus 或 RMAN\n\nE.SQL*Plus 没有命令可以直接读取 Alert Log 并自动生成 PFILE\n\nF.索引（Index）只是表数据的一种冗余表示（Derived Data）如果索引表空间损坏，DBA 不需要 像恢复普通数据文件那样去还原备份并应用 Redo Log（介质恢复）删除损坏的索引表空间（DROP TABLESPACE ... INCLUDING CONTENTS）;创建一个新的空表空间;运行脚本重新创建索引（CREATE INDEX ...）"
+  "Explanation": "在不使用 RMAN 时，恢复主要依赖两个工具的配合:\n1.操作系统命令 (OS Cmd):用于还原文件（如 cp, copy）\n--冷备 (Cold Backup)：必须 SHUTDOWN 数据库后才能拷贝。\n--热备 (Hot Backup)：这是 User-Managed 备份最容易考的地方。你必须先执行 SQL 命令让表空间进入备份模式，否则拷贝出来的文件是不一致的（Split Blocks 问题）。\nALTER TABLESPACE users BEGIN BACKUP;\n-- 此时去操作系统 cp 拷贝文件 --\nALTER TABLESPACE users END BACKUP;\n2.SQL*Plus：用于执行恢复逻辑（应用 Redo Log）和更改数据库状态。OS 拷贝只是把旧文件放回去（Restore），RECOVER 命令才是应用归档日志和 Redo Log 让数据变新（Recover）的过程\n3.使用 Trace 文件重建控制文件:当你所有控制文件都丢了，而且你没有二进制备份时。使用这种方法重建后，通常需要执行 RECOVER DATABASE，并且必须使用 OPEN RESETLOGS 打开数据库。\n4.使用备份控制文件 (Backup Control File):当你使用旧的控制文件（Binary Backup）恢复时，控制文件里的 SCN 肯定比数据文件旧,一旦使用了备份的控制文件，恢复完成后，必须使用 ALTER DATABASE OPEN RESETLOGS;。因为时间线（Incarnation）变了\n5. 使用日志重建 (CLEAR LOGFILE)\n\nA.如果 SPFILE 丢失（被删除或损坏），但数据库实例（Instance）仍然处于运行状态，内存中保留了当前的参数设置。你可以使用 SQL*Plus 执行以下命令来重新创建它:CREATE SPFILE FROM MEMORY;\n\nB.SQLPlus 本身没有直接创建密码文件的命令。虽然你可以通过 SQLPlus 调用主机命令，但创建密码文件的核心工具是操作系统层面的 orapwd，而不是 SQL 语言本身\n\nC.在使用 OMF (Oracle Managed Files) 或者 PDB 环境下:如果临时表空间定义了临时文件，且该文件在 OS 层面丢失，当数据库（或 PDB）重启/打开时，Oracle 往往会尝试根据 DB_CREATE_FILE_DEST 等参数自动重新创建该临时文件，而不需要 DBA 手动输入 ALTER TABLESPACE ... ADD TEMPFILE\n\nD.Oracle 提供了一个操作系统级别的实用程序 orapwd（Oracle Password Utility），专门用于创建密码文件。这是生成密码文件的标准方法，不依赖于 SQL*Plus 或 RMAN\n\nE.SQL*Plus 没有命令可以直接读取 Alert Log 并自动生成 PFILE\n\nF.索引（Index）只是表数据的一种冗余表示（Derived Data）如果索引表空间损坏，DBA 不需要 像恢复普通数据文件那样去还原备份并应用 Redo Log（介质恢复）删除损坏的索引表空间（DROP TABLESPACE ... INCLUDING CONTENTS）;创建一个新的空表空间;运行脚本重新创建索引（CREATE INDEX ...）"
 },
 {
   "QuestionID": 122,
@@ -6448,7 +6448,7 @@
     {"label": "E", "text": "CDB1_TAB and APP_ROOT_TAB"}
   ],
   "CorrectAnswer": ["B"],
-  "Explanation": "闪回 root_app 时，只是闪回该 pdb 的数据，属于它的其它的 pdb 不会被闪回"
+  "Explanation": "闪回 CDB 时会回退 root_app 和所有 PDB 的数据，而闪回单个 PDB 或 root_app 时，只回退该对象的数据，其他 PDB 不受影响。\nFlashback PDB必须是本地 Undo 模式 (Local Undo)"
 },
 {
   "QuestionID": 123,
@@ -6463,7 +6463,7 @@
     {"label": "E", "text": "The media manager layer (MML) routines provided by Oracle support any vendors' media management products."}
   ],
   "CorrectAnswer": ["B", "C"],
-  "Explanation": "在 Oracle 的技术架构中，RMAN 本身不懂如何操作磁带机（Tape Drive）硬件，也不懂各个厂商云存储的 API。RMAN 只懂读写 Oracle 数据块。Media Manager（介质管理器） 就是夹在 RMAN 和存储硬件中间的软件层。它的核心组件：MML (Media Management Library)\n\nRMAN 不直接写磁带或云，它只是发指令; SBT(System Backup to Tape)是标准接口; MML(Media Manager Library)翻译成硬件命令；介质管理服务器执行命令；最终写入磁带或云存储\n\nA.虽然 SBT 通道传统上指System Backup to Tape，但现代的介质管理器可以将数据写入多种后端存储，包括 虚拟磁带库 (VTL)、光盘，甚至是 云对象存储 (Cloud Object Storage)（例如 Oracle Secure Backup Cloud Module）\n\nB.Proxy Copy代理副本:RMAN 将数据传输的控制权完全移交给媒体管理器（MML），由存储设备直接处理数据移动，而不是通过 RMAN 的内存缓冲区。如果 MML不支持代理模式或拒绝（例如配置不满足），RMAN 的默认行为是自动切换回标准模式，即创建一个常规的 Backup Set（备份集）\n\nC.Proxy Copy 的定义就是 RMAN 将控制权交给第三方媒体管理软件。普通磁盘（DISK 通道）不支持 Proxy Copy 机制，只有配置了 SBT（磁带/云）通道并加载了相应的 MML 库，才能执行 Proxy Copy\n\nD.Image Copy（镜像副本） 是数据文件的逐位拷贝，结构与原文件完全一致。RMAN 的 Image Copy 通常是在磁盘（DISK）上创建的，不需要介质管理器,RMAN 不能直接在磁带（SBT）上创建 Image Copy。在磁带上，RMAN 只能创建 Backup Sets（或者 Proxy Copies）。\nE.Oracle 提供的是一个标准的 API 接口规范（SBT 接口）。第三方厂商（如 Veritas, Commvault, IBM 等）负责编写和提供符合该接口的驱动库（Library/DLL）。Oracle 并不提供支持所有厂商的通用例程，而是厂商必须提供适配 Oracle 的库"
+  "Explanation": "在 Oracle 的技术架构中，RMAN 本身不懂如何操作磁带机（Tape Drive）硬件，也不懂各个厂商云存储的 API。RMAN 只懂读写 Oracle 数据块。Media Manager（介质管理器） 就是夹在 RMAN 和存储硬件中间的软件层。它的核心组件：MML (Media Management Library)\n\nRMAN 不直接写磁带或云，它只是发指令; SBT(System Backup to Tape)是标准接口; MML(Media Manager Library)翻译成硬件命令；介质管理服务器执行命令；最终写入磁带或云存储\n\nA.虽然 SBT 通道传统上指System Backup to Tape，但现代的介质管理器可以将数据写入多种后端存储，包括 虚拟磁带库 (VTL)、光盘，甚至是 云对象存储 (Cloud Object Storage)（例如 Oracle Secure Backup Cloud Module）\n\nB.Proxy Copy代理副本:RMAN 将数据传输的控制权完全移交给媒体管理器（MML），由存储设备直接处理数据移动，而不是通过 RMAN 的内存缓冲区。如果 MML不支持代理模式或拒绝（例如配置不满足），RMAN 的默认行为是自动切换回标准模式，即创建一个常规的 Backup Set（备份集）\nProxy Copy：存储代理直接读取数据库文件 → 写到磁带/备份目标\n\nC.Proxy Copy 的定义就是 RMAN 将控制权交给第三方媒体管理软件。普通磁盘（DISK 通道）不支持 Proxy Copy 机制，只有配置了 SBT（磁带/云）通道并加载了相应的 MML 库，才能执行 Proxy Copy\n\nD.Image Copy（镜像副本） 是数据文件的逐位拷贝，结构与原文件完全一致。RMAN 的 Image Copy 通常是在磁盘（DISK）上创建的，不需要介质管理器,RMAN 不能直接在磁带（SBT）上创建 Image Copy。在磁带上，RMAN 只能创建 Backup Sets（或者 Proxy Copies）。\nE.Oracle 提供的是一个标准的 API 接口规范（SBT 接口）。第三方厂商（如 Veritas, Commvault, IBM 等）负责编写和提供符合该接口的驱动库（Library/DLL）。Oracle 并不提供支持所有厂商的通用例程，而是厂商必须提供适配 Oracle 的库"
 },
 {
   "QuestionID": 124,
@@ -6479,7 +6479,7 @@
     {"label": "F", "text": "Media Management errors appear as a line with Additional information and a number."}
   ],
   "CorrectAnswer": ["A", "C", "F"],
-  "Explanation": "A.RMAN 的错误错误堆栈Error Stack通常是一个 从上到下 或 从外到内 的列表,顶层消息通常是通用的包装器消息Wrapper Message,这条消息本身只是告诉你“有个命令失败了”，它更多是描述上下文（Context），而非具体的错误原因;堆栈中可能包含像 ORA-06512 这样的消息，它指示的是 PL/SQL 代码的行号位置，而不是错误本身\n\nB.RMAN的输出非常详细，不仅包含失败的命令Command，还包含一连串的错误堆栈Error Stack，从 RMAN自身的通用错误到底层的操作系统错误揭示了失败的根本原因，而不仅仅是命令本身\n\nC.当备份或恢复操作失败时，RMAN 会明确指出是哪个通道（Channel）遇到了问题。典型报错格式如下： RMAN-03009: failure of backup command on ORA_DISK_1 channel at ...这里的 ORA_DISK_1 就是channel ID。这对于多通道并行备份时的故障排查非常关键。\n\nDE.sbtio 通常与 跟踪文件（Trace File） 相关（如 sbtio.log），用于底层的调试。在标准输出（Standard Output）的错误堆栈中，用户看到的是标准化的 ORA-19511 格式，而不是 sbtio 这样的内部术语\n\nF.当 RMAN 与介质管理器（Media Manager, MML）交互出错时，Oracle 会抛出 ORA-19511 错误,由于 Oracle 不知道第三方厂商（如 Veritas, Commvault）具体的错误代码含义，它会把厂商返回的错误码直接显示在 Additional information 字段中。例如： ORA-19511: Error received from media manager layer, error text: ... Additional information: 4001,管理员需要拿着这个 4001 去查阅第三方备份软件的手册"
+  "Explanation": "A.RMAN 的错误错误堆栈Error Stack通常是一个 从上到下 或 从外到内 的列表,顶层消息通常是通用的包装器消息Wrapper Message,这条消息本身只是告诉你“有个命令失败了”，它更多是描述上下文（Context），而非具体的错误原因;堆栈中可能包含像 ORA-06512 这样的消息，它指示的是 PL/SQL 代码的行号位置，而不是错误本身\n\nB.RMAN的输出非常详细，不仅包含失败的命令Command，还包含一连串的错误堆栈Error Stack，从 RMAN自身的通用错误到底层的操作系统错误揭示了失败的根本原因，而不仅仅是命令本身\n\nC.当备份或恢复操作失败时，RMAN 会明确指出是哪个通道（Channel）遇到了问题。典型报错格式如下： RMAN-03009: failure of backup command on ORA_DISK_1 channel at ...这里的 ORA_DISK_1 就是channel ID。这对于多通道并行备份时的故障排查非常关键。\n\nDE.sbtio 通常与 跟踪文件（Trace File） 相关（如 sbtio.log），用于底层的调试。在标准输出（Standard Output）的错误堆栈中，用户看到的是标准化的 ORA-19511 格式，而不是 sbtio 这样的内部术语\nSBTIO = System Backup to Tape I/O,它是 Oracle RMAN 和 媒体管理库（Media Management Library，MML） 交互时使用的接口/通道标识\n\nF.当 RMAN 与介质管理器（Media Manager, MML）交互出错时，Oracle 会抛出 ORA-19511 错误,由于 Oracle 不知道第三方厂商（如 Veritas, Commvault）具体的错误代码含义，它会把厂商返回的错误码直接显示在 Additional information 字段中。例如： ORA-19511: Error received from media manager layer, error text: ... Additional information: 4001,管理员需要拿着这个 4001 去查阅第三方备份软件的手册"
 },
 {
   "QuestionID": 125,
@@ -6495,7 +6495,7 @@
     {"label": "F", "text": "It cannot repair logical corruption."}
   ],
   "CorrectAnswer": ["A", "B", "C"],
-  "Explanation": "AC.这是块介质恢复（Block Media Recovery, BMR）相对于数据文件恢复的最大优势。BMR 允许你在数据库处于 OPEN 状态且数据文件 ONLINE 时，仅修复坏掉的那几个块，而不会影响该文件中其他正常数据的读写,在恢复过程中只有实际正在恢复的块不可用。\n\nB.Flashback Database必须在target database使用,RMAN 才能在flashback logs中搜索损坏数据块的正确副本\n\nD.只能对标记为损坏或未通过损坏检查的数据块执行block recovery\n\nE.数据库可以在 MOUNTED 状态下进行块恢复，并非必须是 OPEN 状态。\n\nF.Block media recovery可能无法修复所有逻辑损坏"
+  "Explanation": "AC.这是块介质恢复（Block Media Recovery, BMR）相对于数据文件恢复的最大优势。BMR 允许你在数据库处于 OPEN 状态且数据文件 ONLINE 时，仅修复坏掉的那几个块，而不会影响该文件中其他正常数据的读写,在恢复过程中只有实际正在恢复的块不可用。\n\nB.Flashback Database必须在target database使用,RMAN 才能在flashback logs中搜索损坏数据块的正确副本，虽然执行 BLOCKRECOVER 不强制要求开启 Flashback，但如果你希望 RMAN 能够利用 闪回日志 作为恢复源（这比从备份中还原更快），则必须开启 Flashback Database。\n\nD.只能对标记为损坏或未通过损坏检查的数据块执行block recovery\n\nE.数据库可以在 MOUNTED 状态下进行块恢复，并非必须是 OPEN 状态。\n\nF.Block Media Recovery 是为物理块损坏设计的恢复机制，但在某些逻辑块损坏或丢失块的特定场景下，只要 redo/备份能唯一重建正确块内容，它也可以发挥作用。真正的逻辑一致性错误仍需其他恢复技术。"
 },
 {
   "QuestionID": 126,
@@ -6620,7 +6620,7 @@
     {"label": "G", "text": "converting an application container into another application container in the same CDB"}
   ],
   "CorrectAnswer": ["C", "D", "E"],
-  "Explanation": "A.不能简单地执行 ALTER 命令或者运行一个脚本就把 App PDB 变成 Regular PDB。如果你尝试将一个 Application PDB 直接 Unplug 然后 Plug 到 CDB$ROOT 中，Oracle 会报错（ORA-65267）。因为 App PDB 依赖于 Application Root 中的公共对象（Common Objects），一旦离开那个环境，PDB 内部的元数据链接就会断裂，导致数据库不可用。如果想“脱离应用根变成普通 PDB”，必须 导出数据（Data Pump 或类似方法），然后在新普通 PDB 中导入\n\nB.应用根 PDB 和应用 PDB 的结构不同；应用根 PDB 包含管理应用 PDB 的元数据和特殊字典表。应用 PDB 只包含应用数据，不具备管理子 PDB 的功能。如果需要从应用 PDB 创建新的应用根，通常是 在 CDB$ROOT 下创建新的应用根 PDB，然后把数据迁移进去\n\n C。通过 Unplug + Plug，Plug 时不加 AS SEED\n\nD.通过 Unplug + Plug + AS SEED 来重新创建 Seed\n\nE.通过 Adoption 脚本 或 克隆到应用根 + 配置同步\n\nF.Oracle 不允许把一个应用容器（Application Container, AC）直接转换到另一个不同的 CDB 中。跨 CDB 只能做 PDB transport 或 应用 PDB 的迁移，而不是转换整个应用容器\n\nG.在同一个 CDB 内，也没有提供“把一个应用容器直接转换成另一个应用容器”的功能。你可以创建新的应用容器，然后把应用 PDB 移入，但不是直接转换整个容器。"
+  "Explanation": "A.不能简单地执行 ALTER 命令或者运行一个脚本就把 App PDB 变成 Regular PDB。如果你尝试将一个 Application PDB 直接 Unplug 然后 Plug 到 CDB$ROOT 中，Oracle 会报错（ORA-65267）。因为 App PDB 依赖于 Application Root 中的公共对象（Common Objects），一旦离开那个环境，PDB 内部的元数据链接就会断裂，导致数据库不可用。如果想“脱离应用根变成普通 PDB”，必须 导出数据（Data Pump 或类似方法），然后在新普通 PDB 中导入\n\nB.应用根 PDB 和应用 PDB 的结构不同；应用根 PDB 包含管理应用 PDB 的元数据和特殊字典表。应用 PDB 只包含应用数据，不具备管理子 PDB 的功能。如果需要从应用 PDB 创建新的应用根，通常是 在 CDB$ROOT 下创建新的应用根 PDB，然后把数据迁移进去\n\n C。通过 Unplug + Plug，Plug 时不加 AS SEED\n\nD.通过 Unplug + Plug + AS SEED 来重新创建 Seed\n\nE.通过 Adoption 脚本 或 克隆到应用根 + 配置同步\nAdoption 脚本就是一套自动化操作脚本，用于 接管 Regular PDB、规范化权限和对象、配置应用参数，并最终将 PDB 转为标准化的 Application PDB 模板\n\nF.Oracle 不允许把一个应用容器（Application Container, AC）直接转换到另一个不同的 CDB 中。跨 CDB 只能做 PDB transport 或 应用 PDB 的迁移，而不是转换整个应用容器\n\nG.在同一个 CDB 内，也没有提供“把一个应用容器直接转换成另一个应用容器”的功能。你可以创建新的应用容器，然后把应用 PDB 移入，但不是直接转换整个容器。"
 },
 {
   "QuestionID": 134,
@@ -6653,7 +6653,7 @@
     {"label": "G", "text": "Use of a recovery catalog is always required to support the creation and use of archival backups."}
   ],
   "CorrectAnswer": ["B", "D", "E"],
-  "Explanation": "RMAN 通过创建一个还原点作为“时间书签”，将数据文件、保障一致性的归档日志以及参数文件打包成一个“自包含”的备份集，并强制使其豁免于常规保留策略的删除限制（即长期保留）\n备份包含:数据文件 (Data Files); 控制文件 (Control Files); SPFILE; 归档日志 (Archived Log Files); 相关自动备份文件 (Relevant Autobackup Files) \n\nA.归档备份只会保留它自身恢复所需的那一部分日志。它不会冻结之后产生的所有日志的删除，否则磁盘空间会迅速耗尽。这描述的更像是“担保还原点（Guaranteed Restore Point）”在 Flashback Database 中的行为，而不是 RMAN 归档备份的行为\n\nB.归档备份的设计初衷是“自包含（Self-contained）”的长期存储。为了确保你在几年后恢复这个备份时拥有当时的环境配置，RMAN 会自动将 控制文件 (Control File) 和 服务器参数文件 (SPFILE) 包含在归档备份集中，即使你没有显式开启控制文件自动备份。\n\nC.这取决于你使用的是 KEEP FOREVER 还是 KEEP UNTIL TIME 'date'。如果是 KEEP UNTIL，一旦过了指定的日期，该备份就会被视为废弃（Obsolete）并可能被删除。只有 KEEP FOREVER 才是永不废弃。\n\nD.这是 RMAN KEEP 语法的一个核心功能。在进行在线（热）备份时，数据文件在不同的 SCN（System Change Number），因此备份本身并不一致。为了使该备份可用于恢复，RMAN 会保留并需要所有必要的归档重做日志，以便在恢复阶段通过前滚（roll forward）操作将数据库恢复到一致状态\n\nE.使用 KEEP 子句（例如 KEEP UNTIL TIME ... 或 KEEP FOREVER）创建的备份，会豁免于 RMAN 的标准保留策略（如 RETENTION POLICY TO RECOVERY WINDOW OF 7 DAYS）。即使过了 7 天，只要 KEEP 的时间没到，RMAN 就不会将其标记为废弃（Obsolete）\n\nF.带 KEEP 选项的 RMAN 归档备份不应存放在 FRA 中，因为 FRA 设计用于短期恢复和自动空间管理，而长期保留文件会阻塞 FRA 的空间回收策略，可能导致空间不足。\n\nG.Recovery Catalog 相关:\n--1.创建 OPEN 数据库的 Archival Backup,必须有 Recovery Catalog; 没有 Recovery Catalog:数据库必须在 MOUNT 状态,因为控制文件无法持久记录长期保留信息\n--2.KEEP FOREVER:没有 Recovery Catalog 的情况下，不能用 KEEP FOREVER; 控制文件有限，最终会覆盖旧的备份记录; Recovery Catalog 可以长期保存这些备份元数据"
+  "Explanation": "Archival Backup（归档备份）是带 KEEP 的备份，用于长期保留（长期恢复）RMAN 会保证备份 + 必要归档日志在指定时间内不被删除\nRMAN 通过创建一个还原点作为“时间书签”，将数据文件、保障一致性的归档日志以及参数文件打包成一个“自包含”的备份集，并强制使其豁免于常规保留策略的删除限制（即长期保留）\n备份包含:数据文件 (Data Files); 控制文件 (Control Files); SPFILE; 归档日志 (Archived Log Files); 相关自动备份文件 (Relevant Autobackup Files) \n\nA.归档备份（Archival Backup，即带有 KEEP 子句的备份），当执行 BACKUP ... KEEP（归档备份）时，RMAN 只会自动包含并保留使该备份达到一致状态所必须的归档日志，而不是保留所有的日志。\n\nB.归档备份的设计初衷是“自包含（Self-contained）”的长期存储。为了确保你在几年后恢复这个备份时拥有当时的环境配置，RMAN 会自动将 控制文件 (Control File) 和 服务器参数文件 (SPFILE) 包含在归档备份集中，即使你没有显式开启控制文件自动备份。\n\nC.这取决于你使用的是 KEEP FOREVER 还是 KEEP UNTIL TIME 'date'。如果是 KEEP UNTIL，一旦过了指定的日期，该备份就会被视为废弃（Obsolete）并可能被删除。只有 KEEP FOREVER 才是永不废弃。\n\nD.这是 RMAN KEEP 语法的一个核心功能。在进行在线（热）备份时，数据文件在不同的 SCN（System Change Number），因此备份本身并不一致。为了使该备份可用于恢复，RMAN 会保留并需要所有必要的归档重做日志，以便在恢复阶段通过前滚（roll forward）操作将数据库恢复到一致状态\n\nE.使用 KEEP 子句（例如 KEEP UNTIL TIME ... 或 KEEP FOREVER）创建的备份，会豁免于 RMAN 的标准保留策略（如 RETENTION POLICY TO RECOVERY WINDOW OF 7 DAYS）。即使过了 7 天，只要 KEEP 的时间没到，RMAN 就不会将其标记为废弃（Obsolete）\n\nF.带 KEEP 选项的 RMAN 归档备份不应存放在 FRA 中，因为 FRA 设计用于短期恢复和自动空间管理，而长期保留文件会阻塞 FRA 的空间回收策略，可能导致空间不足。\n\nG.Recovery Catalog 相关:\n--1.创建 OPEN 数据库的 Archival Backup,必须有 Recovery Catalog; 没有 Recovery Catalog:数据库必须在 MOUNT 状态,因为控制文件无法持久记录长期保留信息\n--2.KEEP FOREVER:没有 Recovery Catalog 的情况下，不能用 KEEP FOREVER; 控制文件有限，最终会覆盖旧的备份记录; Recovery Catalog 可以长期保存这些备份元数据"
 },
 {
   "QuestionID": 136,
@@ -6684,7 +6684,7 @@
     {"label": "E", "text": "PDB1_C2_SRV will be created but not started."}
   ],
   "CorrectAnswer": ["B", "E"],
-  "Explanation": "3.PDB1_C1_SRV is a service for PDB1:这是源 PDB 的“门牌号”或“别名”,在 Oracle 中，用户通常不直接通过 SID 连接数据库，而是通过服务名（Service Name）,一个 PDB 可以有多个服务名。这里明确指出，源 PDB (PDB1) 有一个专门的服务叫 PDB1_C1_SRV\n\n4.CDB1_LINK is a database link in CDB2 referring to PDB1:这是从新家通往旧家的“搬家卡车路线”Database Link (DB Link) 是一个单向通道，允许一个数据库（CDB2）访问另一个数据库（CDB1/PDB1）的数据\n\n5. CDB2 is also an entry in tnsnames.ora...这是新家管理处的“导航地址”tnsnames.ora 是客户端（你的电脑）用来解析数据库地址的“电话簿”。这条配置说明你的电脑知道如何连接到目标数据库 CDB2\n\n配置 5 (TNS)：你通过电脑上的电话簿，成功拨通了 CDB2 的电话（登录进去了）。\n配置 4 (DB Link)：你在 CDB2 里下令：“用那个叫 CDB1_LINK 的专线，去对面把数据拉过来！”\n配置 3 (Service)：你补充道：“对了，那边的门牌号是 PDB1_C1_SRV，拉过来以后，记得把它改成 PDB1_C2_SRV。”\n\nABD.正常情况下刚克隆完成的 pdb 都是处于 mount 状态，但是 service 如果是跟 pdb 同名的一般都能够启动，为了能够通过service 连接到 pdb 进行管理，如果不同名，则会创建，但是不会启动\nC.源端 (CDB1) 的 PDB1 依然健在，它的服务名 PDB1_C1_SRV 完全不受影响，依然在对外提供服务。SERVICE_NAME_CONVERT 只修改副本（CDB2 里的 PDB1） 的配置"
+  "Explanation": "3.PDB1_C1_SRV is a service for PDB1:这是源 PDB 的“门牌号”或“别名”,在 Oracle 中，用户通常不直接通过 SID 连接数据库，而是通过服务名（Service Name）,一个 PDB 可以有多个服务名。这里明确指出，源 PDB (PDB1) 有一个专门的服务叫 PDB1_C1_SRV\n\n4.CDB1_LINK is a database link in CDB2 referring to PDB1:这是从新家通往旧家的“搬家卡车路线”Database Link (DB Link) 是一个单向通道，允许一个数据库（CDB2）访问另一个数据库（CDB1/PDB1）的数据\n\n5. CDB2 is also an entry in tnsnames.ora...这是新家管理处的“导航地址”tnsnames.ora 是客户端（你的电脑）用来解析数据库地址的“电话簿”。这条配置说明你的电脑知道如何连接到目标数据库 CDB2\n\n配置 5 (TNS)：你通过电脑上的电话簿，成功拨通了 CDB2 的电话（登录进去了）。\n配置 4 (DB Link)：你在 CDB2 里下令：“用那个叫 CDB1_LINK 的专线，去对面把数据拉过来！”\n配置 3 (Service)：你补充道：“对了，那边的门牌号是 PDB1_C1_SRV，拉过来以后，记得把它改成 PDB1_C2_SRV。”\n\nABDE.正常情况下刚克隆完成的 pdb 都是处于 mount 状态\n执行 CREATE PLUGGABLE DATABASE 时,当在 CDB2 中创建名为 PDB1 的 PDB 时，Oracle 会自动在数据字典中生成一个与 PDB 同名的默认服务记录。这是 PDB 的属性，无法取消。克隆的服务:SERVICE_NAME_CONVERT 将源端的服务定义映射并写入到 CDB2 的数据字典中。这两个服务都已经“定义完成”在磁盘上的数据字典里了，但因为 PDB 还没打开，服务并没有运行。执行 ALTER PLUGGABLE DATABASE PDB1 OPEN 时,数据库实例（Instance）会扫描该 PDB 的数据字典。它会同时启动并向监听器（Listener）注册这两个服务。此时，你在监听器中执行 lsnrctl status，会看到 PDB1 和 PDB1_C2_SRV 都在运行\n\nC.源端 (CDB1) 的 PDB1 依然健在，它的服务名 PDB1_C1_SRV 完全不受影响，依然在对外提供服务。SERVICE_NAME_CONVERT 只修改副本（CDB2 里的 PDB1） 的配置"
 },
 {
   "QuestionID": 138,
@@ -6777,7 +6777,7 @@
     {"label": "F", "text": "A base release is not needed to install patchsets."}
   ],
   "CorrectAnswer": ["B", "D", "F"],
-  "Explanation": "RU(Release Updates) / PSU(Patch Set Updates) 是季度发布的累积补丁，用 OPatch 安装，不引入新功能，也不算升级；Patchset 是完整版本升级\nA.集群补丁集可以滚动应用,在大规模补丁集中，数据库通常需要停机进行数据字典更新。\nB.补丁集通常使用 OUI (Oracle Universal Installer) 或命令行安装程序进行安装，因为它们是完整的软件发行版,类似重新安装 / 升级.OPatch 和 OPatchAuto 主要用于安装 Interim Patches（临时补丁）、PSUs（补丁集更新）或 RUs（发行版更新）。\nD.PSUs (Patch Set Updates) 和 RUs (Release Updates) 是每季度发布的。而 Patchsets（如 12.1.0.2）的发布周期通常较长，不遵循固定的季度计划。\nF.补丁集已转变为“全量安装包（Full Installation Packages）”。这意味着你可以直接安装补丁集软件，而不需要先安装一个基础版本（Base Release）再进行叠加安装。"
+  "Explanation": "RU(Release Updates) / PSU(Patch Set Updates) 是季度发布的累积补丁，用 OPatch 安装，不引入新功能，也不算升级；Patchset 是完整版本升级\nA.Patch Set 不适合 rolling fashion，通常需要停机升级整个集群。RU/PSU 可以用 rolling fashion，这也是官方推荐的做法\nGI (Grid Infrastructure)： 始终支持滚动升级（从 12.1 之后就支持跨版本滚动升级）。Database RAC： 只有 RU、RUR、PSU、BP 这类补丁包支持滚动\nB.补丁集通常使用 OUI (Oracle Universal Installer) 或命令行安装程序进行安装，因为它们是完整的软件发行版,类似重新安装 / 升级\nC.OPatch 和 OPatchAuto 主要用于安装 Interim Patches（临时补丁）、PSUs（补丁集更新）或 RUs（发行版更新）。\nD.PSUs (Patch Set Updates) 和 RUs (Release Updates) 是每季度发布的。而 Patchsets（如 12.1.0.2）的发布周期通常较长，不遵循固定的季度计划。\nF.补丁集已转变为“全量安装包（Full Installation Packages）”。这意味着你可以直接安装补丁集软件，而不需要先安装一个基础版本（Base Release）再进行叠加安装。"
 },
 {
   "QuestionID": 144,
@@ -6918,7 +6918,7 @@
     {"label": "F", "text": "Multiple databases with the same ORACLE_HOME can be upgraded simultaneously."}
   ],
   "CorrectAnswer": ["A", "B", "C"],
-  "Explanation": "A.当你运行 DBUA 时，它会自动调用预升级分析（Pre-Upgrade analysis）。它会执行类似于 preupgrade.jar 的检查逻辑，识别可能导致升级失败的问题，并提供修复建议。\nB.这是 DBUA 的基本操作要求。为了将数据库升级到新版本，你必须从目标版本（新版本）的 $ORACLE_HOME/bin 目录下启动 DBUA，例如，从 18c 升级到 19c 时，需在 19c 的 Oracle Home 中运行DBUA\nC.升级 CDB 时，所有关联的 PDB 会自动升级，因为它们共享 CDB 的数据字典和Oracle Home。DBUA 会统一处理 CDB 和其下所有 PDB 的升级流程，无需单独操作。\nD.尽管强烈建议备份，但 DBUA 不会强制要求备份。升级前备份是推荐的最佳实践，而非必要条件。E.升级需关闭数据库并以 UPGRADE 模式启动（STARTUP UPGRADE），而非只读模式\nF.DBUA 一次仅支持升级一个数据库，多个数据库需依次升级以避免冲突"
+  "Explanation": "A.当你运行 DBUA 时，它会自动调用预升级分析（Pre-Upgrade analysis）。它会执行类似于 preupgrade.jar 的检查逻辑，识别可能导致升级失败的问题，并提供修复建议。\nB.这是 DBUA 的基本操作要求。为了将数据库升级到新版本，你必须从目标版本（新版本）的 $ORACLE_HOME/bin 目录下启动 DBUA，例如，从 18c 升级到 19c 时，需在 19c 的 Oracle Home 中运行DBUA\nC.升级 CDB 时，所有关联的 PDB 会自动升级，因为它们共享 CDB 的数据字典和Oracle Home。DBUA 会统一处理 CDB 和其下所有 PDB 的升级流程，无需单独操作。\nD.尽管强烈建议备份，但 DBUA 不会强制要求备份。升级前备份是推荐的最佳实践，而非必要条件。\nE.升级需关闭数据库并以 UPGRADE 模式启动（STARTUP UPGRADE），而非只读模式\nF.DBUA 一次仅支持升级一个数据库，多个数据库需依次升级以避免冲突"
 },
 {
   "QuestionID": 153,
@@ -7058,7 +7058,7 @@
     { "label": "E", "text": "It will return an error because EMP.SAL is empty in APP_ROOT" }
   ],
   "CorrectAnswer": ["A"],
-  "Explanation": "ALTER SYSTEM SET DEFAULT_SHARING=DATA;在本次升级过程中，新创建的对象或对现有对象的某些修改，将倾向于使用“数据共享”模式（即 Application PDB 共享 Application Root 中的数据）\nALTER PLUGGABLE DATABASE APPLICATION companyapp BEGIN UPGRADE '1.0' TO '2.0';此命令将 COMPANYAPP 标记为“升级状态”。在此期间，Oracle 会记录所有 DDL 操作，以便稍后同步给所属的 Application PDBs（如 APP_PDB1）\nALTER TABLE emp ADD (sal NUMBER NOT NULL);向 EMP 表添加了一个带有 NOT NULL 约束的新列 sal。\n注意截图中后面的 DESC emp 和 SELECT 结果。即便此时命令已执行，但在 APP_PDB1 中查看时，新列 sal 并没有立即出现,APP_PDB1 尚未与 APP_ROOT 进行同步。它看到的依然是版本 1.0 的表定义,原因:在 Application Root 中做的变更，只有在应用升级结束后，且 PDB 执行了 SYNC 命令后才会生效。\n\n由于你在添加 sal 列时定义了 NOT NULL，但没有提供 DEFAULT 值，Oracle 在尝试修改表结构时，无法为现有的 Alan 和 Ben 这两行数据分配 sal 的值。因为现有行必然会产生 NULL，这直接违反了新定义的 NOT NULL 约束，导致 DDL 在 PDB 层面执行失败，抛出 ORA-01758,添加 DEFAULT 值是最标准且最稳健的解决方法,添加带有默认值的 NOT NULL 列是一个元数据操作（Metadata-only operation）,例如:ALTER TABLE emp ADD (sal NUMBER DEFAULT 0 NOT NULL);\n\n如果表在 pdb级别为空，则它将同步而不会出错"
+  "Explanation": "ALTER SYSTEM SET DEFAULT_SHARING=DATA;在本次升级过程中，新创建的对象或对现有对象的某些修改，将倾向于使用“数据共享”模式（即 Application PDB 共享 Application Root 中的数据）\nALTER PLUGGABLE DATABASE APPLICATION companyapp BEGIN UPGRADE '1.0' TO '2.0';此命令将 COMPANYAPP 标记为“升级状态”。在此期间，Oracle 会记录所有 DDL 操作，以便稍后同步给所属的 Application PDBs（如 APP_PDB1）\nALTER TABLE emp ADD (sal NUMBER NOT NULL);向 EMP 表添加了一个带有 NOT NULL 约束的新列 sal。\n注意截图中后面的 DESC emp 和 SELECT 结果。即便此时命令已执行，但在 APP_PDB1 中查看时，新列 sal 并没有立即出现,APP_PDB1 尚未与 APP_ROOT 进行同步。它看到的依然是版本 1.0 的表定义,原因:在 Application Root 中做的变更，只有在应用升级结束后，且 PDB 执行了 SYNC 命令后才会生效。\n\n由于你在添加 sal 列时定义了 NOT NULL，但没有提供 DEFAULT 值，Oracle 在尝试修改表结构时，无法为现有的 Alan 和 Ben 这两行数据分配 sal 的值。因为现有行必然会产生 NULL，这直接违反了新定义的 NOT NULL 约束，导致 DDL 在 PDB 层面执行失败，抛出 ORA-01758,添加 DEFAULT 值是最标准且最稳健的解决方法,添加带有默认值的 NOT NULL 列是一个元数据操作（Metadata-only operation）,例如:ALTER TABLE emp ADD (sal NUMBER DEFAULT 0 NOT NULL);\n\n如果表在 pdb级别为空（没有数据），则它将同步而不会出错，本题中有数据Alan和Ben"
 },
 {
   "QuestionID": 162,
@@ -7164,7 +7164,7 @@
     {"label": "F", "text": "It includes both Oracle Restart and Oracle Automatic Storage Management (ASM) software."}
   ],
   "CorrectAnswer": ["D", "E", "F"],
-  "Explanation": "Grid Infrastructure for a Standalone Server = 单节点 ASM 和 Clusterware 环境,提供存储管理和高可用性支持，通过 Oracle Restart 自动启动数据库和 ASM，但不形成多节点 RAC 集群\nOracle ASMLib 是 Oracle 提供的一种 磁盘访问库，用于 ASM 管理磁盘,需要单独安装和配置\nASMFD（ASM Filter Driver）通过内核过滤驱动,直接管理 ASM 磁盘不需要安装 ASMLib,自动发现磁盘，提供块访问控制,提供开机自动挂载功能\n\nAC.管理 ASM 磁盘有多种方式（ASMFD、ASMLib 或直接使用 UDEV 规则）。Oracle 并不强制要求必须使用 ASMFD 或 ASMLib，它们只是可选的磁盘管理驱动或库、nB.ORACLE_BASE不是操作系统自带的变量，而是 Oracle 环境相关的变量。在安装过程中，DBCA 或 Grid 安装程序通常会根据你选择的软件位置建议一个 ORACLE_BASE\nD.在典型的 Grid Infrastructure 安装中，安装所有者（通常是 grid 用户）需要具备对 ASM 管理的权限。在 Linux 环境下，这通常要求该用户除了主组外，还必须被分配到负责 ASM 管理（OSASM）和数据库管理（OSDBA）的次要组（secondary groups）中，以便跨权限执行任务\nE.在 Grid Infrastructure 安装过程中，会提示创建一个初始 ASM 磁盘组（通常为 DATA），用于管理 ASM 元数据并存储后续数据库文件"
+  "Explanation": "Grid Infrastructure for a Standalone Server = 单节点 ASM 和 Clusterware 环境,提供存储管理和高可用性支持，通过 Oracle Restart 自动启动数据库和 ASM，但不形成多节点 RAC 集群\nOracle ASMLib 是 Oracle 提供的一种 磁盘访问库，用于 ASM 管理磁盘,需要单独安装和配置\nASMFD（ASM Filter Driver）通过内核过滤驱动,直接管理 ASM 磁盘不需要安装 ASMLib,自动发现磁盘，提供块访问控制,提供开机自动挂载功能\n\nAC.管理 ASM 磁盘有多种方式（ASMFD、ASMLib 或直接使用 UDEV 规则）。Oracle 并不强制要求必须使用 ASMFD 或 ASMLib，它们只是可选的磁盘管理驱动或库\nB.ORACLE_BASE不是操作系统自带的变量，而是 Oracle 环境相关的变量。在安装过程中，DBCA 或 Grid 安装程序通常会根据你选择的软件位置建议一个 ORACLE_BASE\nD.在典型的 Grid Infrastructure 安装中，安装所有者（通常是 grid 用户）需要具备对 ASM 管理的权限。在 Linux 环境下，这通常要求该用户除了主组外，还必须被分配到负责 ASM 管理（OSASM）和数据库管理（OSDBA）的次要组（secondary groups）中，以便跨权限执行任务\nE.在 Grid Infrastructure 安装过程中，会提示创建一个初始 ASM 磁盘组（通常为 DATA），用于管理 ASM 元数据并存储后续数据库文件"
 },
 {
   "QuestionID": 169,
@@ -7194,7 +7194,7 @@
     {"label": "E", "text": "It is enabled by performing a software-only Oracle Database installation and then running the roohctl -enable script."}
   ],
   "CorrectAnswer": ["D", "E"],
-  "Explanation": "Oracle Home 目录只读，数据库软件不允许直接修改，所有补丁或更新通过补丁工具管理\nA.这是“读写 Oracle Home”的做法。在只读 Oracle Home 中，为了保持软件目录的纯净，配置文件（如 sqlnet.ora）和日志文件会被移动到 Oracle Base Config (ORACLE_BASE_CONFIG) 和 Oracle Base Home(ORACLE_BASE 的子目录)目录下，ORACLE_BASE：是整个 Oracle 产品的顶级根目录。ORACLE_HOME：是特定版本的软件安装目录，它是 ORACLE_BASE 的一个子目录\nBE.执行纯软件 Oracle数据库安装后，将 Oracle主页配置为read-only Oracle home。要启用read-only Oracle home，请执行以下操作:\n1.执行仅限软件的 Oracle数据库安装。\n2.运行 roohctl-enable脚本。\n3.运行 Oracle数据库配置助手（Oracle DBCA）以创建数据库\nC.虽然 Rapid Home Provisioning (RHP) 可以利用只读 Oracle Home 来加速分发，但它不是强制性要求。你完全可以手动或者使用其他部署工具来管理只读 Oracle Home\nD.只读 Oracle Home 的核心优势之一就是一致性。因为它不存储实例特定的状态（如日志或配置），所以它形成了一个静态的“软件镜像”，非常适合通过网络分发到多台服务器上，实现大规模、标准化的快速部署"
+  "Explanation": "Oracle Home 目录只读，数据库软件不允许直接修改，所有补丁或更新通过补丁工具管理\nA.在 read-only Oracle Home 架构中，为了保持 Oracle Home 的纯净性，Oracle 将运行期可变内容与软件二进制解耦。数据库日志与诊断信息存放在 ORACLE_BASE（ADR）目录下，而网络与实例配置文件可集中存放在 ORACLE_BASE_CONFIG 中，从而支持多个 Oracle Home 并存、滚动升级和快速回退。\nORACLE_BASE 是 Oracle 产品的运行根目录，ORACLE_HOME 是具体版本的软件安装目录，通常位于 ORACLE_BASE 之下\n\nBE.执行纯软件 Oracle数据库安装后，将 Oracle主页配置为read-only Oracle home。要启用read-only Oracle home，请执行以下操作:\n1.执行仅限软件的 Oracle数据库安装。\n2.运行 roohctl-enable脚本。\n3.运行 Oracle数据库配置助手（Oracle DBCA）以创建数据库\n\nC.虽然 Rapid Home Provisioning (RHP) 可以利用只读 Oracle Home 来加速分发，但它不是强制性要求。你完全可以手动或者使用其他部署工具来管理只读 Oracle Home\n\nD.只读 Oracle Home 的核心优势之一就是一致性。因为它不存储实例特定的状态（如日志或配置），所以它形成了一个静态的“软件镜像”，非常适合通过网络分发到多台服务器上，实现大规模、标准化的快速部署"
 },
 {
   "QuestionID": 171,
@@ -7249,7 +7249,7 @@
   "QuestionText": "Which three are true about cloning databases into an existing CDB with RMAN? (Choose three.)",
   "ImageURL": "",
   "Options": [
-    {"label": "A", "text": "A user with SYSDBA or SYSBKUP must be logged in with RMAN to the non-CDB being cloned when cloning a non-CDB."},
+    {"label": "A", "text": "A user with SYSDBA or SYSBACKUP must be logged in with RMAN to the non-CDB being cloned when cloning a non-CDB."},
     {"label": "B", "text": "The target and auxiliary instance passwords must be the same."},
     {"label": "C", "text": "Two or more PDBs can be cloned with the same command."},
     {"label": "D", "text": "A non-CDB can be cloned into a PDB."},
@@ -7257,7 +7257,7 @@
     {"label": "F", "text": "A user with SYSDBA or SYSBKUP must be logged in with RMAN to CDB$ROOT when cloning a PDB."}
   ],
   "CorrectAnswer": ["B", "E", "F"],
-  "Explanation": "DUPLICATE 命令通过读取源数据库（Target）的备份文件或直接从源库提取数据，在辅助实例（Auxiliary）上重构数据库\n两种主要复制模式:\n1.主动数据库复制 (Active Database Duplication):不需要提前做备份。RMAN 直接通过网络将源库（Target）的数据文件传输到目标库（Auxiliary）,关键要求：源库和目标库的密码文件（SYS/SYSBACKUP 密码）必须完全一致。\n2.基于备份的复制 (Backup-based Duplication):使用已有的 RMAN 备份文件来还原和恢复\n\nAD.RMAN 的 DUPLICATE 命令不支持将 Non-CDB 直接作为 PDB 复制到现有 CDB中,复制到现有Existing CDB,必须使用 Active Database Duplication。\nB.将 PDB 复制到现有 CDB 仅支持“主动数据库复制”（Active Duplication），因此源库和目标辅助实例的 SYS/SYSBACKUP 密码必须一致\nCE.现有（Existing） CDB 的目标，一次只能复制一个 PDB\nF.在进行 PDB 复制时，RMAN 必须连接到源 CDB 的根容器（CDB$ROOT）以及目标（辅助）CDB 的根容器"
+  "Explanation": "RMAN DUPLICATE 命令通过读取源数据库（Target）的备份文件或直接从源库提取数据，在辅助实例（Auxiliary）上重构数据库\n两种主要复制模式:\n1.主动数据库复制 (Active Database Duplication):不需要提前做备份。RMAN 直接通过网络将源库（Target）的数据文件传输到目标库（Auxiliary）,关键要求：源库和目标库的密码文件（SYS/SYSBACKUP 密码）必须完全一致。\n2.基于备份的复制 (Backup-based Duplication):使用已有的 RMAN 备份文件来还原和恢复\n\n1.Non-CDB → 可以完全离线复制（备份模式）\n2.PDB → 永远依赖 CDB 根 → 必须登录源 CDB$ROOT\n3.整个 CDB → 可以用备份克隆离线，但 Active 克隆需要源库在线\n\nA.Backup-based Duplication 是通过已有的 RMAN 备份或镜像副本来克隆数据库的方法，不一定需要源数据库在线。是否需要登录源库，取决于你用的是哪种子模式。只在模式 A（With Connection to Target）时需要; 模式 B（Without Connection to Target）可以完全离线\n\nB.将 PDB 复制到现有 CDB 仅支持“主动数据库复制”（Active Duplication），因此源库和目标辅助实例的 SYS/SYSBACKUP 密码必须一致\n\nCE.现有（Existing） CDB 的目标，一次只能复制一个 PDB\n\nD.1.Non-CDB → Non-CDB:完全支持，Backup-based 或 Active Duplication 都可以\n2.Non-CDB → Existing CDB (作为 PDB):只能通过 Active Database Duplication, 因为PDB 的元数据在 CDB 根容器,需要动态创建 PDB 容器结构,Backup-based Duplication 无法处理结构转换\n3.Non-CDB → PDB不支持直接克隆只能通过：Active Duplication + Existing CDB（从 Non-CDB 克隆到目标 CDB 并创建 PDB）或者逻辑迁移：Data Pump 导出 Non-CDB → 导入到 PDB\n\nF.在进行 PDB 复制时，RMAN 必须连接到源 CDB 的根容器（CDB$ROOT）以及目标（辅助）CDB 的根容器"
 },
 {
   "QuestionID": 175,
@@ -7302,7 +7302,7 @@
     {"label": "F", "text": "Backups can be taken only for data files."}
   ],
   "CorrectAnswer": ["B", "C"],
-  "Explanation": "BACKUP AS COPY 表示:RMAN 不生成备份集Backup Set，而是生成数据文件的镜像拷贝Image Copy\nBACKUP AS COPY不支持:\n--压缩COMPRESSED\n--多文件合并成一个 piece\n--直接写入磁带\n不适合:\n--长期归档备份\n--存储空间紧张的环境\n\nA.Checksums（校验和） 是为了检测块损坏。虽然可以在备份时检查，但它不是执行 BACKUP AS COPY 的先决条件或限制\nB.镜像复制（Image Copy）的定义：BACKUP AS COPY 会在磁盘上创建与原文件结构完全相同的比特位副本（Bit-for-bit replica）。它的物理结构与原数据文件、控制文件或归档日志完全一致\nCD.RMAN 只能将镜像复制写入磁盘DISK,不能直接写入磁带Media\nE.快速恢复区（FRA） 是建议的存储位置，但不是强制要求。你可以将镜像复制指定存储在任何 OS 磁盘路径\nF.BACKUP AS COPY 不仅可以备份数据文件，还可以用于备份控制文件Control Files和归档重做日志Archived Redo Logs"
+  "Explanation": "BACKUP AS COPY 表示:RMAN 不生成备份集Backup Set，而是生成数据文件的镜像拷贝Image Copy\nBACKUP AS COPY不支持:\n--压缩COMPRESSED\n--多文件合并成一个 piece\n--直接写入磁带\n不适合:\n--长期归档备份\n--存储空间紧张的环境\n\nChecksum = 校验和,一种数据完整性验证机制，通过对数据块内容计算出的数字（哈希值），用来检测数据在存储或传输过程中是否被意外修改\n主要用在 数据块（data blocks） 上：\n--数据块写入磁盘时，会计算一个 checksum 并存储在块头部\n--读取数据块时，数据库会重新计算 checksum 并与块头的值对比\n--如果不匹配，说明 块损坏（corruption）\n\nA.Checksums（校验和） 是为了检测块损坏。虽然可以在备份时检查，但它不是执行 BACKUP AS COPY 的先决条件或限制\nB.镜像复制（Image Copy）的定义：BACKUP AS COPY 会在磁盘上创建与原文件结构完全相同的比特位副本（Bit-for-bit replica）。它的物理结构与原数据文件、控制文件或归档日志完全一致\nCD.RMAN 只能将镜像复制写入磁盘DISK,不能直接写入磁带Media\nE.快速恢复区（FRA） 是建议的存储位置，但不是强制要求。你可以将镜像复制指定存储在任何 OS 磁盘路径\nF.BACKUP AS COPY 不仅可以备份数据文件，还可以用于备份控制文件Control Files和归档重做日志Archived Redo Logs"
 },
 {
   "QuestionID": 178,
