@@ -4675,7 +4675,7 @@
     {"label": "F", "text": "the maximum number of database files that can be opened by a database instance"}
   ],
   "CorrectAnswer": ["A", "B", "E"],
-  "Explanation": "Oracle 环境变量Environment Variables常见用途:\n--1.ORACLE_BASE / ORACLE_HOME / ORACLE_SID定义 Oracle 软件和数据库实例位置,是 OFA（Optimal Flexible Architecture）目录结构的核心\n--2.TNS_ADMIN指定 Oracle Net Services 配置文件（如 tnsnames.ora、listener.ora、sqlnet.ora）的位置\n--3.ORACLE_TMP 或 TEMP/ TMP系统临时目录,安装 Oracle 或运行工具时，临时文件存放路径\n\nC.ASM 启动挂载的 disk group 列表是在 init.ora 或 spfile 中设置,不是通过操作系统环境变量\nD.临时表空间的文件位置由 表空间定义（CREATE TEMPORARY TABLESPACE …）和数据库参数 DB_CREATE_FILE_DEST决定,虽然可以参考系统目录，但不是通过环境变量指定\nE.安装过程中 Oracle Installer需要临时空间,使用操作系统 TMP/TEMP 或 ORACLE_TMP 环境变量来指定临时目录\nF.由数据库参数DB_FILES 控制,与操作系统环境变量无关\n\n1.环境变量主要控制路径（软件路径、配置文件、临时目录）\n2.数据库参数控制行为（文件数、磁盘组、表空间位置）"
+  "Explanation": "Oracle 环境变量Environment Variables常见用途:\n--1.ORACLE_BASE / ORACLE_HOME / ORACLE_SID定义 Oracle 软件和数据库实例位置,是 OFA（Optimal Flexible Architecture）目录结构的核心，OFA 是 Oracle 推荐的标准化目录结构规范，用来组织 Oracle 软件、数据库文件、配置和日志。它不是一个产品，也不是一个参数，而是一套“怎么放文件”的规则。\n--2.TNS_ADMIN指定 Oracle Net Services 配置文件（如 tnsnames.ora、listener.ora、sqlnet.ora）的位置\n--3.ORACLE_TMP 或 TEMP/ TMP系统临时目录,安装 Oracle 或运行工具时，临时文件存放路径\n\nC.ASM 启动挂载的 disk group 列表是在 init.ora 或 spfile 中设置,不是通过操作系统环境变量\nD.临时表空间的文件位置由 表空间定义（CREATE TEMPORARY TABLESPACE …）和数据库参数 DB_CREATE_FILE_DEST决定,虽然可以参考系统目录，但不是通过环境变量指定\nE.安装过程中 Oracle Installer需要临时空间,使用操作系统 TMP/TEMP 或 ORACLE_TMP 环境变量来指定临时目录\nF.由数据库参数DB_FILES 控制,与操作系统环境变量无关\n\n1.环境变量主要控制路径（软件路径、配置文件、临时目录）\n2.数据库参数控制行为（文件数、磁盘组、表空间位置）"
 },
 {
   "QuestionID": 10,
@@ -5244,7 +5244,7 @@
     {"label": "F", "text": "It builds SQL profiles for each poorly performing SQL statement to prevent regressions."}
   ],
   "CorrectAnswer": ["A", "B", "D"],
-  "Explanation": "SQL Tuning Advisor通常作为一个顾问任务 (Advisor Task) 运行:\n1.输入 (Input):DBA 或开发人员向顾问提供一个或多个需要分析的 SQL 语句。这些语句通常来自:\n--自动工作负载资料档案库 (AWR) 中的历史数据\n--SQL 调优集 (SQL Tuning Set, STS)\n--直接输入的 SQL 语句\n\n2.分析Analysis:顾问启动一个四阶段的综合分析:\n--统计信息分析Statistics Analysis:这是第一步，也是最重要的步骤之一\n--访问路径分析Access Path Analysis:检查索引的使用和效率\n--SQL 结构分析SQL Structure Analysis:检查 SQL 语句本身的写法\n--替代结构分析Alternative Structures Analysis建议创建物化视图或考虑分区方案\n\nE.SQL 优化顾问通常是针对单个或多个独立的 SQL 语句进行分析，并为每个语句提供独立的优化建议。将其视为一个整体组进行分析是 SQL 访问顾问SQL Access Advisor的特性，该顾问会分析工作负载Workload并推荐索引和物化视图的组合优化\nF.防止退化prevent regressions是 SQL 计划管理SQL Plan Management的主要功能"
+  "Explanation": "SQL Tuning Advisor通常作为一个顾问任务 (Advisor Task) 运行:\n1.输入 (Input):DBA 或开发人员向顾问提供一个或多个需要分析的 SQL 语句。这些语句通常来自:\n--自动工作负载资料档案库 (AWR) 中的历史数据\n--SQL 调优集 (SQL Tuning Set, STS)\n--直接输入的 SQL 语句\n\n2.分析Analysis:顾问启动一个四阶段的综合分析:\n--统计信息分析Statistics Analysis:这是第一步，也是最重要的步骤之一\n--访问路径分析Access Path Analysis:检查索引的使用和效率\n--SQL 结构分析SQL Structure Analysis:检查 SQL 语句本身的写法\n--替代结构分析Alternative Structures Analysis建议创建物化视图或考虑分区方案\n\nAB.SQL Tuning Advisor 会检查对象统计信息是否陈旧（Stale）,是否存在缺失的统计信息,如果统计信息不再反映数据的真实情况，它会建议重新收集统计信息\nCD.它不仅提供语法上的改进建议，还包括语义、索引、统计信息以及 SQL Profile 等多维度的建议\nE.SQL 优化顾问通常是针对单个或多个独立的 SQL 语句进行分析，并为每个语句提供独立的优化建议。将其视为一个整体组进行分析是 SQL 访问顾问SQL Access Advisor的特性，该顾问会分析工作负载Workload并推荐索引和物化视图的组合优化\nF.防止退化prevent regressions是 SQL 计划管理SQL Plan Management的主要功能"
 },
 {
   "QuestionID": 46,
@@ -5290,7 +5290,7 @@
     {"label": "F", "text": "C##_USER1 will have the same privileges and roles granted in all PDBs in CDB1."}
   ],
   "CorrectAnswer": ["A", "C"],
-  "Explanation": "Application Container一个特殊的 PDB，位于 CDB 之下,包含Application PDBs;\n\nApplication Container 就像一个软件的主模板。所有的租户Application PDBs使用同一个标准化的应用程序框架Application Root，但拥有各自隔离的业务数据\n\nCDB 解决了 Oracle 数据库管理和资源整合的问题。\n\nApplication Container 解决了 企业级应用软件的部署和生命周期管理（例如，只需在 Application Root 中打一次补丁，所有 Application PDB 都会自动更新）的问题\n\nA.相当于在PDB1里面又建了一个APP1_USER1,和app1_root里的APP1_USER1只是同名，没有关系\nB.Common User用户名必须以 C## 或 c## 开头。必须包含 CONTAINER=ALL (除非是隐式创建)\nC.APP1_USER1 作为一个Application Common User,appl_root 中授予给 APP1_USER1通用权限 (Common Privileges),APP1_USER1 在不同的应用 PDB 中，可以拥有的“不同”权限\nD.语法上可以，但是将一个应用用户命名为CDB通用用户 (C##APP_USER1) 并放在 CDB1 中，是错误的架构设计，因为它破坏了多租户和应用容器的隔离性和最小权限原则"
+  "Explanation": "Application Container一个特殊的 PDB，位于 CDB 之下,包含Application PDBs;\n\nApplication Container 就像一个软件的主模板。所有的租户Application PDBs使用同一个标准化的应用程序框架Application Root，但拥有各自隔离的业务数据\n\nCDB 解决了 Oracle 数据库管理和资源整合的问题。\n\nApplication Container 解决了 企业级应用软件的部署和生命周期管理（例如，只需在 Application Root 中打一次补丁，所有 Application PDB 都会自动更新）的问题\n\nA.相当于在PDB1里面又建了一个APP1_USER1,和app1_root里的APP1_USER1只是同名，没有关系\nBE.Common User用户名必须以 C## 或 c## 开头。必须包含 CONTAINER=ALL (除非是隐式创建)\nCF.APP1_USER1 作为一个Application Common User,appl_root 中授予给 APP1_USER1通用权限 (Common Privileges),APP1_USER1 在不同的应用 PDB 中，可以拥有的“不同”权限，管理员可以在特定的 Application PDB 中使用 CONTAINER=CURRENT 为该用户授予特定的权限。\nD.语法上可以，但是将一个应用用户命名为CDB通用用户 (C##APP_USER1) 并放在 CDB1 中，是错误的架构设计，因为它破坏了多租户和应用容器的隔离性和最小权限原则"
 },
 {
   "QuestionID": 49,
