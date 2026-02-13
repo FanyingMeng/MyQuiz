@@ -7824,7 +7824,7 @@
   "QuestionID": 32,
   "QuestionType": "multiple",
   "QuestionText": "A company is in the process of implementing AWS Organizations to constrain its developers to use only Amazon EC2, Amazon S3, and Amazon DynamoDB. The developers account resides in a dedicated organizational unit (OU). The solutions architect has implemented the following SCP on the developers account:\nWhen this policy is deployed, IAM users in the developers account are still able to use AWS services that are not listed in the policy.\nWhat should the solutions architect do to eliminate the developers’ ability to use services outside the scope of this policy?",
-  "ImageURL": "AWS01.png",
+  "ImageURL": "AWS32.png",
   "Options": [
     { "label": "A", "text": "Create an explicit deny statement for each AWS service that should be constrained." },
     { "label": "B", "text": "Remove the FullAWSAccess SCP from the developers account’s OU." },
@@ -7947,6 +7947,291 @@
   ],
   "CorrectAnswer": ["C"],
   "Explanation": "NAT Gateway (Network Address Translation 网关)： 私有子网里的实例本身没有公网 IP，不能直接访问互联网，于是流量要经过 NAT Gateway,它允许私有子网的实例访问互联网，但它是按流量计费的。虽然它能访问 S3（因为 S3 在公共网络中），但走这条路非常贵\nS3 Gateway VPC Endpoint (S3 网关型 VPC 终端节点)：它在 VPC 路由表中创建一个特殊的路由，让去往 S3 的流量直接通过 AWS 内部网络进行，而不需要经过 NAT 网关或互联网。完全免费。流量不经过公网，且可以通过 Endpoint Policy 限制只能访问特定的桶\nNAT Instance (NAT 实例)：老一代的技术，需要用户自己管理 EC2 实例来实现 NAT 功能。虽然可能省点钱，但会大幅增加运维负担（需要自己打补丁、处理高可用\n\nA.虽然可以省去 NAT 网关的固定费用，但 1 TB 的数据流量费在 EC2 上依然存在。更重要的是，这增加了运维开销\n\nB.这确实可以省掉 NAT 费用，但直接暴露了实例。违反了“不损害安全性”的原则。\n\nC.VPC Gateway Endpoint 是 AWS 提供的私有子网访问 S3 或 DynamoDB 的专用通道，不经过公网或 NAT Gateway，免费且安全,Gateway Endpoint 只支持 S3 和 DynamoDB,私有子网访问 S3 或 DynamoDB → 首选 Gateway Endpoint; NAT Gateway → 访问其他互联网资源\n\nD.Amazon EFS (Elastic File System)： 托管的文件系统。虽然可以存图，但它的存储成本通常比 S3 高得多"
+},
+{
+  "QuestionID": 41,
+  "QuestionType": "multiple",
+  "QuestionText": "A company recently deployed an application on AWS. The application uses Amazon DynamoDB. The company measured the application load and configured the RCUs and WCUs on the DynamoDB table to match the expected peak load. The peak load occurs once a week for a 4-hour period and is double the average load. The application load is close to the average load for the rest of the week. The access pattern includes many more writes to the table than reads of the table. A solutions architect needs to implement a solution to minimize the cost of the table. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use AWS Application Auto Scaling to increase capacity during the peak period. Purchase reserved RCUs and WCUs to match the average load." },
+    { "label": "B", "text": "Configure on-demand capacity mode for the table." },
+    { "label": "C", "text": "Configure DynamoDB Accelerator (DAX) in front of the table. Reduce the provisioned read capacity to match the new peak load on the table." },
+    { "label": "D", "text": "Configure DynamoDB Accelerator (DAX) in front of the table. Configure on-demand capacity mode for the table." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "RCU (Read Capacity Unit) & WCU (Write Capacity Unit)：这是 DynamoDB 预置模式 (Provisioned Mode) 下的计费单位。1 个 RCU 对应每秒 1 次强一致性读（或 2 次最终一致性读）；1 个 WCU 对应每秒 1 次 1KB 大小的写入\n\nA. Auto Scaling 解决了每周 4 小时高峰的问题：它会在高峰期自动调高 RCU/WCU，平时调低。Reserved Capacity 解决了基础成本问题：因为这道题负载很规律（除高峰外一直处于平均负载），为这部分“底噪负载”购买预留容量，可以获得最低的单价\n\nB.虽然按需模式省去了管理麻烦，但题干明确说了负载是可预测的（每周固定时间高峰，平时很平稳）。对于这种可预测的持续负载，按需模式的单价远高于预置模式 + 预留容量\n\nD.DAX = DynamoDB 的内存缓存层（In-memory cache）用来“加速读”，对写几乎没帮助,题干提到“写操作远多于读操作”（many more writes than reads）"
+},
+{
+  "QuestionID": 42,
+  "QuestionType": "multiple",
+  "QuestionText": "A solutions architect needs to advise a company on how to migrate its on-premises data processing application to the AWS Cloud. Currently, users upload input files through a web portal. The web server then stores the uploaded files on NAS and sends messages to the processing server through a message queue. Each media file can take up to 1 hour to process. The company has determined that the number of media files awaiting processing is significantly higher during business hours, with the number of files rapidly declining after business hours. What is the MOST cost-effective migration recommendation?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a queue using Amazon SQS. Configure the existing web server to publish to the new queue. When there are messages in the queue, invoke an AWS Lambda function to pull requests from the queue and process the files. Store the processed files in an Amazon S3 bucket." },
+    { "label": "B", "text": "Create a queue using Amazon MQ. Configure the existing web server to publish to the new queue. When there are messages in the queue, create a new Amazon EC2 instance to pull requests from the queue and process the files. Store the processed files in Amazon EFS. Shut down the EC2 instance after the task is complete." },
+    { "label": "C", "text": "Create a queue using Amazon MQ. Configure the existing web server to publish to the new queue. When there are messages in the queue, invoke an AWS Lambda function to pull requests from the queue and process the files. Store the processed files in Amazon EFS." },
+    { "label": "D", "text": "Create a queue using Amazon SQS. Configure the existing web server to publish to the new queue. Use Amazon EC2 instances in an EC2 Auto Scaling group to pull requests from the queue and process the files. Scale the EC2 instances based on the SQS queue length. Store the processed files in an Amazon S3 bucket." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "NAS (Network Attached Storage，网络附属存储)是File-level的存储。有自己的文件系统，你通过路径（如 \\192.168.1.100\\SharedFolder）来访问\nSQS: Amazon Simple Queue Service云端托管的 消息队列服务（Serverless）SQS = 云上“傻瓜式队列”，专注消息传递和扩展；\nMQ(Message Queue)是 AWS 提供的一个 托管型消息中间件服务\n如果你想省钱、省事、处理海量任务 → 选 SQS。\n如果你是搬家（从本地搬到云上）且不想改老代码 → 选 Amazon MQ。\n\nA.题目明确提到“每个文件处理长达 1 小时”，而 Lambda 的最大执行超时时间只有 15 分钟。\n\nB.Amazon MQ 是持续计费的实例，而 SQS 按量计费；EFS（文件存储）的价格远高于 S3（对象存储）。效率低：手动创建 EC2 实例来处理任务（而不是使用 Auto Scaling）管理成本高且不够自动化。"
+},
+{
+  "QuestionID": 43,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is using Amazon OpenSearch Service to analyze data. The company loads data into an OpenSearch Service cluster with 10 data nodes from an Amazon S3 bucket that uses S3 Standard storage. The data resides in the cluster for 1 month for read-only analysis. After 1 month, the company deletes the index that contains the data from the cluster. For compliance purposes, the company must retain a copy of all input data. The company is concerned about ongoing costs and asks a solutions architect to recommend a new solution. Which solution will meet these requirements MOST cost-effectively?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Replace all the data nodes with UltraWarm nodes to handle the expected capacity. Transition the input data from S3 Standard to S3 Glacier Deep Archive when the company loads the data into the cluster." },
+    { "label": "B", "text": "Reduce the number of data nodes in the cluster to 2. Add UltraWarm nodes to handle the expected capacity. Configure the indexes to transition to UltraWarm when OpenSearch Service ingests the data. Transition the input data to S3 Glacier Deep Archive after 1 month by using an S3 Lifecycle policy." },
+    { "label": "C", "text": "Reduce the number of data nodes in the cluster to 2. Add UltraWarm nodes to handle the expected capacity. Configure the indexes to transition to UltraWarm when OpenSearch Service ingests the data. Add cold storage nodes to the cluster. Transition the indexes from UltraWarm to cold storage. Delete the input data from the S3 bucket after 1 month by using an S3 Lifecycle policy." },
+    { "label": "D", "text": "Reduce the number of data nodes in the cluster to 2. Add instance-backed data nodes to handle the expected capacity. Transition the input data from S3 Standard to S3 Glacier Deep Archive when the company loads the data into the cluster." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "Amazon OpenSearch Service 里，一个集群（Cluster）是由多个节点（Nodes）组成的。Data Node：负责“存数据”和“处理查询”的核心节点\nUltraWarm Nodes：OpenSearch 的一种廉价存储层。它将数据存储在 S3 上，但通过缓存提供近乎实时的查询性能。它比标准数据节点成本低得多（最高可降低 90%），非常适合“只读”或“温数据”分析\nS3 Glacier Deep Archive：S3 中最便宜的存储类，适用于长期保存（合规性要求），但取回数据需要 12-48 小时\nS3 Lifecycle Policy：自动管理对象生命周期的规则（例如：30天后移动到 Glacier 或删除）\n\nA.将所有节点替换为 UltraWarm 是不可行的，因为 UltraWarm 不能处理写入操作（数据加载）。OpenSearch 集群至少需要两个标准数据节点来管理集群状态和索引元数据,UltraWarm 只能作为扩展层存在\n\nC.虽然 Cold Storage 很便宜，但题目要求原始数据副本必须保留。C 选项删除了 S3 中的原始数据，而将 Cold Storage 作为备份。虽然技术上可行，但管理冷索引的成本和复杂性通常高于直接在 S3 Glacier 中存储原始文件，且 S3 的持久性（11个9）是合规的首选\n\nD.实例支持的数据节点（Instance-backed data nodes）成本比UltraWarm高，不适合需要降低成本的场景。"
+},
+{
+  "QuestionID": 44,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has 10 accounts that are part of an organization in AWS Organizations. AWS Config is configured in each account. All accounts belong to either the Prod OU or the NonProd OU. The company has set up an Amazon EventBridge rule in each AWS account to notify an Amazon Simple Notification Service (Amazon SNS) topic when an Amazon EC2 security group inbound rule is created with 0.0.0.0/0 as the source. The company’s security team is subscribed to the SNS topic. For all accounts in the NonProd OU, the security team needs to remove the ability to create a security group inbound rule that includes 0.0.0.0/0 as the source. Which solution will meet this requirement with the LEAST operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Modify the EventBridge rule to invoke an AWS Lambda function to remove the security group inbound rule and to publish to the SNS topic. Deploy the updated rule to the NonProd OU." },
+    { "label": "B", "text": "Add the vpc-sg-open-only-to-authorized-ports AWS Config managed rule to the NonProd OU." },
+    { "label": "C", "text": "Configure an SCP to allow the ec2:AuthorizeSecurityGroupIngress action when the value of the aws:SourceIp condition key is not 0.0.0.0/0. Apply the SCP to the NonProd OU." },
+    { "label": "D", "text": "Configure an SCP to deny the ec2:AuthorizeSecurityGroupIngress action when the value of the aws:SourceIp condition key is 0.0.0.0/0. Apply the SCP to the NonProd OU." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "SCP (Service Control Policy)：组织的“护栏”。它定义了账号内所有身份（包括 Root 用户）能做的事情的最大权限。Deny（拒绝）优先级最高\nec2:AuthorizeSecurityGroupIngress：EC2 安全组入站规则授权的 API 操作,用于“添加安全组入站规则”\nconditon key:对权限增加“额外限制条件”\naws:SourceIp：AWS 全局条件上下文密钥，表示请求的源 IP 地址\n\nA.虽然 Lambda 可以实现自动删除违规规则，但属于“先触发再修复”（Remediation），但它增加了不必要的复杂性和维护工作,且运维开销较大。\n\nB.AWS Config 规则属于“合规性检查”，即使发现不合规，默认也只是标记或触发报警，不能阻止用户执行创建操作\n\nC.虽然允许的条件可以实现合规性，但它并不能阻止用户创建不合规的规则。如果该用户在自己的 IAM User/Role 权限里原本就有一个 AmazonEC2FullAccess（包含 Allow *），那么他依然可以创建 0.0.0.0/0 的规则\n\nD.通过配置 SCP 来拒绝特定条件下的 API 操作，可以有效地阻止不合规的规则创建，且运维开销较小。"
+},
+{
+  "QuestionID": 45,
+  "QuestionType": "multiple",
+  "QuestionText": "A company hosts a Git repository in an on-premises data center. The company uses webhooks to invoke functionality that runs in the AWS Cloud. The company hosts the webhook logic on a set of Amazon EC2 instances in an Auto Scaling group that the company set as a target for an Application Load Balancer (ALB). The Git server calls the ALB for the configured webhooks. The company wants to move the solution to a serverless architecture. Which solution will meet these requirements with the LEAST operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "For each webhook, create and configure an AWS Lambda function URL. Update the Git servers to call the individual Lambda function URLs." },
+    { "label": "B", "text": "Create an Amazon API Gateway HTTP API. Implement each webhook logic in a separate AWS Lambda function. Update the Git servers to call the API Gateway endpoint." },
+    { "label": "C", "text": "Deploy the webhook logic to AWS App Runner. Create an ALB, and set App Runner as the target. Update the Git servers to call the ALB endpoint." },
+    { "label": "D", "text": "Containerize the webhook logic. Create an Amazon Elastic Container Service (Amazon ECS) cluster, and run the webhook logic in AWS Fargate. Create an Amazon API Gateway REST API, and set Fargate as the target. Update the Git servers to call the API Gateway endpoint." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "Webhook = 服务器主动通知客户端的事件回调机制，不需要客户端去轮询，事件发生时自动触发\nApp Runner 是一种 全托管服务，可以让你 快速部署 Web 应用和 API，无需管理服务器或集群\nAWS Fargate 是一种 Serverless 容器运行服务，用于运行 ECS（Elastic Container Service）或 EKS（Elastic Kubernetes Service）上的容器，你不需要管理底层 EC2 服务器。Fargate = Serverless 容器底座，你只管容器，AWS 管理服务器\n\nA.这是 AWS 在 2022 年推出的功能，允许你直接为 Lambda 函数生成一个 HTTPS 终点（Endpoint）。完全不需要配置 API Gateway 或 ALB。你只需要写好代码，点一下开启 URL，你就得到了一个可以被 Webhook 调用的地址。运维开销：极低。没有中间组件，只需要管理 Lambda 本身\n\nB.这是最标准的 Serverless 架构。功能强大（支持限流、身份验证、API 版本管理等）。相对于 Function URL，API Gateway 的配置非常繁琐（需要配置 Resources, Methods, Stages, Deployments 等）。运维开销中等。你需要同时管理 API Gateway 和 Lambda\n\nC.虽然app runner很省事，但题目要求是 \"Serverless architecture\"，且 C 选项还要求“创建一个 ALB 并将 App Runner 作为目标”。App Runner 自带负载均衡，再加一个 ALB 纯属增加开销。在 Serverless 语境下，Lambda 通常比 App Runner 更“轻”，且 Lambda Function URL 的运维开销更低\n\nD.虽然 Fargate 是 Serverless 的容器服务，但相比 Lambda 来说，管理和维护容器镜像、任务定义、集群等的复杂度更高。API Gateway REST API 的配置也比 HTTP API 更复杂。运维开销较高。"
+},
+{
+  "QuestionID": 46,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is planning to migrate 1,000 on-premises servers to AWS. The servers run on several VMware clusters in the company’s data center. As part of the migration plan, the company wants to gather server metrics such as CPU details, RAM usage, operating system information, and running processes. The company then wants to query and analyze the data. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Deploy and configure the AWS Agentless Discovery Connector virtual appliance on the on-premises hosts. Configure Data Exploration in AWS Migration Hub. Use AWS Glue to perform an ETL job against the data. Query the data by using Amazon S3 Select." },
+    { "label": "B", "text": "Export only the VM performance information from the on-premises hosts. Directly import the required data into AWS Migration Hub. Update any missing information in Migration Hub. Query the data by using Amazon QuickSight." },
+    { "label": "C", "text": "Create a script to automatically gather the server information from the on-premises hosts. Use the AWS CLI to run the put-resource-attributes command to store the detailed server data in AWS Migration Hub. Query the data directly in the Migration Hub console." },
+    { "label": "D", "text": "Deploy the AWS Application Discovery Agent to each on-premises server. Configure Data Exploration in AWS Migration Hub. Use Amazon Athena to run predefined queries against the data in Amazon S3." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "AWS Migration Hub:迁移中心。它是 AWS 的一个统一入口，用于追踪迁移进度。它本身不直接收集数据，而是通过集成工具（如 Discovery Service）来展示数据\nAWS Application Discovery Service (ADS):应用发现服务。它有两种收集模式：\n--Agentless (无代理/无插件): 部署一个 OVA 插件到 VMware。它能看到 VM 的基本配置信息，但看不到系统内部的进程。\n--Agent-based (基于代理): 在每台服务器内部安装一个小软件（Agent）。它可以深入系统内部，收集详细的进程信息和网络连接情况。\nData Exploration (in Migration Hub):这是一个功能，可以将 ADS 收集的数据自动推送到 Amazon S3 存储桶中，方便进行后续分析\nAmazon Athena:这是一个交互式查询服务，可以直接使用标准 SQL 语言查询存储在 Amazon S3 中的数据。\n\nA.Agentless (无代理) 无法收集到服务器内部的“正在运行的进程”。此外，使用 S3 Select 只能对单个文件进行简单过滤，不如 Athena 处理 1,000 台服务器的海量汇总数据灵活。\n\nB.直接导入性能信息到 Migration Hub 不够全面，“Export and Import” 是手动操作，对于 1,000 台服务器来说效率极低且容易出错。且 Migration Hub 主要用于迁移跟踪，不适合复杂查询和分析。QuickSight 是一个 BI 工具，适合可视化，但不适合直接查询原始数据。\n\nC.虽然可以通过脚本和 AWS CLI 将数据存储在 Migration Hub，但 Migration Hub 的查询功能非常有限，无法像 Athena 那样进行复杂的 SQL 关联分析,不适合复杂分析。"
+},
+{
+  "QuestionID": 47,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is building a serverless application that runs on an AWS Lambda function that is attached to a VPC. The company needs to integrate the application with a new service from an external provider. The external provider supports only requests that come from public IPv4 addresses that are in an allow list. The company must provide a single public IP address to the external provider before the application can start using the new service. Which solution will give the application the ability to access the new service?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Deploy a NAT gateway. Associate an Elastic IP address with the NAT gateway. Configure the VPC to use the NAT gateway." },
+    { "label": "B", "text": "Deploy an egress-only internet gateway. Associate an Elastic IP address with the egress-only internet gateway. Configure the elastic network interface on the Lambda function to use the egress-only internet gateway." },
+    { "label": "C", "text": "Deploy an internet gateway. Associate an Elastic IP address with the internet gateway. Configure the Lambda function to use the internet gateway." },
+    { "label": "D", "text": "Deploy an internet gateway. Associate an Elastic IP address with the internet gateway. Configure the default route in the public VPC route table to use the internet gateway." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "默认情况下，Lambda 运行在 AWS 管理的网络中。但为了安全，我们常把它连入自己的 VPC。注意： 一旦 Lambda 连入 VPC，它就失去了直接访问公网的能力，必须通过 VPC 的路由表来上网\nNAT Gateway：网络地址转换网关。它允许私有子网中的资源（如 Lambda）访问互联网，同时保持私有 IP 地址不暴露。通过关联一个 Elastic IP，NAT Gateway 可以提供一个固定的公网 IP 地址，满足外部服务的 allow list 要求\nElastic IP (EIP - 弹性 IP):这是一个静态、固定的公网 IPv4 地址。除非你手动释放，否则它不会改变。\nEgress-only Internet Gateway：仅支持 IPv6 的出站互联网网关，它只允许向外发请求，不允许外部主动连入。\nInternet Gateway：是 VPC 与互联网通信的物理出口。它允许公网流量进入（如果有配置）和离开\nPublic VPC Route Table：公共子网的路由表,允许子网内实例访问互联网（或从互联网访问），通过 Internet Gateway (IGW) 转发流量。\n\nA.申请一个 Elastic IP (EIP)，它就是你要提供给外部服务的那个“唯一 IP”。\n2.创建一个 NAT Gateway 并把这个 EIP 绑定在它上面。\n3.把 Lambda 放在 私有子网 (Private Subnet)。\n4.修改私有子网的路由表，将发往互联网（0.0.0.0/0）的流量指向这个 NAT Gateway。无论有多少个 Lambda 实例在运行，它们发出的请求都会经过 NAT Gateway，并在出口时被标记上那个固定的 EIP。\n\nB.Egress-only IGW 是专门给 IPv6 用的\n\nCD.Internet Gateway (IGW) 本身不能直接给 Lambda 提供固定 IP。即使有了 IGW，Lambda 如果在私有子网，它还是上不了网。如果 Lambda 在公共子网，它需要一个公共 IP 才能上网。但 Lambda 的网络接口（ENI）是动态创建的，无法直接绑定一个固定的 Elastic IP。IGW 是一个“门”，而 NAT Gateway 才是那个能帮你“改换地址（NAT）”的代理"
+},
+{
+  "QuestionID": 48,
+  "QuestionType": "multiple",
+  "QuestionText": "A solutions architect has developed a web application that uses an Amazon API Gateway Regional endpoint and an AWS Lambda function. The consumers of the web application are all close to the AWS Region where the application will be deployed. The Lambda function only queries an Amazon Aurora MySQL database. The solutions architect has configured the database to have three read replicas. During testing, the application does not meet performance requirements. Under high load, the application opens a large number of database connections. The solutions architect must improve the application’s performance. Which actions should the solutions architect take to meet these requirements? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use the cluster endpoint of the Aurora database." },
+    { "label": "B", "text": "Use RDS Proxy to set up a connection pool to the reader endpoint of the Aurora database." },
+    { "label": "C", "text": "Use the Lambda Provisioned Concurrency feature." },
+    { "label": "D", "text": "Move the code for opening the database connection in the Lambda function outside of the event handler." },
+    { "label": "E", "text": "Change the API Gateway endpoint to an edge-optimized endpoint." }
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "RDS Proxy: RDS Proxy 是一个完全托管的数据库代理，可以在 Lambda 函数和 Aurora 数据库之间提供连接池（Connection Pooling）。Lambda 是瞬态的，频繁建立/断开 TCP 连接会极大消耗数据库资源。通过使用 RDS Proxy，Lambda 函数可以复用现有的数据库连接，而不是为每个请求打开新的连接。这可以显著减少数据库连接的数量，提高应用程序的性能。\nLambda Event Handler (事件处理程序):这是 Lambda 函数中处理事件的主要函数（例如：def lambda_handler(event, context)）。每次 Lambda 被触发，该函数内的代码都会执行。\nLambda Execution Context (执行上下文):Lambda 运行的环境。当一个 Lambda 运行完后，AWS 会将其环境“冻结”一段时间。如果短时间内有新请求，会复用这个环境。\nProvisioned Concurrency (预置并发):预先启动一定数量的 Lambda 实例，消除“冷启动”延迟。\nEdge-optimized: 流量通过 CloudFront 网络加速，适合全球用户\nRegional Endpoints:流量直接进入所在区域。\n\nA.RDS Proxy 能够汇聚成千上万个 Lambda 连接，并将其映射为少量的数据库长连接。由于题目提到有 3 个只读副本，连接到 Reader Endpoint（读者端点）可以充分利用这些副本的性能\n\nD.如果把数据库连接代码写在 handler 函数内部，每次请求都会重新连接。 如果写在 handler 函数外部（初始化部分），连接只会在 Lambda 容器第一次启动（冷启动）时建立，并保存在内存中。后续的后续请求（热启动）可以直接复用这个已经建立好的连接，从而大幅提高性能并减少连接开销。\n\nA.Cluster Endpoint 是 Aurora 的主节点（Writer）的入口，适合写操作，但题目提到“应用程序打开大量数据库连接”，这通常是读操作引起的。使用 Reader Endpoint 可以更好地分散读请求到多个副本，提高性能。\n\nC.Provisioned Concurrency 可以减少 Lambda 的冷启动时间，但它并不能解决数据库连接过多的问题，因为每个并发实例仍然可能会打开自己的数据库连接。\n\nE.Edge-optimized Endpoint 主要用于全球分布的客户，以降低延迟。题目明确说消费者都在靠近部署区域，所以改变 API Gateway 的类型不会显著改善性能。"
+},
+{
+  "QuestionID": 49,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is planning to host a web application on AWS and wants to load balance the traffic across a group of Amazon EC2 instances. One of the security requirements is to enable end-to-end encryption in transit between the client and the web server. Which solution will meet this requirement?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Place the EC2 instances behind an Application Load Balancer (ALB). Provision an SSL certificate using AWS Certificate Manager (ACM), and associate the SSL certificate with the ALB. Export the SSL certificate and install it on each EC2 instance. Configure the ALB to listen on port 443 and to forward traffic to port 443 on the instances." },
+    { "label": "B", "text": "Associate the EC2 instances with a target group. Provision an SSL certificate using AWS Certificate Manager (ACM). Create an Amazon CloudFront distribution and configure it to use the SSL certificate. Set CloudFront to use the target group as the origin server." },
+    { "label": "C", "text": "Place the EC2 instances behind an Application Load Balancer (ALB). Provision an SSL certificate using AWS Certificate Manager (ACM), and associate the SSL certificate with the ALB. Provision a third-party SSL certificate and install it on each EC2 instance. Configure the ALB to listen on port 443 and to forward traffic to port 443 on the instances." },
+    { "label": "D", "text": "Place the EC2 instances behind a Network Load Balancer (NLB). Provision a third-party SSL certificate and install it on the NLB and on each EC2 instance. Configure the NLB to listen on port 443 and to forward traffic to port 443 on the instances." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "流量在传输过程中必须是“端到端加密”的。这意味着：\n--客户端到负载均衡器（Client to LB）之间必须加密（HTTPS）。\n--负载均衡器到后端 EC2（LB to EC2）之间也必须加密（HTTPS）\nAWS Certificate Manager (ACM):AWS 证书管理器。它可以为 AWS 服务（如 ALB、CloudFront）免费提供 SSL 证书,关键限制： 你不能导出 ACM 颁发的证书到 EC2 实例上安装。它只能在 AWS 托管服务内部使用。\n\nA.ACM 证书无法导出。这是 AWS 考试中经常出现的考点，ACM 颁发的公有证书只能在集成的 AWS 服务上使用\n\nB.Target Group（目标组）不能直接作为 CloudFront 的 Origin。CloudFront 的源必须是一个域名（如 ALB 的 DNS）或 S3 存储桶,CloudFront 只会将流量加密到 ALB，ALB 到 EC2 之间的流量仍然需要单独加密。\n\nC.Client to ALB： 使用 ACM 证书绑定在 ALB 的 443 监听器上。这是标准做法，简单且安全。\nALB to EC2： 因为 ACM 证书不能导出，所以 EC2 必须安装一个第三方证书（或自签名证书）。\n配置： ALB 监听到 443 端口的请求后，解密查看内容，然后再次加密，将请求转发到 EC2 的 443 端口。这样满足了“全程加密”的需求。\n\nD.虽然 NLB 支持 TLS 终止，但题目要求的是 Web 应用，通常优先选择 ALB。更重要的是，在 NLB 上安装第三方证书并转发的方案虽然可行，但方案 C 使用 ALB + ACM 的组合更符合 Web 应用的最佳实践和运维便利性"
+},
+{
+  "QuestionID": 50,
+  "QuestionType": "multiple",
+  "QuestionText": "A company wants to migrate its data analytics environment from on premises to AWS. The environment consists of two simple Node.js applications. One of the applications collects sensor data and loads it into a MySQL database. The other application aggregates the data into reports. When the aggregation jobs run, some of the load jobs fail to run correctly. The company must resolve the data loading issue. The company also needs the migration to occur without interruptions or changes for the company’s customers. What should a solutions architect do to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Set up an Amazon Aurora MySQL database as a replication target for the on-premises database. Create an Aurora Replica for the Aurora MySQL database, and move the aggregation jobs to run against the Aurora Replica. Set up collection endpoints as AWS Lambda functions behind a Network Load Balancer (NLB), and use Amazon RDS Proxy to write to the Aurora MySQL database. When the databases are synced, disable the replication job and restart the Aurora Replica as the primary instance. Point the collector DNS record to the NLB." },
+    { "label": "B", "text": "Set up an Amazon Aurora MySQL database. Use AWS Database Migration Service (AWS DMS) to perform continuous data replication from the on-premises database to Aurora. Move the aggregation jobs to run against the Aurora MySQL database. Set up collection endpoints behind an Application Load Balancer (ALB) as Amazon EC2 instances in an Auto Scaling group. When the databases are synced, point the collector DNS record to the ALB. Disable the AWS DMS sync task after the cutover from on premises to AWS." },
+    { "label": "C", "text": "Set up an Amazon Aurora MySQL database. Use AWS Database Migration Service (AWS DMS) to perform continuous data replication from the on-premises database to Aurora. Create an Aurora Replica for the Aurora MySQL database, and move the aggregation jobs to run against the Aurora Replica. Set up collection endpoints as AWS Lambda functions behind an Application Load Balancer (ALB), and use Amazon RDS Proxy to write to the Aurora MySQL database. When the databases are synced, point the collector DNS record to the ALB. Disable the AWS DMS sync task after the cutover from on premises to AWS." },
+    { "label": "D", "text": "Set up an Amazon Aurora MySQL database. Create an Aurora Replica for the Aurora MySQL database, and move the aggregation jobs to run against the Aurora Replica. Set up collection endpoints as an Amazon Kinesis data stream. Use Amazon Kinesis Data Firehose to replicate the data to the Aurora MySQL database. When the databases are synced, disable the replication job and restart the Aurora Replica as the primary instance. Point the collector DNS record to the Kinesis data stream." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Aurora Replica (Aurora 副本)：用于分担主数据库的读取流量。在 Aurora 中，主节点处理写入，副本节点处理读取\nAWS Database Migration Service (AWS DMS)：用于将数据从本地迁移到 AWS。其“持续数据复制”（Ongoing Replication）功能可以确保在切换期间，本地和云端数据保持同步，实现零停机迁移\nAmazon RDS Proxy：数据库代理服务。由于 Lambda 是瞬时触发的，可能会产生大量并发连接导致数据库崩溃。RDS Proxy 可以池化和复用数据库连接，提高应用的扩展性和安全性\nAmazon Kinesis Data Stream (KDS) 是一个 可扩展、高吞吐量的实时数据流服务，用于 收集、处理和分析流式数据。生产者放数据，消费者实时取数据。\n\nA.使用了 Network Load Balancer (NLB) 来触发 Lambda。虽然 NLB 支持 Lambda，但对于处理 HTTP 协议的应用（Node.js），通常优先选择 ALB，且该选项的同步逻辑描述不如 DMS 专业。\n\nB.它没有提到 Aurora Replica。这意味着聚合任务和写入任务仍然会在同一个主实例上运行。虽然 Aurora 性能强，但没有实现读写分离，依然存在互相干扰的风险，没能从根本上解决题目提到的“报表影响写入”的问题。\n\nC.通过 Aurora Replica 运行聚合任务，主节点只负责写入，实现了读写分离。使用 AWS DMS 进行持续复制，确保本地切换到 AWS 时数据不丢失且无中断。引入 RDS Proxy。由于 Node.js 应用变成了 Lambda，会有大量短连接产生，RDS Proxy 能够有效保护数据库不被高并发连接压垮。\n\nD.Kinesis Data Firehose 主要用于流式数据传输，不适合直接作为数据库写入的解决方案。它更适合将数据传输到 S3、Redshift 或 Elasticsearch 等目标，而不是直接写入 Aurora 数据库,题目要求“不改变客户（customers）的体验”。如果把采集端点直接改成 Kinesis，客户的客户端可能需要更改 API 调用协议或端点类型，这违反了“无中断/无更改”的要求。此外，它同样包含了“重启副本作为主实例”的非标准操作。"
+},
+{
+  "QuestionID": 51,
+  "QuestionType": "multiple",
+  "QuestionText": "A health insurance company stores personally identifiable information (PII) in an Amazon S3 bucket. The company uses server-side encryption with S3 managed encryption keys (SSE-S3) to encrypt the objects. According to a new requirement, all current and future objects in the S3 bucket must be encrypted by keys that the company’s security team manages. The S3 bucket does not have versioning enabled. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "In the S3 bucket properties, change the default encryption to SSE-S3 with a customer managed key. Use the AWS CLI to re-upload all objects in the S3 bucket. Set an S3 bucket policy to deny unencrypted PutObject requests." },
+    { "label": "B", "text": "In the S3 bucket properties, change the default encryption to server-side encryption with AWS KMS managed encryption keys (SSE-KMS). Set an S3 bucket policy to deny unencrypted PutObject requests. Use the AWS CLI to re-upload all objects in the S3 bucket." },
+    { "label": "C", "text": "In the S3 bucket properties, change the default encryption to server-side encryption with AWS KMS managed encryption keys (SSE-KMS). Set an S3 bucket policy to automatically encrypt objects on GetObject and PutObject requests." },
+    { "label": "D", "text": "In the S3 bucket properties, change the default encryption to AES-256 with a customer managed key. Attach a policy to deny unencrypted PutObject requests to any entities that access the S3 bucket. Use the AWS CLI to re-upload all objects in the S3 bucket." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "SSE-S3 (Server-Side Encryption with Amazon S3-Managed Keys)：由 AWS S3 完全管理加密和解密过程,密钥的控制权在 AWS 手中\nSSE-KMS (Server-Side Encryption with AWS Key Management Service)：由 AWS KMS 管理加密和解密过程,密钥的控制权在用户手中\ndefault encryption:S3 桶的一个设置，确保所有新上传的对象如果没有指定加密方式，会自动应用选定的加密配置\nA.SSE-S3 的定义就是由 S3 管理密钥，不支持客户管理密钥\n\nB.修改默认加密为 SSE-KMS：满足了“未来对象”的加密要求，且使用了公司可以管理的 KMS 密钥。设置桶策略拒绝未加密请求：这是安全最佳实践，防止绕过加密。重新上传 (Re-upload)：由于 S3 改变加密设置不会自动追溯已有的对象，必须通过 AWS CLI 或 S3 Batch Operations 重新上传现有对象，强制它们在写入时应用新的 KMS 加密\n\nC.S3 桶策略不能“自动加密”GetObject 请求。桶策略只能允许或拒绝请求。此外，它没有提到如何处理现有的存量对象\n\nD.虽然 AES-256 是加密算法，但在 S3 术语中，通常指的是 SSE-S3。最重要的是，AWS 并不存在一种叫“AES-256 with a customer managed key”的配置选项（客户管理通常对应 SSE-KMS 或 SSE-C"
+},
+{
+  "QuestionID": 52,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is running a web application in the AWS Cloud. The application consists of dynamic content that is created on a set of Amazon EC2 instances. The EC2 instances run in an Auto Scaling group that is configured as a target group for an Application Load Balancer (ALB). The company is using an Amazon CloudFront distribution to distribute the application globally. The CloudFront distribution uses the ALB as an origin. The company uses Amazon Route 53 for DNS and has created an A record of www.example.com for the CloudFront distribution. A solutions architect must configure the application so that it is highly available and fault tolerant. Which solution meets these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Provision a full, secondary application deployment in a different AWS Region. Update the Route 53 A record to be a failover record. Add both of the CloudFront distributions as values. Create Route 53 health checks." },
+    { "label": "B", "text": "Provision an ALB, an Auto Scaling group, and EC2 instances in a different AWS Region. Update the CloudFront distribution, and create a second origin for the new ALB. Create an origin group for the two origins. Configure one origin as primary and one origin as secondary." },
+    { "label": "C", "text": "Provision an Auto Scaling group and EC2 instances in a different AWS Region. Create a second target for the new Auto Scaling group in the ALB. Set up the failover routing algorithm on the ALB." },
+    { "label": "D", "text": "Provision a full, secondary application deployment in a different AWS Region. Create a second CloudFront distribution, and add the new application setup as an origin. Create an AWS Global Accelerator accelerator. Add both of the CloudFront distributions as endpoints." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "CloudFront Origin Group（源组）：这是 CloudFront 提供的一种原生高可用功能。你可以将两个源（例如两个不同区域的 ALB）放在一个组里，并指定其中一个为 Primary（主），另一个为 Secondary（备）。当 Primary 源返回特定的 HTTP 状态码（如 500, 502, 503, 504）时，CloudFront 会自动切换到 Secondary 源。\n\nA.在另一个区域部署全套环境（包括一个新的 CloudFront 分发），然后在 Route 53 配置“故障转移记录”（Failover Record）。这是在 DNS 层做文章。如果区域 A 的 CloudFront 挂了，Route 53 把 www.example.com 解析到区域 B 的 CloudFront。管理两个 CloudFront 分发非常麻烦（因为 CNAME(Canonical Name Record规范名称记录) 只能绑定到一个分发），且 DNS 缓存可能导致切换有延迟。\n\nB.在另一个区域部署 ALB/EC2。然后在同一个 CloudFront 配置里添加第二个源，并将这两个源组成一个“源组”。这是在 CDN（Content Delivery Network 内容分发网络）层做文章。CloudFront 作为一个“聪明”的中转站，发现主源（Region A 的 ALB）报 5xx 错误时，会自动去抓备用源（Region B 的 ALB）的数据\n\nC.在另一个区域部署 ASG。尝试在现有的 ALB 里添加跨区域的实例作为 Target。ALB 是区域性资源,ALB 只存在于某一个 Region,不能跨 Region 工作。如果 Region A 整个挂了，Region A 里的 ALB 也会跟着挂掉。就算它指向了 Region B 的实例，用户也连不上这个 ALB，所以无法实现真正的容错\n\nD.在另一个区域部署全套环境，然后用 AWS Global Accelerator（全球加速器）来管理两个 CloudFront 分发。架构冗余。CloudFront 和 Global Accelerator 的功能有重叠。通常 CloudFront 已经提供了边缘加速，再在前面加一层 GA 就像是“在高速公路上又盖了一层高速公路”，不仅贵，还增加了配置复杂度"
+},
+{
+  "QuestionID": 53,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has an organization in AWS Organizations that has a large number of AWS accounts. One of the AWS accounts is designated as a transit account and has a transit gateway that is shared with all of the other AWS accounts. AWS Site-to-Site VPN connections are configured between all of the company’s global offices and the transit account. The company has AWS Config enabled on all of its accounts. The company’s networking team needs to centrally manage a list of internal IP address ranges that belong to the global offices. Developers will reference this list to gain access to their applications securely. Which solution meets these requirements with the LEAST amount of operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a JSON file that is hosted in Amazon S3 and that lists all of the internal IP address ranges. Configure an Amazon Simple Notification Service (Amazon SNS) topic in each of the accounts that can be invoked when the JSON file is updated. Subscribe an AWS Lambda function to the SNS topic to update all relevant security group rules with the updated IP address ranges." },
+    { "label": "B", "text": "Create a new AWS Config managed rule that contains all of the internal IP address ranges. Use the rule to check the security groups in each of the accounts to ensure compliance with the list of IP address ranges. Configure the rule to automatically remediate any noncompliant security group that is detected." },
+    { "label": "C", "text": "In the transit account, create a VPC prefix list with all of the internal IP address ranges. Use AWS Resource Access Manager to share the prefix list with all of the other accounts. Use the shared prefix list to configure security group rules in the other accounts." },
+    { "label": "D", "text": "In the transit account, create a security group with all of the internal IP address ranges. Configure the security groups in the other accounts to reference the transit account’s security group by using a nested security group reference of \"/sg-1a2b3c4d\"." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "VPC Prefix List 是一组 CIDR（Classless Inter-Domain Routing，无类域间路由）地址范围的集合，可以在安全组（Security Group）、NACL、路由表中使用\nNested Security Group（嵌套安全组）：在一个安全组的规则里引用另一个安全组的 ID。但这通常只在同一个 VPC 内部或通过 VPC Peering 建立连接时有效，不能跨区域或在不相关的网络中直接引用 IP\n\nA.在 S3 里放一个 JSON 文件记录所有 IP 段。每当文件更新，就触发一个 SNS 通知，让所有账号里的 Lambda 函数去改各自的安全组规则。这是一种自定义开发的思路。：运维成本极高。你需要编写 Lambda 代码、处理跨账号的权限（IAM）、监控 Lambda 是否执行成功\n\nB.创建一个新的 AWS Config 管理规则，包含所有内部 IP 地址范围。使用该规则检查每个账户中的安全组，以确保其符合 IP 地址范围列表。如果发现谁的安全组不符合这个列表，就强制修改它。虽然听起来自动化了，但 AWS Config 的主要功能是审计和合规，而不是资源分发。使用 Config 来管理 IP 列表并自动修复安全组规则是一种滥用，可能会导致意外的安全问题和复杂的调试过程\n\nC.在 transit account 里创建一个 VPC Prefix List(前缀列表，相当于一个 IP 地址组），包含所有内部 IP 地址范围。通过 AWS Resource Access Manager（RAM）共享这个 Prefix List 给其他账户。其他账户在配置安全组规则时直接引用这个共享的 Prefix List。这是 AWS 推荐的做法，运维开销最低。你只需要维护一个 Prefix List，所有账户都可以引用它，任何更新都会自动生效\n\nD.在 transit account 里创建一个安全组，包含所有内部 IP 地址范围。其他账户的安全组通过嵌套引用（/sg-1a2b3c4d）来使用这个安全组。安全组 ID 的引用通常只在同一个 VPC 内部或者通过 VPC Peering 连接时才有效。在本题这种通过 Transit Gateway 连接、跨越大量账号的场景下，流量在经过路由器时会丢失原始安全组的属性（标签），导致这种跨账号的 SG 引用失效"
+},
+{
+  "QuestionID": 54,
+  "QuestionType": "multiple",
+  "QuestionText": "A company runs a new application as a static website in Amazon S3. The company has deployed the application to a production AWS account and uses Amazon CloudFront to deliver the website. The website calls an Amazon API Gateway REST API. An AWS Lambda function backs each API method. The company wants to create a CSV report every 2 weeks to show each API Lambda function’s recommended configured memory, recommended cost, and the price difference between current configurations and the recommendations. The company will store the reports in an S3 bucket. Which solution will meet these requirements with the LEAST development time?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a Lambda function that extracts metrics data for each API Lambda function from Amazon CloudWatch Logs for the 2-week period. Collate the data into tabular format. Store the data as a .csv file in an S3 bucket. Create an Amazon EventBridge rule to schedule the Lambda function to run every 2 weeks." },
+    { "label": "B", "text": "Opt in to AWS Compute Optimizer. Create a Lambda function that calls the ExportLambdaFunctionRecommendations operation. Export the .csv file to an S3 bucket. Create an Amazon EventBridge rule to schedule the Lambda function to run every 2 weeks." },
+    { "label": "C", "text": "Opt in to AWS Compute Optimizer. Set up enhanced infrastructure metrics. Within the Compute Optimizer console, schedule a job to export the Lambda recommendations to a .csv file. Store the file in an S3 bucket every 2 weeks." },
+    { "label": "D", "text": "Purchase the AWS Business Support plan for the production account. Opt in to AWS Compute Optimizer for AWS Trusted Advisor checks. In the Trusted Advisor console, schedule a job to export the cost optimization checks to a .csv file. Store the file in an S3 bucket every 2 weeks." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "Amazon EventBridge：AWS 的事件总线服务，可以用来定时触发 Lambda 函数\nAWS Compute Optimizer：AWS 计算优化器。它分析你的 AWS 资源（如 Lambda 函数）的使用情况，并提供优化建议，包括内存配置和成本节约建议\nExportLambdaFunctionRecommendations：Compute Optimizer 的一个 API 操作，可以导出 Lambda 函数的推荐配置到 CSV 文件\nAWS Trusted Advisor：AWS 的一个在线工具，提供实时指导，帮助你按照 AWS 最佳实践优化 AWS 环境。它有一些检查项，包括成本优化、安全、性能等\nAWS Business Support：AWS 的一个支持计划，提供更快的响应时间和更多的支持渠道，但并不直接提供 Compute Optimizer 的功能\n\nA.编写一个 Lambda 函数，每两周去抓取 CloudWatch 中的日志，自己写算法分析内存使用情况，然后格式化成 CSV 存入 S3,开发量极大。你需要自己写逻辑来分析指标、计算成本差异。\n\nB.Compute Optimizer 已经提供了推荐配置和成本节约建议的功能。通过调用 ExportLambdaFunctionRecommendations API，可以直接获取推荐结果并导出为 CSV 文件，大大减少了开发工作量。结合 EventBridge 定时触发，这个方案是最简洁高效的\n\nC.Compute Optimizer 控制台没有提供直接定时导出推荐结果的功能，需要额外开发脚本来实现定时导出，增加了开发时间\n\nD.Trusted Advisor 的成本优化检查主要针对 EC2、RDS 等资源，不适用于 Lambda 函数的内存配置优化。此外，购买 Business Support 计划虽然提供了更多支持，但并不直接解决问题，还需要额外开发来处理 Trusted Advisor 的输出"
+},
+{
+  "QuestionID": 55,
+  "QuestionType": "multiple",
+  "QuestionText": "A company’s factory and automation applications are running in a single VPC. More than 20 applications run on a combination of Amazon EC2, Amazon Elastic Container Service (Amazon ECS), and Amazon RDS. The company has software engineers spread across three teams. One of the three teams owns each application, and each team is responsible for the cost and performance of all of its applications. Team resources have tags that represent their application and team. The teams use IAM access for daily activities. The company needs to determine which costs on the monthly AWS bill are attributable to each application or team. The company also must be able to create reports to compare costs from the last 12 months and to help forecast costs for the next 12 months. A solutions architect must recommend an AWS Billing and Cost Management solution that provides these cost reports. Which combination of actions will meet these requirements? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Activate the user-defined cost allocation tags that represent the application and the team." },
+    { "label": "B", "text": "Activate the AWS generated cost allocation tags that represent the application and the team." },
+    { "label": "C", "text": "Create a cost category for each application in Billing and Cost Management." },
+    { "label": "D", "text": "Activate IAM access to Billing and Cost Management." },
+    { "label": "E", "text": "Create a cost budget." },
+    { "label": "F", "text": "Enable Cost Explorer." }
+  ],
+  "CorrectAnswer": ["A", "D", "F"],
+  "Explanation": "AWS Cost Explorer (成本资源管理器)： AWS 官方的可视化工具。它可以查看历史数据（通常 12 个月以上）、按标签过滤数据，并基于机器学习提供未来 12 个月的预测\nUser-Defined Cost Allocation Tags (用户定义的成本分配标签)：用户自己创建并应用于资源的标签，可以在账单中使用这些标签来分配成本\nIAM Access to Billing and Cost Management (IAM 访问账单和成本管理)：通过 IAM 策略授予用户访问账单和成本管理的权限\n\nA.激活用户定义的成本分配标签，必须Activate。只有激活后，你才能在 Cost Explorer 中按这些标签进行筛选和分组\n\nD.确保团队成员有权限访问 Billing and Cost Management，以便他们可以查看和分析自己的成本数据\n\nF.启用 Cost Explorer，以便生成详细的成本报告，比较过去 12 个月的成本，并预测未来 12 个月的成本\n\nB.AWS 生成的标签通常与资源类型相关，不适用于按应用和团队进行自定义成本分配,无法显示你自定义的“Application”或“Team”信息\n\nC.虽然创建成本类别可以帮助组织成本，但题目中已经有标签来区分应用和团队，使用标签更直接有效\n\nE.创建预算有助于控制支出，但题目主要关注的是生成成本报告和分配，而不是预算控制"
+},
+{
+  "QuestionID": 56,
+  "QuestionType": "multiple",
+  "QuestionText": "An AWS customer has a web application that runs on premises. The web application fetches data from a third-party API that is behind a firewall. The third party accepts only one public CIDR block in each client’s allow list. The customer wants to migrate their web application to the AWS Cloud. The application will be hosted on a set of Amazon EC2 instances behind an Application Load Balancer (ALB) in a VPC. The ALB is located in public subnets. The EC2 instances are located in private subnets. NAT gateways provide internet access to the private subnets. How should a solutions architect ensure that the web application can continue to call the third-party API after the migration?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Associate a block of customer-owned public IP addresses to the VPC. Enable public IP addressing for public subnets in the VPC." },
+    { "label": "B", "text": "Register a block of customer-owned public IP addresses in the AWS account. Create Elastic IP addresses from the address block and assign them to the NAT gateways in the VPC." },
+    { "label": "C", "text": "Create Elastic IP addresses from the block of customer-owned IP addresses. Assign the static Elastic IP addresses to the ALB." },
+    { "label": "D", "text": "Register a block of customer-owned public IP addresses in the AWS account. Set up AWS Global Accelerator to use Elastic IP addresses from the address block. Set the ALB as the accelerator endpoint." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "CIDR Block： 无类别域间路由，表示一组连续的 IP 地址段（如 1.2.3.0/24）。\nBYOIP (Bring Your Own IP)： 允许你将自己在外部拥有的公网 IPv4 地址段带入 AWS。\n\nA.将客户拥有的公网 IP 地址块关联到 VPC。为 VPC 中的公有子网启用公有 IP 地址分配。第一，EC2 在私有子网，不应该有直接的公网 IP；第二，随机 IP 无法满足第三方“固定 CIDR”的要求\n\nB.在 AWS 账户中注册客户拥有的公网 IP 地址块。从地址块中创建Elastic IP，并将其分配给 VPC 中的 NAT 网关。\n\nC.从客户拥有的 IP 地址块中创建弹性 IP 地址。将静态弹性 IP 地址分配给 ALB。ALB 是处理 进站（Inbound） 流量的。题目要求的是 EC2 去访问（Outbound） 第三方 API。在 AWS 中，ALB 不负责后端实例的主动外发请求流量，外发流量是由路由表和 NAT Gateway 控制的\n\nD.在 AWS 账户中注册客户拥有的公网 IP 地址块。设置 AWS Global Accelerator 使用来自地址块的弹性 IP 地址。将 ALB 设置为加速器端点。Global Accelerator 主要用于优化全球接入性能，它确实提供静态 IP。通常用于入口流量（加速用户访问 ALB）"
+},
+{
+  "QuestionID": 57,
+  "QuestionType": "multiple",
+  "QuestionText": "A company with several AWS accounts is using AWS Organizations and service control policies (SCPs). An administrator created an SCP and attached it to an organizational unit (OU) that contains AWS account 1111-1111-1111. Developers working in account 1111-1111-1111 complain that they cannot create Amazon S3 buckets. How should the administrator address this problem?",
+  "ImageURL": "AWS57.png",
+  "Options": [
+    { "label": "A", "text": "Add s3:CreateBucket with \"Allow\" effect to the SCP." },
+    { "label": "B", "text": "Remove the account from the OU, and attach the SCP directly to account 1111-1111-1111." },
+    { "label": "C", "text": "Instruct the developers to add Amazon S3 permissions to their IAM entities." },
+    { "label": "D", "text": "Remove the SCP from account 1111-1111-1111." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "SCP 只负责设定“权限边界（Guardrails）”，它并不赋予任何人权限。一个用户最终能做什么 = SCP 允许范围 ∩ IAM 策略赋予权限\nSCP 已经写了 \"Allow\": \"*\"，这意味着它已经放开了所有大门（除了 CloudTrail 被显式拒绝）。也就是说，SCP 并没有阻碍开发人员创建 S3 存储桶。那么，既然 SCP 没挡着，开发人员为什么还是动不了？答案只有一个：他们自己的 IAM 用户/角色身上没有 s3:CreateBucket 的权限"
+},
+{
+  "QuestionID": 58,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has a monolithic application that is critical to the company’s business. The company hosts the application on an Amazon EC2 instance that runs Amazon Linux 2. The company’s application team receives a directive from the legal department to back up the data from the instance’s encrypted Amazon Elastic Block Store (Amazon EBS) volume to an Amazon S3 bucket. The application team does not have the administrative SSH key pair for the instance. The application must continue to serve the users. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Attach a role to the instance with permission to write to Amazon S3. Use the AWS Systems Manager Session Manager option to gain access to the instance and run commands to copy data into Amazon S3." },
+    { "label": "B", "text": "Create an image of the instance with the reboot option turned on. Launch a new EC2 instance from the image. Attach a role to the new instance with permission to write to Amazon S3. Run a command to copy data into Amazon S3." },
+    { "label": "C", "text": "Take a snapshot of the EBS volume by using Amazon Data Lifecycle Manager (Amazon DLM). Copy the data to Amazon S3." },
+    { "label": "D", "text": "Create an image of the instance. Launch a new EC2 instance from the image. Attach a role to the new instance with permission to write to Amazon S3. Run a command to copy data into Amazon S3." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "Amazon EBS (Elastic Block Store)： 为 EC2 提供的数据块级存储卷。如果它是加密的，说明数据在盘上是加密存储的\nAWS Systems Manager (SSM) Session Manager： 这是一项极其重要的安全服务。它允许你通过浏览器或 CLI 登录到 EC2 实例，不需要 SSH 密钥，也不需要开启 22 端口。它通过实例上预装的 SSM Agent 进行通信\nIAM Role for EC2： 给 EC2 实例“穿上”的一层身份，让实例内部的程序或脚本有权直接访问其他 AWS 服务（如 S3），而无需在代码里写死密钥\nAmazon Data Lifecycle Manager (DLM)： 自动化管理 EBS 快照备份策略的服务。它主要负责定期拍快照，但不直接负责将文件内容“拷贝”到 S3\nInstance Image (AMI)： 实例的镜像。创建镜像通常涉及对磁盘状态的捕捉。\n\nA. 通过 SSM Session Manager 访问实例，使用 IAM 角色将数据复制到 S3,Session Manager 不需要密钥即可进入系统。这种连接方式是热操作，不需要重启实例或停止服务。\n操作流程： 给实例附加一个具有 S3 写入权限的 IAM Role，然后通过 Session Manager 登录，直接运行 aws s3 cp 或 aws s3 sync 命令\n\nB. reboot重启实例，可能会导致服务中断，不符合题目要求。\n\nC. DLM 主要负责快照的管理，不直接负责数据的拷贝。用户无法直接在 S3 存储桶里看到像“文件”一样的 CSV 或数据。题目要求是将“数据”备份到 S3 桶，DLM 的快照更偏向于灾难恢复，而不是法务要求的提取数据备份。\n\nD. 创建镜像（不重启）并启动新实例，创建一个镜像（AMI）并启动一个新实例的过程非常耗时，且增加了成本。"
+},
+{
+  "QuestionID": 59,
+  "QuestionType": "multiple",
+  "QuestionText": "A solutions architect needs to copy data from an Amazon S3 bucket in an AWS account to a new S3 bucket in a new AWS account. The solutions architect must implement a solution that uses the AWS CLI. Which combination of steps will successfully copy the data? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a bucket policy to allow the source bucket to list its contents and to put objects and set object ACLs in the destination bucket. Attach the bucket policy to the destination bucket." },
+    { "label": "B", "text": "Create a bucket policy to allow a user in the destination account to list the source bucket’s contents and read the source bucket’s objects. Attach the bucket policy to the source bucket." },
+    { "label": "C", "text": "Create an IAM policy in the source account. Configure the policy to allow a user in the source account to list contents and get objects in the source bucket, and to list contents, put objects, and set object ACLs in the destination bucket. Attach the policy to the user." },
+    { "label": "D", "text": "Create an IAM policy in the destination account. Configure the policy to allow a user in the destination account to list contents and get objects in the source bucket, and to list contents, put objects, and set object ACLs in the destination bucket. Attach the policy to the user." },
+    { "label": "E", "text": "Run the aws s3 sync command as a user in the source account. Specify the source and destination buckets to copy the data." },
+    { "label": "F", "text": "Run the aws s3 sync command as a user in the destination account. Specify the source and destination buckets to copy the data." }
+  ],
+  "CorrectAnswer": ["B", "D", "F"],
+  "Explanation": "Object ACLs (对象访问控制列表)： 在跨账号拷贝时，通常需要设置 bucket-owner-full-control，以确保目标账号拥有新拷贝过来的对象的所有权\n\nB.在源桶上创建一个桶策略，源账号必须允许目标账号的用户进来拿东西。该策略应允许目标账号的 IAM 实体执行 s3:ListBucket 和 s3:GetObject\n\nD. 在目标账户中创建一个 IAM 策略，操作是由目标账号的用户发起的。该用户的 IAM 权限必须包含：源桶：List 和 Get（读权限）。目标桶： List、Put 和 SetObjectACL（写权限）。\n\nF. 作为目标账户的用户运行 aws s3 sync 命令，指定源桶和目标桶以复制数据。"
+},
+{
+  "QuestionID": 60,
+  "QuestionType": "multiple",
+  "QuestionText": "A company built an application based on AWS Lambda deployed in an AWS CloudFormation stack. The last production release of the web application introduced an issue that resulted in an outage lasting several minutes. A solutions architect must adjust the deployment process to support a canary release. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an alias for every new deployed version of the Lambda function. Use the AWS CLI update-alias command with the routing-config parameter to distribute the load." },
+    { "label": "B", "text": "Deploy the application into a new CloudFormation stack. Use an Amazon Route 53 weighted routing policy to distribute the load." },
+    { "label": "C", "text": "Create a version for every new deployed Lambda function. Use the AWS CLI update-function-configuration command with the routing-config parameter to distribute the load." },
+    { "label": "D", "text": "Configure AWS CodeDeploy and use CodeDeployDefault.OneAtATime in the deployment configuration to distribute the load." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "Canary Release (金丝雀发布)： 名字源于矿工用金丝雀检测瓦斯。在软件发布中，指先更新一小部分实例或切入极小比例的流量到新版本，观察其表现，确认无误后才推广\nLinear Deployment（线性部署） 是一种 逐步发布新版本的策略，简单来说就是：按照固定比例或固定批次，逐渐将流量从旧版本切换到新版本，直到所有流量都切到新版本\n在 AWS Lambda 中，可以通过创建别名来实现金丝雀发布。每次部署新版本时，创建一个Lambda Alias，并使用 AWS CLI update-alias(update-alias修改版本指向) 命令和 routing-config 参数来分配流量。\nRouting Configuration (路由配置)： Lambda 别名支持流量权重配置。例如，你可以让 PROD 别名将 90% 的流量指向版本1，10% 指向版本2\nAWS CodeDeploy： 一个自动化部署服务。它配合 Lambda 使用时，可以非常简单地实现 Linear（线性）或 Canary（金丝雀）部署\n蓝绿部署（Blue/Green Deployment）同时维护两套环境，一套旧版本（Blue）和一套新版本（Green），测试无误后瞬间切换流量到新版本，实现零停机和快速回滚。\n\nA. 创建一个别名用于每个新部署的 Lambda 函数版本。使用 AWS CLI update-alias 命令和 routing-config 参数来分配负载。\n\nB. 部署应用程序到一个新的 CloudFormation 堆栈。使用 Amazon Route 53 加权路由策略来分配负载。这更接近于 蓝绿部署（Blue/Green Deployment）创建一整套新的 CloudFormation 堆栈开销较大，且 Route 53 的权重切换存在 DNS 缓存问题，生效不够即时，不是 Lambda 金丝雀发布的最佳实践\n\nC.创建一个版本用于每个新部署的 Lambda 函数。使用 AWS CLI update-function-configuration 命令和 routing-config 参数来分配负载。update-function-configuration 主要用于修改函数的配置（如内存、超时），而不是流量分配。流量分配应该通过别名（Alias）来实现\n\nD.配置 AWS CodeDeploy 并使用 CodeDeployDefault.OneAtATime 部署配置来分配负载。OneAtATime 是用于 EC2/本地服务器 的部署配置，意思是“一台接一台地更新”,Lambda 是无服务器的，不存在“一台台更新”的概念"
 }
 
 
