@@ -7824,7 +7824,7 @@
   "QuestionID": 32,
   "QuestionType": "multiple",
   "QuestionText": "A company is in the process of implementing AWS Organizations to constrain its developers to use only Amazon EC2, Amazon S3, and Amazon DynamoDB. The developers account resides in a dedicated organizational unit (OU). The solutions architect has implemented the following SCP on the developers account:\nWhen this policy is deployed, IAM users in the developers account are still able to use AWS services that are not listed in the policy.\nWhat should the solutions architect do to eliminate the developers’ ability to use services outside the scope of this policy?",
-  "ImageURL": "AWS32.png",
+  "ImageURL": "images/AWS32.png",
   "Options": [
     { "label": "A", "text": "Create an explicit deny statement for each AWS service that should be constrained." },
     { "label": "B", "text": "Remove the FullAWSAccess SCP from the developers account’s OU." },
@@ -8179,7 +8179,7 @@
   "QuestionID": 57,
   "QuestionType": "multiple",
   "QuestionText": "A company with several AWS accounts is using AWS Organizations and service control policies (SCPs). An administrator created an SCP and attached it to an organizational unit (OU) that contains AWS account 1111-1111-1111. Developers working in account 1111-1111-1111 complain that they cannot create Amazon S3 buckets. How should the administrator address this problem?",
-  "ImageURL": "AWS57.png",
+  "ImageURL": "images/AWS57.png",
   "Options": [
     { "label": "A", "text": "Add s3:CreateBucket with \"Allow\" effect to the SCP." },
     { "label": "B", "text": "Remove the account from the OU, and attach the SCP directly to account 1111-1111-1111." },
