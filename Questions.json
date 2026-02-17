@@ -8517,7 +8517,291 @@
   ],
   "CorrectAnswer": ["C", "E"],
   "Explanation": "AWS Kinesis Data Streams：一种可扩展的流数据处理服务，可以实时处理和分析数据流。通过将 IoT 传感器数据发送到 Kinesis Data Streams，可以实现高吞吐量的数据摄取和处理，同时减轻 API 服务器的负担，Kinesis 就像一个 高速邮件传送带：数百万条来自传感器的“邮件”通过它被收集、分发到不同的处理器，实时送达。\nAWS Lambda：一种无服务器计算服务，可以自动扩展以处理传入的事件。通过将数据处理逻辑放入 Lambda 函数中，可以实现按需处理和自动扩展\nAmazon DynamoDB：一种完全托管的 NoSQL 数据库服务，具有高可用性和可扩展性。与 MySQL 不同，DynamoDB 是为无限扩展而设计的，无论数据量多大，它都能提供稳定的毫秒级响应，特别适合存储结构简单的 IoT 传感器数据。\nGeneral Purpose SSD (Solid State Drive)是一种 平衡型固态硬盘存储，既适合 性能要求适中 的应用，也能提供 可靠的 IOPS（输入/输出操作次数）和低延迟,云平台（AWS、Azure、GCP）作为 虚拟机磁盘或数据库存储\nAWS X-Ray 是 Amazon Web Services（AWS） 提供的 分布式应用跟踪和分析服务，主要用来 调试和分析微服务架构中的请求流。它可以帮助开发者快速定位性能瓶颈和错误\n\nC.通过使用 Kinesis Data Streams 和 Lambda，可以实现对 IoT 传感器数据的高效摄取和处理，同时减轻 API 服务器的负担。这种方案可以满足未来传感器增长的需求，并保持成本效益\n\nE.将数据库从 RDS MySQL 迁移到 DynamoDB，可以实现更高的写入吞吐量和更低的延迟，同时避免了传统关系数据库的限制。这种方案可以满足未来传感器增长的需求，并保持成本效益\n\nA.将 MySQL 的通用 SSD 存储调整为 6 TB，以提高卷的 IOPS。虽然这可能会在短期内改善性能，但并不能解决根本问题，因为它仍然是一个关系数据库，无法有效扩展以处理大量传感器数据。\n\nB.虽然 Amazon Aurora 提供了更好的性能和可扩展性,但题目明确指出是 Write Latency（写入延迟） 高。只读副本（Read Replicas）只能解决查询压力，无法分担写入压力。虽然 Aurora 有多主集群（Multi-Master），但成本高且配置复杂，不如 NoSQL 方案\n\nD.虽然 AWS X-Ray 可以帮助分析和调试应用程序问题，但它并不能直接解决 API 服务器的负载问题。添加更多的 API 服务器可能会在短期内缓解问题，但从长远来看，仍然需要对架构进行重构，以支持更高的传感器数据吞吐量。"
+},
+{
+  "QuestionID": 81,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is building an electronic document management system in which users upload their documents. The application stack is entirely serverless and runs on AWS in the eu-central-1 Region. The system includes a web application that uses an Amazon CloudFront distribution for delivery with Amazon S3 as the origin. The web application communicates with Amazon API Gateway Regional endpoints. The API Gateway APIs call AWS Lambda functions that store metadata in an Amazon Aurora Serverless database and put the documents into an S3 bucket. The company is growing steadily and has completed a proof of concept with its largest customer. The company must improve latency outside of Europe. Which combination of actions will meet these requirements? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Enable S3 Transfer Acceleration on the S3 bucket. Ensure that the web application uses the Transfer Acceleration signed URLs." },
+    { "label": "B", "text": "Create an accelerator in AWS Global Accelerator. Attach the accelerator to the CloudFront distribution." },
+    { "label": "C", "text": "Change the API Gateway Regional endpoints to edge-optimized endpoints." },
+    { "label": "D", "text": "Provision the entire stack in two other locations that are spread across the world. Use global databases on the Aurora Serverless cluster." },
+    { "label": "E", "text": "Add an Amazon RDS proxy between the Lambda functions and the Aurora Serverless database." }
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": "API Gateway Regional Endpoints：区域级终端节点。这意味着 API 部署在特定区域内。请求会直接发送到该区域，不经过 CloudFront 网络优化\nS3 Transfer Acceleration (S3TA)：利用 AWS 的边缘节点加速大文件上传到 S3 桶的功能。用户将数据上传到最近的边缘节点，然后通过 AWS 内部的高速骨干网传回目标桶。\nEdge-optimized Endpoints：边缘优化终端节点。这种 API Gateway 模式会自动在前端加一个 AWS 管理的 CloudFront 分发，利用全球边缘节点来降低接入延迟。\nAurora Global Database：全球数据库。允许一个 Aurora 集群跨越多个 AWS 区域，实现低延迟的全球读取和灾难恢复\nAWS Global Accelerator：利用 AWS 全球网络将流量导向最近的应用端点。它通常用于固定 IP 或非 HTTP 协议加速，与 CloudFront 职责有所重叠但侧重点不同\n“静态资源”、“缓存”、“HTTP API” → 首选 CloudFront。\n“固定 IP”、“非 HTTP 协议 (UDP/TCP)”、“即时区域故障转移” → 首选 Global Accelerator\nCloudFront 像是一个全球连锁便利店：它在离你最近的地方（边缘节点）开了店，店里缓存了你想要的东西（静态资源），让你不用跑回总店（源站）\nGlobal Accelerator 像是一条全球特快专等绿波带：它不存货，但它在全世界为你修好了直达总店的高速公路，避开拥挤的公网，并给你两个固定的通行证 (Static IPs) 随时出发。\n\nA.启用 S3 传输加速并使用边缘节点上传文件,这是一个“文档管理系统”，涉及用户上传文档。对于欧洲以外的用户，直接把大文件传到欧洲的 S3 桶非常慢。启用 S3TA 可以让用户通过最近的 AWS 边缘节点进入 AWS 骨干网，大幅提升跨海上传速度\n\nB.CloudFront 本身就已经利用了 AWS 的全球边缘网络，通常不需要在 CloudFront 前面再加一层 Global Accelerator（这通常会导致架构冗余且不兼容）\n\nC.将 API Gateway 从Regional endpoints改为edge-optimized endpoints，可以利用 CloudFront 的全球边缘网络来降低 API 请求的接入延迟，特别是对于欧洲以外的用户\n\nD.虽然在多个区域部署整个堆栈可以降低全球访问延迟，但这通常涉及更复杂的架构设计和数据同步问题，尤其是对于 Aurora Serverless 这样的数据库服务\n\nE.RDS Proxy 主要用于提高数据库连接管理和性能，并不直接影响跨区域访问的网络延迟，因此对于改善全球访问速度没有直接帮助"
+},
+{
+  "QuestionID": 82,
+  "QuestionType": "multiple",
+  "QuestionText": "An adventure company has launched a new feature on its mobile app. Users can use the feature to upload their hiking and rafting photos and videos anytime. The photos and videos are stored in Amazon S3 Standard storage in an S3 bucket and are served through Amazon CloudFront. The company needs to optimize the cost of the storage. A solutions architect discovers that most of the uploaded photos and videos are accessed infrequently after 30 days. However, some of the uploaded photos and videos are accessed frequently after 30 days. The solutions architect needs to implement a solution that maintains millisecond retrieval availability of the photos and videos at the lowest possible cost. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Configure S3 Intelligent-Tiering on the S3 bucket." },
+    { "label": "B", "text": "Configure an S3 Lifecycle policy to transition image objects and video objects from S3 Standard to S3 Glacier Deep Archive after 30 days." },
+    { "label": "C", "text": "Replace Amazon S3 with an Amazon Elastic File System (Amazon EFS) file system that is mounted on Amazon EC2 instances." },
+    { "label": "D", "text": "Add a Cache-Control: max-age header to the S3 image objects and S3 video objects. Set the header to 30 days." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "S3 Standard: 适用于频繁访问的数据，提供高可靠、高可用、低延迟和高吞吐量。\nS3 Intelligent-Tiering: 自动将不常访问的数据移动到更低成本的存储层，同时保持快速访问。它包含两个低延迟访问层：频繁访问层和不频繁访问层。如果一个对象 30 天没被访问，它自动移入不频繁层（省钱）；如果一旦被访问，它自动跳回频繁层。\nS3 Glacier Deep Archive:最便宜的存储,适用于长期存储和归档，访问延迟较高（通常需要 12 小时或更长时间）。\nAmazon EFS:适用于需要共享文件系统的应用程序，但成本较高且不适合大规模对象存储。\nCache-Control: max-age = 秒数，资源可以在缓存里保存多少秒，在这段时间内不需要再去服务器请求\n\nA.配置 S3 Intelligent-Tiering，可以自动将不常访问的数据移动到更低成本的存储层，同时保持快速访问。\n\nB.配置 S3 生命周期策略，将图像对象和视频对象在 30 天后从 S3 标准转移到 S3 Glacier Deep Archive。Deep Archive 需要数小时甚至数天才能取回数据\n\nC.EFS 存储成本通常比 S3 贵得多，且架构上更复杂\n\nD.这是 CloudFront 的缓存控制，影响的是浏览器和边缘节点的缓存时长,它不能改变 S3 内部的存储成本"
+},
+{
+  "QuestionID": 83,
+  "QuestionType": "multiple",
+  "QuestionText": "A company uses Amazon S3 to store files and images in a variety of storage classes. The company's S3 costs have increased substantially during the past year. A solutions architect needs to review data trends for the past 12 months and identify the appropriate storage class for the objects. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Download AWS Cost and Usage Reports for the last 12 months of S3 usage. Review AWS Trusted Advisor recommendations for cost savings." },
+    { "label": "B", "text": "Use S3 storage class analysis. Import data trends into an Amazon QuickSight dashboard to analyze storage trends." },
+    { "label": "C", "text": "Use Amazon S3 Storage Lens. Upgrade the default dashboard to include advanced metrics for storage trends." },
+    { "label": "D", "text": "Use Access Analyzer for S3. Download the Access Analyzer for S3 report for the last 12 months. Import the .csv file to an Amazon QuickSight dashboard." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Amazon S3 Storage Lens: 提供了关于 S3 存储使用情况的可见性和洞察力。它可以提供全组织级别的视图，监控存储使用情况和活动趋势，解决方案架构师可以更好地了解过去 12 个月的数据趋势，并确定对象的适当存储类。\nS3 Storage Class Analysis：这个工具可以分析存储桶中对象的访问模式，帮助你决定何时将数据移至低频访问存储。但它通常针对特定的存储桶或过滤器，不如 Storage Lens 那样具有全局性和高级分析能力\nAWS Trusted Advisor：提供针对 AWS 环境的各种优化建议（成本、安全、性能等）。虽然它能提供 S3 成本节约建议，但它无法提供深入的“12 个月数据趋势图表”供你详细回顾\nAccess Analyzer for S3：主要用于安全审计。它帮你发现哪些存储桶可以通过互联网或被其他账号访问。它不是用来分析存储成本趋势的\n\nA.CUR 确实有详细的成本数据，但它只告诉你花了多少钱，不擅长分析“这些对象是否应该换个类别”。Trusted Advisor 建议太宽泛，不符合“回顾趋势”和“识别对象类别”的深度需求\n\nB.这个工具虽然能分析访问模式，但它主要是告诉你“你应该把这些数据移到低频存储 (IA)”，且其本身提供的数据可视化能力有限"
+},
+{
+  "QuestionID": 84,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has its cloud infrastructure on AWS. A solutions architect needs to define the infrastructure as code. The infrastructure is currently deployed in one AWS Region. The company’s business expansion plan includes deployments in multiple Regions across multiple AWS accounts. What should the solutions architect do to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use AWS CloudFormation templates. Add IAM policies to control the various accounts. Deploy the templates across the multiple Regions." },
+    { "label": "B", "text": "Use AWS Organizations. Deploy AWS CloudFormation templates from the management account. Use AWS Control Tower to manage deployments across accounts." },
+    { "label": "C", "text": "Use AWS Organizations and AWS CloudFormation StackSets. Deploy a CloudFormation template from an account that has the necessary IAM permissions." },
+    { "label": "D", "text": "Use nested stacks with AWS CloudFormation templates. Change the Region by using nested stacks." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "AWS CloudFormation：AWS 原生的 IaC (Infrastructure as Code)服务。通过 JSON 或 YAML 模板定义资源，实现自动化创建和更新\nAWS Organizations：用于管理多个 AWS 账户的服务。它可以帮助你集中管理权限和策略\nAWS CloudFormation StackSets：允许你跨多个 AWS 账户和区域部署 CloudFormation 模板的功能,普通的 Stack 只能在一个账号的一个区域部署，而 StackSets 允许你通过一个模板，一次性在多个账号和多个区域中创建、更新或删除堆栈\nNested Stacks（嵌套堆栈）：在一个模板中引用另一个模板。它主要用于模块化复杂架构（比如把网络层和数据库层分开），但它本身不能跨账号或跨区域。\nAWS Control Tower：用于设置和管理安全、合规的多账号环境（Landing Zone）的服务，功能比单纯的部署更宏观。\n\nA.需要你手动切换账号、切换区域去运行命令。不符合“自动化”和“大规模管理”的最佳实践\n\nB.虽然 Control Tower 提供了多账号管理的能力，但它主要负责环境的治理（Governance）和合规(Guardrails),它并不是直接用于部署 CloudFormation 模板的工具。\n\nC.StackSets 正是为了这个场景设计的。它与 Organizations 集成后，你可以指定“目标组织单元 (OU)”，StackSets 会自动把基础设施部署到该 OU 下的所有账号和指定的多个区域。它提供了中心化的管理点。\n\nD.Nested Stacks 的父堆栈和子堆栈必须在同一个区域内"
+},
+{
+  "QuestionID": 85,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has its cloud infrastructure on AWS. A solutions architect needs to define the infrastructure as code. The infrastructure is currently deployed in one AWS Region. The company’s business expansion plan includes deployments in multiple Regions across multiple AWS accounts. What should the solutions architect do to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use AWS CloudFormation templates. Add IAM policies to control the various accounts. Deploy the templates across the multiple Regions." },
+    { "label": "B", "text": "Use AWS Organizations. Deploy AWS CloudFormation templates from the management account. Use AWS Control Tower to manage deployments across accounts." },
+    { "label": "C", "text": "Use AWS Organizations and AWS CloudFormation StackSets. Deploy a CloudFormation template from an account that has the necessary IAM permissions." },
+    { "label": "D", "text": "Use nested stacks with AWS CloudFormation templates. Change the Region by using nested stacks." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": ""
+},
+{
+  "QuestionID": 86,
+  "QuestionType": "multiple",
+  "QuestionText": "A company plans to refactor a monolithic application into a modern application design deployed on AWS. The CI/CD pipeline needs to be upgraded to support the modern design for the application with the following requirements:\n• It should allow changes to be released several times every hour.\n• It should be able to roll back the changes as quickly as possible.\nWhich design will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Deploy a CI/CD pipeline that incorporates AMIs to contain the application and their configurations. Deploy the application by replacing Amazon EC2 instances." },
+    { "label": "B", "text": "Specify AWS Elastic Beanstalk to stage in a secondary environment as the deployment target for the CI/CD pipeline of the application. To deploy, swap the staging and production environment URLs." },
+    { "label": "C", "text": "Use AWS Systems Manager to re-provision the infrastructure for each deployment. Update the Amazon EC2 user data to pull the latest code artifact from Amazon S3 and use Amazon Route 53 weighted routing to point to the new environment." },
+    { "label": "D", "text": "Roll out the application updates as part of an Auto Scaling event using prebuilt AMIs. Use new versions of the AMIs to add instances and phase out all instances that use the previous AMI version with the configured termination policy during a deployment event." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "AMI (Amazon Machine Image)：亚马逊机器镜像。它包含了操作系统、所有预装软件和配置。使用 Prebuilt AMIs（预建镜像） 意味着实例启动时不需要再执行 yum install 或从 S3 拉取代码，真正实现“开箱即用”，Prebuilt AMI = 把安装和配置步骤提前做好，实例启动时直接可用\nElastic Beanstalk：AWS 的 PaaS （Platform as a Service平台即服务） 服务，自动管理 部署、扩容、负载均衡、健康监控\nAWS Systems Manager：用于自动化管理 AWS 资源的服务，可以帮助你实现基础设施的即代码（Infrastructure as Code）Systems Manager = AWS 的“全自动运维中控台”，帮你安全、高效、批量管理云资源\nRoute 53 Weighted Routing：通过 DNS 权重（weight）将流量按比例分发到多个资源（如 EC2、ELB、S3 Website 等），按权重分配流量\nAuto Scaling Event = 自动扩展或缩减资源时触发的事件，每次 启动新实例 / 终止实例 / 调整容量 都会生成一个 Event，这些事件可以用来监控、审计或触发通知\nTermination Policy:当 Auto Scaling 需要缩减实例数量时，决定哪些实例先被终止的规则\nBlue/Green Deployment:一种无中断发布新版本应用的方法，通过维护两套环境（Blue 环境+ Green 环境），切换流量到新环境实现平滑发布，Blue 环境：当前生产环境（旧版本）, Green 环境：新版本部署环境，切流量：Route 53 Weighted Routing 或 Load Balancer 改指向 Green，如果新版本稳定，关闭 Blue\nImmutable Infrastructure:部署应用时不修改已有实例，而是 创建新实例替代旧实例。所有更新都通过新建资源完成，旧实例不变，降低风险。\nCI = Continuous Integration（持续集成）\nCD = Continuous Delivery / Deployment（持续交付 / 部署）CI/CD Pipeline = 一套自动化流程，把代码从开发 → 测试 → 部署 → 生产 全程自动化，保证快速、安全交付\nURL Swap = 交换域名指向,在 蓝绿部署（Blue/Green Deployment） 场景下，用来 把生产 URL 从旧环境（Blue）切换到新环境（Green），实现零停机发布\n\nA.虽然用了 AMI，但“替换 EC2 实例”通常意味着删除旧的、建新的。如果不配合 Auto Scaling 或负载均衡器，这会导致停机时间，且回滚需要重新创建实例，速度不够快。\n\nB.通过 Green 环境 + URL Swap 实现快速切换,URL Swap 立即切回旧环境,单体迁移到现代设计\n\nC.在 User Data 中拉取代码意味着实例启动后还要安装和下载，这会导致部署延迟增加。Route 53 的权重路由受 DNS TTL (Time To Live缓存时间) 影响，回滚时用户可能还在访问旧 IP\n\nD.需要终止/启动实例，延迟更大, 微服务/不可变基础设施更适合"
+},
+{
+  "QuestionID": 87,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has an application that runs on Amazon EC2 instances. A solutions architect is designing VPC infrastructure in an AWS Region where the application needs to access an Amazon Aurora DB Cluster. The EC2 instances are all associated with the same security group. The DB cluster is associated with its own security group. The solutions architect needs to add rules to the security groups to provide the application with least privilege access to the DB Cluster. Which combination of steps will meet these requirements? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Add an inbound rule to the EC2 instances' security group. Specify the DB cluster's security group as the source over the default Aurora port." },
+    { "label": "B", "text": "Add an outbound rule to the EC2 instances' security group. Specify the DB cluster's security group as the destination over the default Aurora port." },
+    { "label": "C", "text": "Add an inbound rule to the DB cluster's security group. Specify the EC2 instances' security group as the source over the default Aurora port." },
+    { "label": "D", "text": "Add an outbound rule to the DB cluster's security group. Specify the EC2 instances' security group as the destination over the default Aurora port." },
+    { "label": "E", "text": "Add an outbound rule to the DB cluster's security group. Specify the EC2 instances' security group as the destination over the ephemeral ports." }
+  ],
+  "CorrectAnswer": ["B", "C"],
+  "Explanation": "Security Group (安全组): 充当虚拟防火墙，用于控制实例的入站（Inbound）和出站（Outbound）流量,状态化（Stateful）: 安全组是状态化的。这意味着如果你发送了一个请求（出站），那么该请求的响应（入站）会被自动允许，无论入站规则如何设置\nNACL (Network Access Control List): 网络访问控制列表，作用于子网级别，提供额外的安全层，可以设置更细粒度的入站和出站规则，支持无状态（Stateless）\nDefault Aurora Port:Aurora 通常兼容 MySQL（端口 3306）或 PostgreSQL（端口 5432）\n\n题目要求配置两个安全组，使得运行在 EC2 上的应用能够访问 Aurora 数据库。EC2 侧： 需要允许流量从 EC2 发出去（Outbound）到数据库。\nAurora 侧： 需要允许流量从 EC2 进来（Inbound）到数据库。"
+},
+{
+  "QuestionID": 88,
+  "QuestionType": "multiple",
+  "QuestionText": "A company wants to change its internal cloud billing strategy for each of its business units. Currently, the cloud governance team shares reports for overall cloud spending with the head of each business unit. The company uses AWS Organizations to manage the separate AWS accounts for each business unit. The existing tagging standard in Organizations includes the application, environment, and owner. The cloud governance team wants a centralized solution so each business unit receives monthly reports on its cloud spending. The solution should also send notifications for any cloud spending that exceeds a set threshold. Which solution is the MOST cost-effective way to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Configure AWS Budgets in each account and configure budget alerts that are grouped by application, environment, and owner. Add each business unit to an Amazon SNS topic for each alert. Use Cost Explorer in each account to create monthly reports for each business unit." },
+    { "label": "B", "text": "Configure AWS Budgets in the organization's management account and configure budget alerts that are grouped by application, environment, and owner. Add each business unit to an Amazon SNS topic for each alert. Use Cost Explorer in the organization's management account to create monthly reports for each business unit." },
+    { "label": "C", "text": "Configure AWS Budgets in each account and configure budget alerts that are grouped by application, environment, and owner. Add each business unit to an Amazon SNS topic for each alert. Use the AWS Billing and Cost Management dashboard in each account to create monthly reports for each business unit." },
+    { "label": "D", "text": "Enable AWS Cost and Usage Reports in the organization's management account and configure reports grouped by application, environment, and owner. Create an AWS Lambda function that processes AWS Cost and Usage Reports, sends budget alerts, and sends monthly reports to each business unit's email list." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "AWS Budgets (AWS 预算): 允许你设置自定义预算，当成本或使用量超过预定义阈值时发出通知（通过 SNS 或邮件）。它支持按标签 (Tag) 过滤和分组。\nCost Explorer (成本资源管理器): 一个可视化工具，用于查看和分析一段时间内的成本和使用情况。它可以根据标签生成详细报告\nAWS Cost and Usage Reports (CUR): AWS 提供的最详细的成本数据导出工具。虽然强大，但通常需要配合 Athena/QuickSight 使用，开发成本较高\nSNS (Simple Notification Service): 消息推送服务，用于向管理员发送超支通知\n\nAC.题目明确要求一个 \"centralized solution\" (集中式方案)。如果去每个成员账号里单独配置 Budgets 和生成报告，治理团队的工作量巨大，且不符合集中治理的原则。\n\nB.AWS Budgets 支持按标签（如题目中提到的 Application, Environment, Owner）进行分组和设置警报。通过 SNS 发送阈值提醒是标准做法。Cost Explorer 的 报告保存与计划发送 功能可以满足每月向业务负责人发送报告的需求。\n\nD.导出底层的账单数据文件，然后自己写 Lambda 函数去分析数据、发警报和发报告，虽然可行，但开发和维护成本较高（需要编写、测试和维护代码），不如直接使用 AWS Budgets 和 Cost Explorer 的内置功能来得高效和经济"
+},
+{
+  "QuestionID": 89,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is using AWS CloudFormation to deploy its infrastructure. The company is concerned that, if a production CloudFormation stack is deleted, important data stored in Amazon RDS databases or Amazon EBS volumes might also be deleted. How can the company prevent users from accidentally deleting data in this way?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Modify the CloudFormation templates to add a DeletionPolicy attribute to RDS and EBS resources." },
+    { "label": "B", "text": "Configure a stack policy that disallows the deletion of RDS and EBS resources." },
+    { "label": "C", "text": "Modify IAM policies to deny deleting RDS and EBS resources that are tagged with an \"aws:cloudformation:stack-name\" tag." },
+    { "label": "D", "text": "Use AWS Config rules to prevent deleting RDS and EBS resources." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "AWS CloudFormation: 一种基础设施即代码（IaC）服务，通过模板（JSON/YAML）自动化部署资源\nDeletionPolicy Attribute: CloudFormation 模板中的一个属性，用于指定当堆栈被删除时，资源应该如何处理。常见的值包括：\n- Retain: 保留资源，即使堆栈被删除，资源仍然存在\n- Snapshot: 对于 RDS 等支持快照的资源，在删除前创建快照\n- Delete: 默认行为，删除资源\nStack Policy: 一个 JSON 文档,用于保护 CloudFormation 堆栈中的特定资源不被更新或删除的策略，但它主要用于防止更新过程中的意外修改，不直接控制整个 Stack 被 Delete 时的资源去向\nAWS Config Rules: 用于评估 AWS 资源的配置是否符合预定义的规则\n\nA. 修改 CloudFormation 模板，为 RDS 和 EBS 资源添加 DeletionPolicy 属性，设置为 Snapshot（在删除资源前先拍个快照备份）或 Retain（保留资源但不删除），以保护重要数据。即使整个 Stack 被误删，底层的 RDS 实例或 EBS 卷依然会留在 AWS 账户里，数据不会丢失。\n\nB. 配置一个堆栈策略，禁止删除 RDS 和 EBS 资源。Stack Policy 主要用于防止资源在 Update（更新） 期间被意外替换或删除。如果用户直接发起 Delete Stack 请求，Stack Policy 是无法阻止资源被删除的\n\nC.修改 IAM 策略，拒绝删除带有 \"aws:cloudformation:stack-name\" 标签的 RDS 和 EBS 资源。虽然 IAM 可以限制 rds:DeleteDBInstance 等权限，但 CloudFormation 在执行删除操作时，通常使用的是它自己的服务角色或用户的权限。这种方法管理起来非常复杂（需要维护大量标签和策略），且不是解决 CloudFormation 资源回收问题的最直接手段\n\nD.AWS Config 规则可以监控资源的配置变化，但它无法直接阻止资源被删除。它更适合于审计和合规检查，而不是实时保护资源不被删除,它可以提醒你“某个资源没有设置删除策略”，但它本身不能直接拦截或阻止 CloudFormation 引擎执行删除动作"
+},
+{
+  "QuestionID": 90,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has VPC flow logs enabled for its NAT gateway. The company is seeing Action = ACCEPT for inbound traffic that comes from public IP address 198.51.100.2 destined for a private Amazon EC2 instance. A solutions architect must determine whether the traffic represents unsolicited inbound connections from the internet. The first two octets of the VPC CIDR block are 203.0. Which set of steps should the solutions architect take to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Open the AWS CloudTrail console. Select the log group that contains the NAT gateway's elastic network interface and the private instance's elastic network interface. Run a query to filter with the destination address set as \"like 203.0\" and the source address set as \"like 198.51.100.2\". Run the stats command to filter the sum of bytes transferred by the source address and the destination address." },
+    { "label": "B", "text": "Open the Amazon CloudWatch console. Select the log group that contains the NAT gateway's elastic network interface and the private instance's elastic network interface. Run a query to filter with the destination address set as \"like 203.0\" and the source address set as \"like 198.51.100.2\". Run the stats command to filter the sum of bytes transferred by the source address and the destination address." },
+    { "label": "C", "text": "Open the AWS CloudTrail console. Select the log group that contains the NAT gateway's elastic network interface and the private instance’s elastic network interface. Run a query to filter with the destination address set as \"like 198.51.100.2\" and the source address set as \"like 203.0\". Run the stats command to filter the sum of bytes transferred by the source address and the destination address." },
+    { "label": "D", "text": "Open the Amazon CloudWatch console. Select the log group that contains the NAT gateway's elastic network interface and the private instance's elastic network interface. Run a query to filter with the destination address set as \"like 198.51.100.2\" and the source address set as \"like 203.0\". Run the stats command to filter the sum of bytes transferred by the source address and the destination address." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "NAT Gateway: 允许私有子网中的实例连接到互联网，但阻止互联网主动发起的连接。\nVPC Flow Logs: 记录 VPC 中的网络流量信息，包括源 IP、目标 IP、端口、协议等。日志通常发布到 Amazon CloudWatch Logs 或 S3。\nCloudWatch Logs Insights: 一种交互式查询服务，用于分析 CloudWatch 中的日志数据（使用 filter、stats 等命令）。\n\n要确定流量是否为未经请求的入站连接，可以通过以下步骤进行分析：\n1. 打开 Amazon CloudWatch 控制台，选择包含 NAT 网关的弹性网络接口和私有实例的弹性网络接口的日志组。\n2. 运行查询，过滤条件为：目标地址 \"like 203.0\"，源地址 \"like 198.51.100.2\"。\n3. 运行 stats 命令，统计源地址和目标地址之间传输的字节总数。\n\n通过这些步骤，可以分析流量是否符合未经请求的入站连接的特征\n\nAC.CloudTrail 记录的是 API 调用（例如：谁创建了实例、谁删除了 S3 桶），它不记录具体的网络数据包流量（如 IP 对 IP 的通信）。分析网络流量必须使用 VPC Flow Logs，而它通常存储在 CloudWatch 或 S3 中\n\nBD.Source address = 数据包“从哪里来”\nDestination address = 数据包“要去哪里”\nEC2 发出请求:出站流量\n203.0.10.25  →  198.51.100.2\nsource = 203.0.10.25\ndestination = 198.51.100.2\n外网服务器返回数据:入站流量\n198.51.100.2  →  203.0.10.25\nsource = 198.51.100.2\ndestination = 203.0.10.25\n主动攻击：198.51.100.2 → 203.0.10.25"
+},
+{
+  "QuestionID": 91,
+  "QuestionType": "multiple",
+  "QuestionText": "A company consists of two separate business units. Each business unit has its own AWS account within a single organization in AWS Organizations. The business units regularly share sensitive documents with each other. To facilitate sharing, the company created an Amazon S3 bucket in each account and configured cross-way replication between the S3 buckets. The S3 buckets have millions of objects. Recently, a security audit identified that neither S3 bucket has encryption at rest enabled. Company policy requires that all documents must be stored with encryption at rest. The company wants to implement server-side encryption with Amazon S3 managed encryption keys (SSE-S3). What is the MOST operationally efficient solution that meets these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Turn on SSE-S3 on both S3 buckets. Use S3 Batch Operations to copy and encrypt the objects in the same location." },
+    { "label": "B", "text": "Create an AWS Key Management Service (AWS KMS) key in each account. Turn on server-side encryption with AWS KMS keys (SSE-KMS) on each S3 bucket by using the corresponding KMS key in that AWS account. Encrypt the existing objects by using an S3 copy command in the AWS CLI." },
+    { "label": "C", "text": "Turn on SSE-S3 on both S3 buckets. Encrypt the existing objects by using an S3 copy command in the AWS CLI." },
+    { "label": "D", "text": "Create an AWS Key Management Service (AWS KMS) key in each account. Turn on server-side encryption with AWS KMS keys (SSE-KMS) on each S3 bucket by using the corresponding KMS key in that AWS account. Use S3 Batch Operations to copy the objects into the same location." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "Encryption at Rest (静态加密): 指数据存储在磁盘上时进行加密，防止物理存储介质泄露导致数据外泄、被盗或篡改。使用 Amazon S3 管理的加密密钥 (SSE-S3) 可以简化加密过程，无需管理自己的密钥。\nSSE-S3 (Server-Side Encryption with S3-Managed Keys): 由 S3 完全托管的服务器端加密。它是最简单、最自动化的加密方式，不产生额外的 KMS 密钥管理费用\n AWS KMS（AWS Key Management Service Key）:是 AWS 的 托管密钥管理服务，用于创建、管理、使用加密密钥。核心作用：保护你的数据安全，支持数据在存储或传输中加密,由 AWS KMS 管理的加密密钥，提供更细粒度的访问控制和审计功能，但需要额外的管理和成本\nS3 Batch Operations: 允许你对大量 S3 对象执行批量操作（如复制、加密、标签等），适用于处理数百万对象的场景,它可以自动执行任务（如复制、替换标签等），无需用户编写复杂的脚本或管理计算资源。\nTwo-way Replication(双向复制): 两个 S3 存储桶互为源和目的地，实现数据同步。\n\nA.启用 SSE-S3 后，使用 S3 Batch Operations 来复制并加密现有对象。这是最自动化和高效的方法，适合处理大量对象，并且不需要管理 KMS 密钥。\n\nB.虽然 SSE-KMS 提供了更强的安全性和访问控制，但它需要管理 KMS 密钥，并且对于大量对象的加密可能会产生较高的成本和复杂性。\n\nC.启用 SSE-S3 后，使用 AWS CLI 的 S3 copy 命令来加密现有对象，这对于数百万对象来说效率较低，且需要手动操作。\n\nD.使用 SSE-KMS 和 S3 Batch Operations 虽然可行，但相较于 SSE-S3 来说，管理 KMS 密钥增加了复杂性和成本，不是最具操作效率的解决方案。"
+},
+{
+  "QuestionID": 92,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is running an application in the AWS Cloud. The application collects and stores a large amount of unstructured data in an Amazon S3 bucket. The S3 bucket contains several terabytes of data and uses the S3 Standard storage class. The data increases in size by several gigabytes every day. The company needs to query and analyze the data. The company does not access data that is more than 1 year old. However, the company must retain all the data indefinitely for compliance reasons. Which solution will meet these requirements MOST cost-effectively?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use S3 Select to query the data. Create an S3 Lifecycle policy to transition data that is more than 1 year old to S3 Glacier Deep Archive." },
+    { "label": "B", "text": "Use Amazon Redshift Spectrum to query the data. Create an S3 Lifecycle policy to transition data that is more than 1 year old to S3 Glacier Deep Archive." },
+    { "label": "C", "text": "Use an AWS Glue Data Catalog and Amazon Athena to query the data. Create an S3 Lifecycle policy to transition data that is more than 1 year old to S3 Glacier Deep Archive." },
+    { "label": "D", "text": "Use Amazon Redshift Spectrum to query the data. Create an S3 Lifecycle policy to transition data that is more than 1 year old to S3 Intelligent-Tiering." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Unstructured Data (非结构化数据):指没有预定义数据模型的数据。也就是说，它没有行列、表格、字段等明确结构，数据内容和格式多样，无法直接存入传统关系型数据库（RDBMS）中。常见的非结构化数据包括文本文件、图像、视频、日志文件等\nAmazon Athena:是一个交互式查询服务，允许你使用标准 SQL 查询存储在 Amazon S3 中的数据，无需设置或管理基础设施。它适用于分析大量非结构化数据。它是无服务器 (Serverless) 的，只需为运行的查询付费\nAmazon Redshift Spectrum:允许你直接查询存储在 Amazon S3 中的数据，而无需将数据加载到 Redshift 集群中。它适用于需要与 Redshift 数据仓库集成的分析场景。虽然强大，但它需要运行一个 Redshift 集群，这意味着即使不查询，也要支付集群的实例费用\nS3 Lifecycle Policy:允许你定义规则来自动管理 S3 对象的生命周期，例如自动过期、转移到更低成本的存储类等。可以根据时间（如 1 年后）自动将数据从高成本存储桶移动到低成本存储桶\nS3 Glacier Deep Archive:最便宜的存储选项，适用于长期存储和归档，但访问延迟较高（通常需要数小时甚至数天）\nS3 Intelligent-Tiering:自动将不常访问的数据移动到更低成本的存储层，同时保持快速访问。它包含两个低延迟访问层：频繁访问层和不频繁访问层。如果一个对象 30 天没被访问，它自动移入不频繁层（省钱）；如果一旦被访问，它自动跳回频繁层\nAmazon Redshift 集群 是 AWS 提供的 托管数据仓库服务 的核心计算和存储单元\nRedshift = 用于 存储和分析海量数据的数据库\n集群 = Redshift 的“整体实例”，里面有计算节点和存储节点\nRedshift Spectrum = Redshift + S3 数据湖，热数据在 Redshift，冷数据在 S3，查询无缝透明。\nAWS Glue Data Catalog 是一个 集中式元数据管理服务，用于存储和管理你的数据表、数据库、分区、列类型等信息。\n\nA.虽然 S3 Select 可以直接查询 S3 中的数据，但它更适合于从单个对象中提取特定数据，而不是对整个数据集进行复杂分析。S3 Select 只能针对单个 S3 对象进行简单过滤，无法跨数 TB 的文件进行聚合分析或复杂查询。它不适合作为全量数据的分析引擎此外，将数据转移到 Glacier Deep Archive 后，查询会变得非常慢，不适合需要定期访问的场景。\n\nB.Redshift Spectrum 适用于与 Redshift 数据仓库集成的分析场景，edshift Spectrum 要求你必须维护一个 Redshift 集群。对于单纯的 S3 数据查询，它的起步成本比 Athena 高得多. 对于纯粹的非结构化数据分析来说，Athena 更加直接和高效。同样地，转移到 Glacier Deep Archive 会导致查询性能极差。\n\nC.使用 AWS Glue Data Catalog 来管理 S3 中的数据元数据，并使用 Amazon Athena 来查询这些数据，是分析非结构化数据的最直接和高效的方法。Athena 按查询量计费（每查询 1TB 约 $5），没有固定成本，极其省钱。通过 S3 Lifecycle Policy 将超过 1 年的数据转移到 Glacier Deep Archive，可以满足长期存储需求，同时节省成本，因为这些旧数据不需要频繁访问。\n\nD.虽然 Redshift Spectrum 可以查询 S3 中的数据，但对于纯粹的非结构化数据分析来说"
+},
+{
+  "QuestionID": 93,
+  "QuestionType": "multiple",
+  "QuestionText": "A video processing company wants to build a machine learning (ML) model by using 600 TB of compressed data that is stored as thousands of files in the company's on-premises network attached storage system. The company does not have the necessary compute resources on premises for ML experiments and wants to use AWS. The company needs to complete the data transfer to AWS within 3 weeks. The data transfer will be a one-time transfer. The data must be encrypted in transit. The measured upload speed of the company's internet connection is 100 Mbps, and multiple departments share the connection. Which solution will meet these requirements MOST cost-effectively?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Order several AWS Snowball Edge Storage Optimized devices by using the AWS Management Console. Configure the devices with a destination S3 bucket. Copy the data to the devices. Ship the devices back to AWS." },
+    { "label": "B", "text": "Set up a 10 Gbps AWS Direct Connect connection between the company location and the nearest AWS Region. Transfer the data over a VPN connection into the Region to store the data in Amazon S3." },
+    { "label": "C", "text": "Create a VPN connection between the on-premises network attached storage and the nearest AWS Region. Transfer the data over the VPN connection." },
+    { "label": "D", "text": "Deploy an AWS Storage Gateway file gateway on premises. Configure the file gateway with a destination S3 bucket. Copy the data to the file gateway." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "AWS Snowball Edge Storage Optimized: 亚马逊提供的一种物理数据迁移设备。每个设备提供约 80 TB 的可用存储空间。它专为海量数据迁移设计,通过使用 Snowball，客户可以在不影响现有网络带宽的情况下，快速将大量数据迁移到 AWS。\nAWS Direct Connect (DX): 一种专线连接服务。虽然速度快且稳定，但其安装和配置过程通常需要数周甚至数月的时间，且成本较高，不适合一次性数据迁移。\nVPN (Virtual Private Network): 在公网之上建立的加密隧道。安全性高，但受限于底层互联网带宽\nAWS Storage Gateway File Gateway: 一种混合云存储服务。它通常用于将本地数据异步同步到云端，适用于持续的数据备份和访问，而不是一次性大规模数据迁移。它需要通过网络传输数据，受限于带宽，无法在短时间内完成大量数据的迁移。\n\nA.使用 Snowball Edge Storage Optimized 设备是最符合要求的解决方案。每个设备提供约 80 TB 的存储空间，因此需要大约 8 台设备来迁移 600 TB 的数据。整个过程包括设备的配置、数据复制和运输，通常可以在几周内完成，并且数据在传输过程中是加密的，满足安全要求。申请设备（2-3天）+ 本地拷贝（数天）+ 寄回 AWS 并导入（数天）。整个流程完全可以在 3 周内完成。\n\nB.使用 AWS Direct Connect 进行数据传输的成本较高，并且需要较长的设置时间，从申请到专线落地通常需要数月时间，无法满足 3 周完成的要求,不适合一次性迁移。\n\nC.使用 VPN 连接进行数据传输受限于带宽，可能无法在规定时间内完成迁移。\n\nD.使用 AWS Storage Gateway 进行数据迁移需要持续的网络连接，不适合一次性大规模数据迁移。受限于 100 Mbps 的速度"
+},
+{
+  "QuestionID": 94,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has migrated its forms-processing application to AWS. When users interact with the application, they upload scanned forms as files through a web application. A database stores user metadata and references to files that are stored in Amazon S3. The web application runs on Amazon EC2 instances and an Amazon RDS for PostgreSQL database.\nWhen forms are uploaded, the application sends notifications to a team through Amazon Simple Notification Service (Amazon SNS). A team member then logs in and processes each form. The team member performs data validation on the form and extracts relevant data before entering the information into another system that uses an API.\nA solutions architect needs to automate the manual processing of the forms. The solution must provide accurate form extraction, minimize time to market, and minimize long-term operational overhead.\nWhich solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Develop custom libraries to perform optical character recognition (OCR) on the forms. Deploy the libraries to an Amazon Elastic Kubernetes Service (Amazon EKS) cluster as an application tier. Use this tier to process the forms when forms are uploaded. Store the output in Amazon S3. Parse this output by extracting the data into an Amazon DynamoDB table. Submit the data to the target system's API. Host the new application tier on EC2 instances." },
+    { "label": "B", "text": "Extend the system with an application tier that uses AWS Step Functions and AWS Lambda. Configure this tier to use artificial intelligence and machine learning (AI/ML) models that are trained and hosted on an EC2 instance to perform optical character recognition (OCR) on the forms when forms are uploaded. Store the output in Amazon S3. Parse this output by extracting the data that is required within the application tier. Submit the data to the target system's API." },
+    { "label": "C", "text": "Host a new application tier on EC2 instances. Use this tier to call endpoints that host artificial intelligence and machine learning (AI/ML) models that are trained and hosted in Amazon SageMaker to perform optical character recognition (OCR) on the forms. Store the output in Amazon ElastiCache. Parse this output by extracting the data that is required within the application tier. Submit the data to the target system's API." },
+    { "label": "D", "text": "Extend the system with an application tier that uses AWS Step Functions and AWS Lambda. Configure this tier to use Amazon Textract and Amazon Comprehend to perform optical character recognition (OCR) on the forms when forms are uploaded. Store the output in Amazon S3. Parse this output by extracting the data that is required within the application tier. Submit the data to the target system's API." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "Amazon Textract: 一项基于机器学习的服务，能够自动从扫描文档中提取文本、手写内容和数据（如表格和表单中的字段）。它超越了传统的 OCR（Optical Character Recognition光学字符识别），能理解文档的结构\n\nAmazon Comprehend: 一项自然语言处理 (NLP) 服务，用于从文本中提取见解、实体（如姓名、地点、日期）和关联\n\nAWS Step Functions: 一种无服务器编排服务，可以将多个 AWS 服务（如 Lambda, Textract）串联成一个工作流（Workflow），并处理重试和错误逻辑\nAmazon EKS 是 AWS 提供的 托管 Kubernetes 服务，用于在 AWS 上运行 Kubernetes 集群，而无需自己安装和管理 Kubernetes 控制平面\nKubernetes = 容器编排平台\nEKS = AWS 托管的 Kubernetes，让你专注部署应用，而不用管理底层控制面和节点。\nAmazon SageMaker 是 AWS 的 托管机器学习平台，用于构建、训练和部署机器学习模型。它帮你把 数据 → 模型 → 部署预测服务 全流程托管化,不用自己搭建服务器、安装框架、管理 GPU\n\nA.使用自定义库进行光学字符识别（OCR）处理的方案虽然可行，但需要大量的开发和维护工作，且可能无法满足快速上线的需求。\n\nB.使用 AWS Step Functions 和 AWS Lambda 的方案可以实现一定程度的自动化，在 EC2 上手动训练和托管模型非常复杂。你需要处理模型的版本管理、扩展性和服务器补丁更新，运维压力大\n\nC.使用 Amazon SageMaker 的方案虽然可以利用强大的 AI/ML 模型，但通常用于需要自定义训练模型的场景,部署和维护成本较高，且不够灵活。对于通用的表单提取，直接使用现成的托管服务（Textract）会快得多。此外，将输出存储在 ElastiCache（内存缓存）中对于持久化处理结果来说并不是最佳实践。\n\nD.使用 Amazon Textract 专门用于表单数据提取，准确率高且无需自行训练。Amazon Comprehend 进一步理解提取出的内容（如识别特定的敏感实体）,可以实现高效的表单处理，自动提取关键信息，满足快速上线和长期运营的需求。全托管服务，基本零运维；直接调用 API 即可使用，上线最快"
+},
+{
+  "QuestionID": 95,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is refactoring its on-premises order-processing platform in the AWS Cloud. The platform includes a web front end that is hosted on a fleet of VMs, RabbitMQ to connect the front end to the backend, and a Kubernetes cluster to run a containerized backend system to process the orders. The company does not want to make any major changes to the application. Which solution will meet these requirements with the LEAST operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an AMI of the web server VM. Create an Amazon EC2 Auto Scaling group that uses the AMI and an Application Load Balancer. Set up Amazon MQ to replace the on-premises messaging queue. Configure Amazon Elastic Kubernetes Service (Amazon EKS) to host the order-processing backend." },
+    { "label": "B", "text": "Create a custom AWS Lambda runtime to mimic the web server environment. Create an Amazon API Gateway API to replace the front-end web servers. Set up Amazon MQ to replace the on-premises messaging queue. Configure Amazon Elastic Kubernetes Service (Amazon EKS) to host the order-processing backend." },
+    { "label": "C", "text": "Create an AMI of the web server VM. Create an Amazon EC2 Auto Scaling group that uses the AMI and an Application Load Balancer. Set up Amazon MQ to replace the on-premises messaging queue. Install Kubernetes on a fleet of different EC2 instances to host the order-processing backend." },
+    { "label": "D", "text": "Create an AMI of the web server VM. Create an Amazon EC2 Auto Scaling group that uses the AMI and an Application Load Balancer. Set up an Amazon Simple Queue Service (Amazon SQS) queue to replace the on-premises messaging queue. Configure Amazon Elastic Kubernetes Service (Amazon EKS) to host the order-processing backend." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "RabbitMQ: 一个开源的消息代理软件，支持多种消息协议，常用于构建分布式系统中的消息传递机制,在 AWS 上，如果你不想改变代码逻辑去适配 S3 或 SQS，最直接的替代品是 Amazon MQ。\nAmazon MQ: AWS 提供的托管消息代理服务，兼容 RabbitMQ 和 ActiveMQ，可以无缝替换现有的 RabbitMQ 实例，减少迁移复杂性,它处理了底层的补丁、高可用性和维护，极大降低了运维开销。\nAmazon EC2 Auto Scaling: 允许你自动调整 EC2 实例的数量，以满足应用需求。通过创建一个 Auto Scaling 组，可以确保前端服务器根据流量自动扩展或缩减。\nApplication Load Balancer (ALB): 适用于 HTTP/HTTPS 流量的负载均衡器，可以根据请求内容进行路由，适合 Web 应用程序\nAmazon Elastic Kubernetes Service (Amazon EKS): AWS 提供的托管 Kubernetes 服务，用于运行容器化应用程序，无需管理 Kubernetes 控制平面，只需管理工作节点。\nAmazon SQS (Simple Queue Service): AWS 原生的分布式队列服务。虽然运维开销更低，但它与 RabbitMQ 的协议不同，通常需要修改代码才能迁移。\nAMI (Amazon Machine Image): 包含软件配置的模板，用于快速启动 EC2 实例\n\nA.Web 端：通过 AMI 迁移到 EC2 + Auto Scaling + ALB，几乎不需要改动代码\n消息中间件：用 Amazon MQ 替换 RabbitMQ。因为 Amazon MQ 支持 RabbitMQ 协议，所以应用端只需修改连接字符串，无需重写逻辑。\n后端： 用 EKS 替换本地 K8s 集群。由于都是 K8s 环境，容器镜像和 YAML 配置可以直接复用，且 EKS 承担了大部分运维工作。\n\nB.创建一个自定义 Lambda 运行时来模拟 Web 服务器环境需要大量的开发工作，并且可能无法完全兼容现有应用程序。此外，API Gateway 可能不适合处理所有类型的 Web 流量，尤其是需要持久连接或特定协议支持的场景。\n\nC.虽然使用 EC2 Auto Scaling 和 ALB 是合理的，但在后端使用自建 Kubernetes 集群会增加运维复杂性，需要管理 Kubernetes 控制平面、节点维护、升级等，而 EKS 可以简化这些操作。\n\nD.虽然 Amazon SQS 是一个可靠的消息队列服务，但它不支持 RabbitMQ 协议,它与 RabbitMQ 的功能和接口不完全兼容，可能需要对应用程序进行较大的修改来适应新的消息传递机制。相比之下，Amazon MQ 可以更无缝地替换 RabbitMQ。"
+},
+{
+  "QuestionID": 96,
+  "QuestionType": "multiple",
+  "QuestionText": "A solutions architect needs to implement a client-side encryption mechanism for objects that will be stored in a new Amazon S3 bucket. The solutions architect created a CMK that is stored in AWS Key Management Service (AWS KMS) for this purpose. The solutions architect created the following IAM policy and attached it to an IAM role. During tests, the solutions architect was able to successfully get existing test objects in the S3 bucket. However, attempts to upload a new object resulted in an error message. The error message stated that the action was forbidden. Which action must the solutions architect add to the IAM policy to meet all the requirements?",
+  "ImageURL": "images/AWS96.png",
+  "Options": [
+    { "label": "A", "text": "kms:GenerateDataKey" },
+    { "label": "B", "text": "kms:GetKeyPolicy" },
+    { "label": "C", "text": "kms:GetPublicKey" },
+    { "label": "D", "text": "kms:Sign" }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "CMK（Customer Master Key） 是用于加密和解密数据的“主密钥”，由客户在 KMS 中创建和管理。\nClient-side Encryption（客户端加密）: 指在将数据发送到 S3 之前，在客户端对数据进行加密。使用 KMS CMK 进行客户端加密时，应用程序需要调用 KMS API 来生成数据密钥（Data Key），然后使用该数据密钥来加密数据。\nEnvelope Encryption (信封加密)：这是 AWS 加密的核心逻辑。\n--用一个 数据密钥 (Data Key) 加密你的文件。\n--用 KMS 主密钥 (CMK) 加密这个“数据密钥”。\n--把加密后的数据和加密后的密钥封在一起（像信封一样）存进 S3\n\nAction: kms:Decrypt (解密), kms:Encrypt (加密)。\n--能读 (Get)：因为你有 kms:Decrypt 权限，SDK 可以解密 S3 里的数据密钥，从而读取文件。\n--不能写 (Put)：虽然有 kms:Encrypt，但在 客户端加密 流程中，SDK 调用的是 GenerateDataKey 接口来获取一个新的随机密钥。\nkms:GenerateDataKey: 允许用户请求 KMS 生成一个新的数据密钥。这个操作是客户端加密流程中的关键步骤，因为它提供了用于加密数据的临时密钥。\nkms:GetKeyPolicy: 允许用户查看 CMK 的访问策略，但不涉及生成或使用数据密钥。\nkms:GetPublicKey: 适用于非对称 CMK，允许用户获取公钥，但对于对称 CMK 和客户端加密来说并不相关。\nkms:Sign: 适用于非对称 CMK，允许用户使用私钥进行数字签名，与客户端加密无关。\n\nA.要实现客户端加密，应用程序必须能够调用 kms:GenerateDataKey 来获取一个数据密钥，用于加密上传到 S3 的对象。如果没有这个权限，应用程序将无法生成数据密钥，从而导致上传对象时出现“action forbidden”的错误。"
+},
+{
+  "QuestionID": 97,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has developed a web application. The company is hosting the application on a group of Amazon EC2 instances behind an Application Load Balancer. The company wants to improve the security posture of the application and plans to use AWS WAF web ACLs. The solution must not adversely affect legitimate traffic to the application. How should a solutions architect configure the web ACLs to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Set the action of the web ACL rules to Count. Enable AWS WAF logging. Analyze the requests for false positives. Modify the rules to avoid any false positive. Over time, change the action of the web ACL rules from Count to Block." },
+    { "label": "B", "text": "Use only rate-based rules in the web ACLs, and set the throttle limit as high as possible. Temporarily block all requests that exceed the limit. Define nested rules to narrow the scope of the rate tracking." },
+    { "label": "C", "text": "Set the action of the web ACL rules to Block. Use only AWS managed rule groups in the web ACLs. Evaluate the rule groups by using Amazon CloudWatch metrics with AWS WAF sampled requests or AWS WAF logs." },
+    { "label": "D", "text": "Use only custom rule groups in the web ACLs, and set the action to Allow. Enable AWS WAF logging. Analyze the requests for false positives. Modify the rules to avoid any false positive. Over time, change the action of the web ACL rules from Allow to Block." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "AWS WAF (Web Application Firewall)：一种 Web 应用程序防火墙，帮助保护你的应用免受常见 Web 漏洞（如 SQL 注入、跨站脚本 XSS）的影响。它部署在 ALB、CloudFront 或 API Gateway 之前。\nWeb ACL (Access Control List)：WAF 的规则集。它包含了多条规则，决定如何处理匹配到的流量。\nAction: Count (计数模式)：当流量匹配规则时，WAF 不会拦截它，而只是记下一笔（Count）。这让你可以在不中断业务的情况下，观察哪些流量会被命中\nAction: Block (阻断模式)：一旦匹配规则，直接拒绝请求，返回 403 Forbidden\nFalse Positive (误报/假阳性)：安全术语。指防火墙把“好人”当成“坏人”给拦住了\nAWS Managed Rules (托管规则集)：由 AWS 安全团队维护的预设规则，比如防 SQL 注入、防爬虫等。虽然好用，但如果不经测试直接开启 Block 模式，很容易产生误报。\n\nA.将规则设为 Count。开启 Logging（日志）记录所有命中。分析日志：看有没有正常用户的请求被错误计数了。调整规则：排除误报。切换 Block：确认没问题后正式拦截。\n\nB.虽然 Rate-based 规则可以限制请求速率，但设置过高的限制可能会导致合法流量被误判为攻击流量，从而被暂时阻止。这种方法可能会对用户体验产生负面影响，尤其是在流量高峰期。只用速率限制无法防御 SQL 注入或 XSS 攻击，安全性不足。无法解决“非速率类”的恶意攻击。\n\nC.直接设置 Block 模式并使用 AWS Managed Rules 可能会导致大量误报，尤其是在没有经过充分测试的情况下。虽然 CloudWatch Metrics 和 WAF Logs 可以帮助分析规则效果，但在正式启用 Block 模式之前，最好先使用 Count 模式进行观察和调整。\n\nD.在 WAF 中，默认行为通常已经是 Allow 了。如果把规则动作设为 Allow，那它和不设规则没区别，起不到“观察”的作用。WAF 只有在 Count 模式下才会生成专门的统计数据和日志供你分析。"
+},
+{
+  "QuestionID": 98,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has an organization that has many AWS accounts in AWS Organizations. A solutions architect must improve how the company manages common security group rules for the AWS accounts in the organization. The company has a common set of IP CIDR ranges in an allow list in each AWS account to allow access to and from the company’s on-premises network. Developers within each account are responsible for adding new IP CIDR ranges to their security groups. The security team has its own AWS account. Currently, the security team notifies the owners of the other AWS accounts when changes are made to the allow list. The solutions architect must design a solution that distributes the common set of CIDR ranges across all accounts. Which solution meets these requirements with the LEAST amount of operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Set up an Amazon Simple Notification Service (Amazon SNS) topic in the security team's AWS account. Deploy an AWS Lambda function in each AWS account. Configure the Lambda function to run every time an SNS topic receives a message. Configure the Lambda function to take an IP address as input and add it to a list of security groups in the account. Instruct the security team to distribute changes by publishing messages to its SNS topic." },
+    { "label": "B", "text": "Create new customer-managed prefix lists in each AWS account within the organization. Populate the prefix lists in each account with all internal CIDR ranges. Notify the owner of each AWS account to allow the new customer-managed prefix list IDs in their accounts in their security groups. Instruct the security team to share updates with each AWS account owner." },
+    { "label": "C", "text": "Create a new customer-managed prefix list in the security team’s AWS account. Populate the customer-managed prefix list with all internal CIDR ranges. Share the customer-managed prefix list with the organization by using AWS Resource Access Manager. Notify the owner of each AWS account to allow the new customer-managed prefix list ID in their security groups." },
+    { "label": "D", "text": "Create an IAM role in each account in the organization. Grant permissions to update security groups. Deploy an AWS Lambda function in the security team’s AWS account. Configure the Lambda function to take a list of internal IP addresses as input, assume a role in each organization account, and add the list of IP addresses to the security groups in each account." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Prefix List (前缀列表): 一种可重用的 IP 地址范围集合，可以在多个安全组中引用。通过使用前缀列表，可以简化安全组规则的管理，并确保所有相关的安全组都使用相同的 IP 地址范围。它像是一个“IP 地址簿”。你可以把一堆 CIDR（如 10.0.0.0/16, 192.168.1.0/24）存进一个列表，并给它起个名字,在安全组（Security Group）里，你不再需要逐条添加 IP，而是直接引用这个“前缀列表 ID”。当列表更新时，引用它的所有安全组会自动生效\nAWS Resource Access Manager (RAM)专门用于跨账号共享资源的服务。它可以把你在 A 账号创建的资源（如前缀列表、子网、中转网关），安全地共享给整个 Organization 或指定的账号。\nSecurity Group (安全组)：虚拟防火墙，控制 EC2 实例的入站和出站流量。\n\nA.安全团队发消息，所有账号的 Lambda 自动去改安全组。这虽然能实现，但运维压力极大。你需要维护多个 Lambda 函数，处理各种报错（比如安全组满了、权限不够）\n\nB.每个账号自己建列表,这还是回到了老路——需要通知每个账号的所有者去操作。没有解决“集中管理”和“自动同步”的问题。\n\nC.安全团队在自己的账号里创建一个 Customer-managed Prefix List，填入所有本地 CIDR,使用 AWS RAM 把这个列表共享给整个组织。其他账号的开发者在安全组规则里直接引用这个列表 ID,安全团队只要修改一次列表，所有引用该列表的账号都会同步生效。不需要写 Lambda 代码，不需要管理 SNS 通知，全部使用 AWS 原生功能。\n\nD.安全团队跑一个超级 Lambda，登录到每个账号去改安全组。这虽然能实现，但运维压力极大。你需要维护一个 Lambda 函数，处理各种报错（比如安全组满了、权限不够），还要处理跨账号权限问题，复杂度和风险都很高。相比之下，使用前缀列表和 RAM 的方案更简单、更安全、更易维护。"
+},
+{
+  "QuestionID": 99,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has introduced a new policy that allows employees to work remotely from their homes if they connect by using a VPN. The company is hosting internal applications with VPCs in multiple AWS accounts. Currently, the applications are accessible from the company's on-premises office network through an AWS Site-to-Site VPN connection. The VPC in the company's main AWS account has peering connections established with VPCs in other AWS accounts. A solutions architect must design a scalable AWS Client VPN solution for employees to use while they work from home. What is the MOST cost-effective solution that meets these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a Client VPN endpoint in each AWS account. Configure required routing that allows access to internal applications." },
+    { "label": "B", "text": "Create a Client VPN endpoint in the main AWS account. Configure required routing that allows access to internal applications." },
+    { "label": "C", "text": "Create a Client VPN endpoint in the main AWS account. Provision a transit gateway that is connected to each AWS account. Configure required routing that allows access to internal applications." },
+    { "label": "D", "text": "Create a Client VPN endpoint in the main AWS account. Establish connectivity between the Client VPN endpoint and the AWS Site-to-Site VPN." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "AWS Client VPN Endpoint：是 AWS Client VPN 提供的一种 托管型远程访问 VPN 终端节点，，允许用户通过 OpenVPN 协议安全地连接到 AWS VPC和本地网络。它支持多账户环境，可以通过 VPC Peering 或 Transit Gateway 实现跨账户访问。\nVPC Peering：一种网络连接方式，允许两个 VPC 之间直接通信，就像在同一个网络中一样。适用于小规模的跨账户连接，但当涉及多个账户时，管理复杂度会增加。\nTransit Gateway：一种网络枢纽服务，允许你连接多个 VPC 和本地网络。它简化了大规模网络架构，但相对于直接使用 VPC Peering 来说，成本更高。\n\nA.在每个 AWS 账号中创建一个 Client VPN Endpoint 会导致管理多个 VPN 端点的复杂性和成本增加。每个端点都需要单独配置和维护，这对于一个有多个 AWS 账号的公司来说并不高效。并且非常昂贵，如果有 10 个账号，就要付 10 份 Endpoint 的固定小时费。\n\nB.在主 AWS 账号中创建一个 Client VPN Endpoint，并通过现有的 VPC Peering 连接访问其他账号中的应用程序，是最直接和成本效益最高的解决方案。这种方法利用了现有的网络架构，无需额外的 Transit Gateway 成本，同时也简化了管理。\n\nC.虽然 Transit Gateway 可以简化多个 VPC 之间的连接，但它引入了额外的成本，对于仅需要连接几个 VPC 的场景来说可能过于复杂和昂贵。\n\nD.将 Client VPN Endpoint 与现有的 Site-to-Site VPN 连接起来可能会增加网络复杂性，并且不必要地增加了管理和维护的负担。Client VPN 已经能够直接访问 VPC 中的资源，无需通过 Site-to-Site VPN 转发流量。"
+},
+{
+  "QuestionID": 100,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is running an application in the AWS Cloud. Recent application metrics show inconsistent response times and a significant increase in error rates. Calls to third-party services are causing the delays. Currently, the application calls third-party services synchronously by directly invoking an AWS Lambda function. A solutions architect needs to decouple the third-party service calls and ensure that all the calls are eventually completed. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use an Amazon Simple Queue Service (Amazon SQS) queue to store events and invoke the Lambda function." },
+    { "label": "B", "text": "Use an AWS Step Functions state machine to pass events to the Lambda function." },
+    { "label": "C", "text": "Use an Amazon EventBridge rule to pass events to the Lambda function." },
+    { "label": "D", "text": "Use an Amazon Simple Notification Service (Amazon SNS) topic to store events and invoke the Lambda function." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "Synchronous vs Asynchronous (同步 vs 异步)：\n同步：A 调 B，B 没回，A 就不动。B 慢，A 就慢。\n异步：A 把任务塞进一个中转站（如 SQS），然后 A 就结束了。后续由中转站慢慢发给 B。\nAmazon SQS (Simple Queue Service)：是一种完全托管的消息队列服务，消息存放在队列里，直到被成功处理并删除。如果 Lambda 处理失败（比如第三方服务挂了），消息会回到队列里等待下次重试。\nAWS Step Functions：是一种 无服务器（Serverless）的工作流编排服务，用于把多个 AWS 服务或任务按顺序组织成一个“流程”。\nAmazon EventBridge：事件总线服务，适合事件驱动架构，但它不提供消息持久化和重试机制，不适合确保所有调用都完成的场景。\nAmazon SNS (Simple Notification Service)：是一种发布/订阅服务，消息会被立即推送给订阅者。如果 Lambda 处理失败，消息就丢了，没有重试机制，不适合这种需要可靠处理的场景。\n\nA.应用把请求发给 SQS -> SQS 触发 Lambda -> Lambda 调用第三方,使用 Amazon SQS 可以实现异步处理，Lambda 从队列中读取消息并调用第三方服务。如果调用失败，消息会自动重试，确保最终完成。这种方式解耦了应用和第三方服务，提升了系统的稳定性和可靠性。\n\nB.虽然 AWS Step Functions 可以编排复杂的工作流，但对于简单的异步调用来说，它的成本和管理复杂度较高，不是最优选择。\n\nC.Amazon EventBridge 不提供消息持久化和重试机制，如果 Lambda 调用失败，事件就丢失了，无法保证所有调用都完成。\n\nD.使用 Amazon SNS 进行发布/订阅虽然可以实现异步通知，但它没有内置的重试机制，如果 Lambda 处理失败，消息就丢失了，不适合需要确保调用完成的场景。"
 }
+
+
 
 
 
