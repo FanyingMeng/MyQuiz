@@ -8799,6 +8799,442 @@
   ],
   "CorrectAnswer": ["A"],
   "Explanation": "Synchronous vs Asynchronous (同步 vs 异步)：\n同步：A 调 B，B 没回，A 就不动。B 慢，A 就慢。\n异步：A 把任务塞进一个中转站（如 SQS），然后 A 就结束了。后续由中转站慢慢发给 B。\nAmazon SQS (Simple Queue Service)：是一种完全托管的消息队列服务，消息存放在队列里，直到被成功处理并删除。如果 Lambda 处理失败（比如第三方服务挂了），消息会回到队列里等待下次重试。\nAWS Step Functions：是一种 无服务器（Serverless）的工作流编排服务，用于把多个 AWS 服务或任务按顺序组织成一个“流程”。\nAmazon EventBridge：事件总线服务，适合事件驱动架构，但它不提供消息持久化和重试机制，不适合确保所有调用都完成的场景。\nAmazon SNS (Simple Notification Service)：是一种发布/订阅服务，消息会被立即推送给订阅者。如果 Lambda 处理失败，消息就丢了，没有重试机制，不适合这种需要可靠处理的场景。\n\nA.应用把请求发给 SQS -> SQS 触发 Lambda -> Lambda 调用第三方,使用 Amazon SQS 可以实现异步处理，Lambda 从队列中读取消息并调用第三方服务。如果调用失败，消息会自动重试，确保最终完成。这种方式解耦了应用和第三方服务，提升了系统的稳定性和可靠性。\n\nB.虽然 AWS Step Functions 可以编排复杂的工作流，但对于简单的异步调用来说，它的成本和管理复杂度较高，不是最优选择。\n\nC.Amazon EventBridge 不提供消息持久化和重试机制，如果 Lambda 调用失败，事件就丢失了，无法保证所有调用都完成。\n\nD.使用 Amazon SNS 进行发布/订阅虽然可以实现异步通知，但它没有内置的重试机制，如果 Lambda 处理失败，消息就丢失了，不适合需要确保调用完成的场景。"
+},
+{
+  "QuestionID": 101,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is running applications on AWS in a multi-account environment. The company's sales team and marketing team use separate AWS accounts in AWS Organizations. The sales team stores petabytes of data in an Amazon S3 bucket. The marketing team uses Amazon QuickSight for data visualizations. The marketing team needs access to data that the sales team stores in the S3 bucket. The company has encrypted the S3 bucket with an AWS Key Management Service (AWS KMS) key. The marketing team has already created the IAM service role for QuickSight to provide QuickSight access in the marketing AWS account. The company needs a solution that will provide secure access to the data in the S3 bucket across AWS accounts. Which solution will meet these requirements with the LEAST operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a new S3 bucket in the marketing account. Create an S3 replication rule in the sales account to copy the objects to the new S3 bucket in the marketing account. Update the QuickSight permissions in the marketing account to grant access to the new S3 bucket." },
+    { "label": "B", "text": "Create an SCP to grant access to the S3 bucket to the marketing account. Use AWS Resource Access Manager (AWS RAM) to share the KMS key from the sales account with the marketing account. Update the QuickSight permissions in the marketing account to grant access to the S3 bucket." },
+    { "label": "C", "text": "Update the S3 bucket policy in the  marketing account to grant access to the QuickSight role. Create a KMS grant for the encryption key that is used in the S3 bucket. Grant decrypt access to the QuickSight role. Update the QuickSight permissions in the marketing account to grant access to the S3 bucket." },
+    { "label": "D", "text": "Create an IAM role in the sales account and grant access to the S3 bucket. From the marketing account, assume the IAM role in the sales account to access the S3 bucket. Update the QuickSight role to create a trust relationship with the new IAM role in the sales account." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "AssumeRole就是“暂时假扮另一个角色”，来获取那个角色的权限”\nAWS RAM(Resource Access Manager资源访问管理器):在 同一个 AWS 账户或者不同 AWS 账户 之间共享 AWS 资源，而不用复制或迁移资源\n\nD.通过在销售账户中创建一个IAM角色，并授予该角色访问S3桶的权限，营销账户中的QuickSight可以通过AssumeRole来临时获取该角色的权限，从而访问销售账户中的S3桶。这种方法具有较低的操作开销，因为不需要复制数据或修改S3桶策略，同时也保持了安全性。\n\nA.复制数据到另一个S3桶会增加存储成本和管理复杂性，不是最优解。\n\nB.SCP 是用来限制权限的“滤网”，它不能用来直接授予跨账号访问权限。AWS RAM 目前不支持分享对称加密的 AWS KMS 密钥（仅支持部分特定类型的加密资源或私有 CA）。跨账号使用 KMS 通常需要修改密钥策略或创建 Grant\n\nC。应该是在sales account里修改S3桶策略，那就可以操作。1.在销售账号的 S3 桶策略中，允许市场账号的 QuickSight 角色访问。\n2.为加密该桶的 KMS 密钥创建一个 Grant（授权），让市场账号的角色有权解密。\n3.在 QuickSight 控制台或 IAM 中确保角色有权访问该桶。"
+},
+{
+  "QuestionID": 102,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is planning to migrate its business-critical applications from an on-premises data center to AWS. The company has an on-premises installation of a Microsoft SQL Server Always On cluster. The company wants to migrate to an AWS managed database service. A solutions architect must design a heterogeneous database migration on AWS. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Migrate the SQL Server databases to Amazon RDS for MySQL by using backup and restore utilities." },
+    { "label": "B", "text": "Use an AWS Snowball Edge Storage Optimized device to transfer data to Amazon S3. Set up Amazon RDS for MySQL. Use S3 integration with SQL Server features, such as BULK INSERT." },
+    { "label": "C", "text": "Use the AWS Schema Conversion Tool to translate the database schema to Amazon RDS for MySQL. Then use AWS Database Migration Service (AWS DMS) to migrate the data from on-premises databases to Amazon RDS." },
+    { "label": "D", "text": "Use AWS DataSync to migrate data over the network between on-premises storage and Amazon S3. Set up Amazon RDS for MySQL. Use S3 integration with SQL Server features, such as BULK INSERT." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Heterogeneous Migration (异构迁移)： 指的是源数据库和目标数据库的引擎不同（例如 SQL Server 迁移到 MySQL 或 PostgreSQL）。这种迁移最难的地方在于 Schema（表结构、存储过程、触发器等） 的不兼容\nAWS SCT (Schema Conversion Tool)： 架构转换工具。它能自动扫描源数据库，将绝大部分表结构、视图和代码转换成目标数据库兼容的格式。对于无法自动转换的部分，它会生成报告提醒人工修改\nAWS DMS (Database Migration Service)： 数据库迁移服务。它主要负责数据增量或全量的搬运。它支持跨引擎迁移，并能在迁移过程中保持源端和目标端的数据同步。\nAlways On Cluster：是 高可用性（High Availability, HA） 技术，主要用在 SQL Server 上,目的是保证 数据库持续可用，即使服务器或节点出现故障，也能不中断访问。通过 多个节点（Nodes）组成集群来实现容错\nAmazon RDS (Relational Database Service)： AWS 的托管关系型数据库服务，支持多种引擎（MySQL, PostgreSQL, SQL Server 等）\nSnowball Edge 就是物理搬运大数据，同时支持本地处理，特别适合海量数据迁移或网络受限环境\n\nA. 通过 AWS SCT 和 AWS DMS，可以实现 SQL Server 到 Amazon RDS for MySQL 的异构迁移。直接使用备份和恢复工具不适用于异构迁移，因为它们通常只能在同一数据库引擎之间工作。备份恢复只适用于“同构迁移”（SQL Server 到 SQL Server）。\n\nB. 使用 Snowball Edge 进行数据迁移适用于大规模数据传输，但对于数据库迁移来说，使用 AWS DMS 更加高效和可靠。S3 Integration的 BULK INSERT主要用于将文件导入数据库。但它无法处理 SQL Server 到 MySQL 的语法和架构转换。\n\nC.第一步：使用 SCT 将 SQL Server 的复杂架构（Schema）转换并应用到 RDS MySQL。第二步：使用 DMS 进行数据迁移。这是 AWS 处理异构迁移的标准黄金组合。SCT 解决“语言不通”的问题，DMS 解决“搬运数据”的问题\n\nD.DataSync 是用来同步文件系统（NFS/SMB）数据的工具，不是数据库迁移工具。BULK INSERT 同样无法解决异构数据库的兼容性问题\n文件系统数据 = 文件 + 文件夹 + 元数据\nDataSync = 自动同步本地文件系统数据到 AWS（S3/EFS/FSx），保留文件结构和属性"
+},
+{
+  "QuestionID": 103,
+  "QuestionType": "multiple",
+  "QuestionText": "A publishing company's design team updates the icons and other static assets that an ecommerce web application uses. The company serves the icons and assets from an Amazon S3 bucket that is hosted in the company's production account. The company also uses a development account that members of the design team can access. After the design team tests the static assets in the development account, the design team needs to load the assets into the S3 bucket in the production account. A solutions architect must provide the design team with access to the production account without exposing other parts of the web application to the risk of unwanted changes. Which combination of steps will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "In the production account, create a new IAM policy that allows read and write access to the S3 bucket." },
+    { "label": "B", "text": "In the development account, create a new IAM policy that allows read and write access to the S3 bucket." },
+    { "label": "C", "text": "In the production account, create a role. Attach the new policy to the role. Define the development account as a trusted entity." },
+    { "label": "D", "text": "In the development account, create a role. Attach the new policy to the role. Define the production account as a trusted entity." },
+    { "label": "E", "text": "In the development account, create a group that contains all the IAM users of the design team. Attach a different IAM policy to the group to allow the sts:AssumeRole action on the role in the production account." },
+    { "label": "F", "text": "In the development account, create a group that contains all the IAM users of the design team. Attach a different IAM policy to the group to allow the sts:AssumeRole action on the role in the development account." }
+  ],
+  "CorrectAnswer": ["A", "C", "E"],
+  "Explanation": "Trusted Entity：在 AWS 中，信任实体是指可以被允许假设角色的 AWS 账户、用户或服务。\nAssumeRole：是 AWS 中的一种 API 操作，允许用户或服务临时获得其他角色的权限。\nTrust Relationship：是指在 AWS 中，允许一个 AWS 账户、用户或服务假设另一个角色的权限的关系。\n\n要实现跨账号访问，我们需要完成以下三个核心步骤：\n第一步：定义“能做什么”（权限策略）\n我们需要一份权限，允许对生产账号的那个特定 S3 桶进行读写。\nA.在生产账号定义这个策略，因为权限是作用于生产账号资源的。\nB.在开发账号定义访问生产账号桶的策略是不够的，通常权限由目标账号定义并绑定到角色。\n\n第二步：创建“传送门”（创建角色并建立信任）\n我们需要在目标账号（生产）建一个角色，并告诉它：我信任开发账号。\nC.在生产账号创建角色，挂载 A 里的策略，并将开发账号设为 Trusted Entity。\nD.在开发账号建角色并信任生产账号，方向反了。\n\n第三步：给开发人员“钥匙”（授予 AssumeRole 权限）\n现在生产账号的门（Role）已经开了，但开发账号的用户还需要权限去“走向”那个门。\nE.在开发账号，给设计团队的 Group 挂载一个策略，允许他们对生产账号里的那个 Role 执行 sts:AssumeRole。\nF.角色在生产账号，而不是开发账号。"
+},
+{
+  "QuestionID": 104,
+  "QuestionType": "multiple",
+  "QuestionText": "A company developed a pilot application by using AWS Elastic Beanstalk and Java. To save costs during development, the company's development team deployed the application into a single-instance environment. Recent tests indicate that the application consumes more CPU than expected. CPU utilization is regularly greater than 85%, which causes some performance bottlenecks. A solutions architect must mitigate the performance issues before the company launches the application to production. Which solution will meet these requirements with the LEAST operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a new Elastic Beanstalk application. Select a load-balanced environment type. Select all Availability Zones. Add a scale-out rule that will run if the maximum CPU utilization is over 85% for 5 minutes." },
+    { "label": "B", "text": "Create a second Elastic Beanstalk environment. Apply the traffic-splitting deployment policy. Specify a percentage of incoming traffic to direct to the new environment if the average CPU utilization is over 85% for 5 minutes." },
+    { "label": "C", "text": "Modify the existing environment’s capacity configuration to use a load-balanced environment type. Select all Availability Zones. Add a scale-out rule that will run if the average CPU utilization is over 85% for 5 minutes." },
+    { "label": "D", "text": "Select the Rebuild environment action with the load balancing option. Select an Availability Zone. Add a scale-out rule that will run if the sum CPU utilization is over 85% for 5 minutes." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "AWS Elastic Beanstalk (EB)： 一种 PaaS（平台即服务），能让开发人员快速部署应用，它会自动处理容量预估、负载均衡、自动扩展和健康监测\nScale-out rule：是 EB 中的一种自动扩展规则，当满足特定条件（如 CPU 利用率超过某个阈值）时，EB 会自动增加实例数量来分担负载\nLoad-balanced environment type：EB 提供两种环境类型：单实例和负载均衡。负载均衡环境可以自动分配流量到多个实例，提高可用性和性能\nTraffic-splitting deployment policy：是一种部署策略，可以在两个 EB 环境之间分配流量，通常用于蓝绿部署或 A/B 测试\nRebuild environment action：是 EB 中的一种操作，可以重新构建环境，但这通常用于修复环境问题，而不是扩展性能\n\nA.创建一个新的 EB 应用并选择负载均衡环境会增加管理复杂性，因为需要维护两个独立的环境\n\nB.创建第二个 EB 环境并使用流量分配策略虽然可以解决性能问题，但也增加了运维复杂度，因为需要管理两个环境的配置和监控。\n\nC.Elastic Beanstalk 允许你直接在现有环境的 Configuration -> Capacity 中，将 Environment type 从Single instance 修改为Load balanced修改后，EB 会自动为你创建一个负载均衡器（ALB）并配置 Auto Scaling group。增加基于 平均 CPU 利用率 (Average CPU utilization) 的扩展规则是应对 CPU 瓶颈的标准做法。\n\nD.Rebuild动作会导致较长的停机时间（Downtime），因为它会删除现有资源并重新创建。而且选项中提到的sum CPU utilization（CPU 使用率总和）不是一个合理的扩展指标（通常使用平均值或最大值）"
+},
+{
+  "QuestionID": 105,
+  "QuestionType": "multiple",
+  "QuestionText": "A finance company is running its business-critical application on current-generation Linux EC2 instances. The application includes a self-managed MySQL database performing heavy I/O operations. The application is working fine to handle a moderate amount of traffic during the month. However, it slows down during the final three days of each month due to month-end reporting, even though the company is using Elastic Load Balancers and Auto Scaling within its infrastructure to meet the increased demand. Which of the following actions would allow the database to handle the month-end load with the LEAST impact on performance?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Pre-warming Elastic Load Balancers, using a bigger instance type, changing all Amazon EBS volumes to GP2 volumes." },
+    { "label": "B", "text": "Performing a one-time migration of the database cluster to Amazon RDS, and creating several additional read replicas to handle the load during end of month." },
+    { "label": "C", "text": "Using Amazon CloudWatch with AWS Lambda to change the type, size, or IOPS of Amazon EBS volumes in the cluster based on a specific CloudWatch metric." },
+    { "label": "D", "text": "Replacing all existing Amazon EBS volumes with new PIOPS volumes that have the maximum available storage size and I/O per second by taking snapshots before the end of the month and reverting back afterwards." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "Amazon EBS (Elastic Block Store)： EC2 的云硬盘。它的性能取决于类型（gp3, io2 等）和配置的 IOPS（Input/Output Operations Per Second）\nPIOPS (Provisioned IOPS) Volumes： 预配置 IOPS 卷（如 io1, io2）。适用于对 I/O 极其敏感的数据库业务\nEBS Elastic Volumes： 这是 EBS 的一项核心功能。它允许你在不停止实例、不卸载卷的情况下，动态修改卷的类型、容量和预配置的 IOP\nPre-warming：通常指在负载到达前提前让 ELB 或 EBS 达到就绪状态，但它无法改变硬件的性能上限。\nAWS RDS：一种托管的关系数据库服务，可以自动处理备份、补丁、扩展和高可用性等任务\nRead replicas：只读副本，可以分担主数据库的读取负载，提高性能\n\nA.预热 ELB、使用更大的实例类型和将所有 EBS 卷更改为 GP2 卷,GP2 卷的性能由容量决定（3 IOPS/GB），最大只有 16,000。对于“Heavy I/O”的数据库，GP2 往往不如 PIOPS。且单纯增大实例不一定能解决磁盘 I/O 限制。\n\nB.将数据库迁移到 RDS 并创建多个只读副本是解决方案，因为 RDS 可以自动处理许多管理任务，而只读副本可以分担读取负载，减轻主数据库的压力。\n\nC.使用 CloudWatch 和 Lambda 动态调整 EBS 卷的类型、大小或 IOPS 是一种灵活的解决方案，但可能会引入延迟，无法保证在高峰期前完成调整。\n\nD.替换 EBS 卷为 PIOPS 卷可以提高性能，这种方法需要经历“打快照 -> 创建新卷 -> 挂载卷”的过程。这通常需要Downtime或者会导致数据库长时间的写阻塞但这种方法复杂且风险较高，可能会导致数据丢失或服务中断。"
+},
+{
+  "QuestionID": 106,
+  "QuestionType": "multiple",
+  "QuestionText": "A company runs a Java application that has complex dependencies on VMs that are in the company's data center. The application is stable, but the company wants to modernize the technology stack. The company wants to migrate the application to AWS and minimize the administrative overhead to maintain the servers. Which solution will meet these requirements with the LEAST code changes?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Migrate the application to Amazon Elastic Container Service (Amazon ECS) on AWS Fargate by using AWS App2Container. Store container images in Amazon Elastic Container Registry (Amazon ECR). Grant the ECS task execution role permission to access the ECR image repository. Configure Amazon ECS to use an Application Load Balancer (ALB). Use the ALB to interact with the application." },
+    { "label": "B", "text": "Migrate the application code to a container that runs in AWS Lambda. Build an Amazon API Gateway REST API with Lambda integration. Use API Gateway to interact with the application." },
+    { "label": "C", "text": "Migrate the application to Amazon Elastic Kubernetes Service (Amazon EKS) on EKS managed node groups by using AWS App2Container. Store container images in Amazon Elastic Container Registry (Amazon ECR). Give the EKS nodes permission to access the ECR image repository. Use Amazon API Gateway to interact with the application." },
+    { "label": "D", "text": "Migrate the application code to a container that runs in AWS Lambda. Configure Lambda to use an Application Load Balancer (ALB). Use the ALB to interact with the application." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "AWS App2Container (A2C)：一个命令行工具，专门用于将运行在 VM（Linux 或 Windows）上的 Java 或 .NET 应用自动化地“容器化”。它能分析应用依赖、生成 Dockerfile 并构建镜像，是实现最小化代码更改的神器\nAWS Fargate：一种无服务器计算引擎，适用于容器化应用。它让你无需管理底层服务器或集群，就能运行容器\nAmazon ECR (Elastic Container Registry)：AWS 的托管 Docker 镜像仓库服务\nApplication Load Balancer (ALB)：适用于 HTTP/HTTPS 流量的负载均衡器，支持基于内容的路由\nAmazon API Gateway：一种完全托管的服务，使开发人员能够轻松创建、发布、维护、监控和保护 API\nAWS Lambda：一种无服务器计算服务，允许你运行代码而无需预置或管理服务器\nAmazon EKS (Elastic Kubernetes Service)：AWS 的托管 Kubernetes 服务，适合需要 Kubernetes 生态系统的应用\nAmazon ECS (Elastic Container Service)：AWS 的托管容器服务，适合需要简单容器编排的应用,AWS 原生的容器编排服务，比 Kubernetes (EKS) 更易于上手和管理。\n\nA.使用 AWS App2Container 将 Java 应用迁移到 Amazon ECS on Fargate 是一个理想的选择，因为它可以最小化代码更改，同时提供无服务器的容器运行环境。ECR 用于存储容器镜像，ALB 用于处理应用流量。App2Container 会自动处理复杂的依赖项并将其封装进容器，基本无需修改原始代码（Lift-and-shift to container）\n\nBD.将应用迁移到 Lambda 可能需要大量代码重构，因为 Lambda 是事件驱动的，并且有执行时间限制，不适合所有类型的应用。Lambda 的环境是受限的（例如文件系统读写、特定的库支持）。将一个原本运行在 VM 上的复杂 Java 应用迁移到 Lambda，通常需要对代码架构进行重大的解耦和重写（从 Servlet/Spring 变成 Function 模式）。\n\nC.虽然 EKS 是一个强大的 Kubernetes 服务，但它通常需要更多的管理和配置工作，相比 Fargate 来说，运维复杂度更高"
+},
+{
+  "QuestionID": 107,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has an asynchronous HTTP application that is hosted as an AWS Lambda function. A public Amazon API Gateway endpoint invokes the Lambda function. The Lambda function and the API Gateway endpoint reside in the us-east-1 Region. A solutions architect needs to redesign the application to support failover to another AWS Region. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an API Gateway endpoint in the us-west-2 Region to direct traffic to the Lambda function in us-east-1. Configure Amazon Route 53 to use a failover routing policy to route traffic for the two API Gateway endpoints." },
+    { "label": "B", "text": "Create an Amazon Simple Queue Service (Amazon SQS) queue. Configure API Gateway to direct traffic to the SQS queue instead of to the Lambda function. Configure the Lambda function to pull messages from the queue for processing." },
+    { "label": "C", "text": "Deploy the Lambda function to the us-west-2 Region. Create an API Gateway endpoint in us-west-2 to direct traffic to the Lambda function in us-west-2. Configure AWS Global Accelerator and an Application Load Balancer to manage traffic across the two API Gateway endpoints." },
+    { "label": "D", "text": "Deploy the Lambda function and an API Gateway endpoint to the us-west-2 Region. Configure Amazon Route 53 to use a failover routing policy to route traffic for the two API Gateway endpoints." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "Regional API Gateway Endpoint：API Gateway 允许你在多个 AWS 区域创建 API 端点，这些端点可以独立部署和管理\nAmazon Route 53 Failover Routing Policy：一种 DNS 路由策略，可以根据健康检查结果将流量路由到主或备用资源\nAWS Global Accelerator：一种网络服务，可以优化全球用户访问应用的性能和可用性\nApplication Load Balancer (ALB)：适用于 HTTP/HTTPS 流量的负载均衡器，支持基于内容的路由\nAmazon SQS (Simple Queue Service)：一种完全托管的消息队列服务，适用于解耦和异步处理\nLambda Pull Model：Lambda 函数可以被配置为从 SQS 队列中轮询消息进行处理，这种模式适合需要缓冲和异步处理的场景\n\nA.虽然在 us-west-2 创建一个 API Gateway 端点并使用 Route 53 的故障转移路由是一个可行的方案，但它没有提到在 us-west-2 部署 Lambda 函数，这会导致当流量被路由到 us-west-2 时无法处理请求。\n\nB.将 API Gateway 配置为直接发送请求到 SQS 队列，并让 Lambda 从队列中拉取消息进行处理，这种设计虽然解耦了 API 和 Lambda，但它本身是一个区域性服务。如果不讨论跨区域如何配置 SQS 以及如何进行路由切换，它无法解决“Failover to another Region”的需求。\n\nC.使用 AWS Global Accelerator 和 ALB 来管理跨区域流量对于这种简单的 Lambda 和 API Gateway 架构来说过于复杂，且不必要。Global Accelerator 更适合需要优化全球用户访问性能的应用，而不是简单的故障转移。API Gateway 是受管服务，通常直接通过 Route 53 进行 DNS 故障转移，而不是挂载在 ALB 后面。虽然技术上可以组合，但这增加了不必要的复杂度。\n\nD.在 us-west-2 部署 Lambda 函数和 API Gateway 端点，并使用 Route 53 的故障转移路由是一个直接且有效的解决方案，可以确保当主区域（us-east-1）不可用时，流量会自动切换到备用区域（us-west-2）进行处理。"
+},
+{
+  "QuestionID": 108,
+  "QuestionType": "multiple",
+  "QuestionText": "A retail company has structured its AWS accounts to be part of an organization in AWS Organizations. The company has set up consolidated billing and has mapped its departments to the following OUs: Finance, Sales, Human Resources (HR), Marketing, and Operations. Each OU has multiple AWS accounts, one for each environment within a department: development, test, pre-production, and production. The HR department is releasing a new system that will launch in 3 months. In preparation, the HR department has purchased several Reserved Instances (RIs) in its production AWS account. The HR department will install the new application on this account. The HR department wants to make sure that other departments cannot share the RI discounts. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "In the AWS Billing and Cost Management console for the HR department's production account, turn off RI sharing." },
+    { "label": "B", "text": "Remove the HR department's production AWS account from the organization. Add the account to the consolidated billing configuration only." },
+    { "label": "C", "text": "In the AWS Billing and Cost Management console, use the organization’s management account to turn off RI sharing for the HR department's production AWS account." },
+    { "label": "D", "text": "Create an SCP in the organization to restrict access to the RIs. Apply the SCP to the OUs of the other departments." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Consolidated Billing：AWS Organizations 的一个功能，允许多个 AWS 账户共享一个付款方式，并且可以在账单上看到所有账户的费用和使用情况，它最大的优势是折扣共享 (Discount Sharing)，例如阶梯式定价和 RI 折扣。\nReserved Instances (RIs)：一种预付费的 EC2 定价选项，可以提供显著的成本节约，但默认情况下，RI 折扣会在同一组织内的所有账户之间共享\nRI Sharing：AWS Organizations 中的一个功能，允许组织内的所有账户共享 RI 折扣，如果某个账号购买了 RI 但没用完，多余的折扣会自动“飘”到组织内其他账号下相同配置的实例上\nService Control Policies (SCPs)：一种 AWS Organizations 的功能，可以用来限制组织内账户或 OU 的权限，但它不能直接控制 RI 折扣的共享\n\nA.在 HR 部门的生产账户中关闭 RI 共享是无效的，因为 RI 共享是由组织级别控制的，而不是单个账户级别。\n\nB.将 HR 部门的生产账户从组织中移除并仅添加到合并计费配置中虽然可以阻止其他部门共享 RI 折扣，但这会导致 HR 部门失去对组织内其他资源和服务的访问权限，这可能不是一个理想的解决方案。\n\nC.AWS 允许管理账号在计费偏好设置中，针对特定的账号禁用 RI 折扣共享 (RI Discount Sharing),一旦禁用，HR 生产账号购买的 RI 就只会应用在该账号内部。如果该账号有闲置 RI，也不会被销售或财务等其他部门的实例“蹭”走\n\nD.创建 SCP 来限制对 RIs 的访问虽然可以限制其他部门对 RIs 的使用，但这并不能真正阻止他们享受 RI 折扣，因为折扣是自动应用于符合条件的实例上的。SCPs 更多用于权限管理，而不是成本管理。"
+},
+{
+  "QuestionID": 109,
+  "QuestionType": "multiple",
+  "QuestionText": "A large company is running a popular web application. The application runs on several Amazon EC2 Linux instances in an Auto Scaling group in a private subnet. An Application Load Balancer is targeting the instances in the Auto Scaling group in the private subnet. AWS Systems Manager Session Manager is configured, and AWS Systems Manager Agent is running on all the EC2 instances. The company recently released a new version of the application. Some EC2 instances are now being marked as unhealthy and are being terminated. As a result, the application is running at reduced capacity. A solutions architect tries to determine the root cause by analyzing Amazon CloudWatch logs that are collected from the application, but the logs are inconclusive. How should the solutions architect gain access to an EC2 instance to troubleshoot the issue?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Suspend the Auto Scaling group’s HealthCheck scaling process. Use Session Manager to log in to an instance that is marked as unhealthy." },
+    { "label": "B", "text": "Enable EC2 instance termination protection. Use Session Manager to log in to an instance that is marked as unhealthy." },
+    { "label": "C", "text": "Set the termination policy to OldestInstance on the Auto Scaling group. Use Session Manager to log in to an instance that is marked as unhealthy." },
+    { "label": "D", "text": "Suspend the Auto Scaling group’s Terminate process. Use Session Manager to log in to an instance that is marked as unhealthy." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "ASG Scaling Processes：Auto Scaling Group 有多个内置的扩展和缩减过程（Scaling Processes），如 Launch、Terminate、HealthCheck 等，可以通过 Suspend 和 Resume 来控制这些过程的执行\nSession Manager：AWS Systems Manager 的一个功能，允许你通过安全的方式远程访问 EC2 实例，无需开放 SSH 端口或使用 bastion host\nHealth Check Process：ASG 的健康检查过程会定期检查实例的健康状态，如果实例被标记为不健康，ASG 会自动终止该实例并启动一个新的实例来替代它\nTerminate Process：ASG 的终止过程负责根据健康检查结果或其他触发条件来终止实例\nTermination Protection：EC2 实例的一个功能，可以防止实例被意外终止，但它不适用于 ASG 管理的实例，因为 ASG 会忽略实例级别的终止保护\nTermination Policy：ASG 的一个配置选项，决定在需要缩减容量时，哪个实例会被优先终止（如 OldestInstance, NewestInstance, ClosestToNextInstanceHour 等）\n\nA.暂停 HealthCheck 过程虽然可以暂时阻止 ASG 根据健康检查结果来缩减容量，但这可能会导致更多的不健康实例继续运行，影响应用性能。\n\nB.启用EC2终止保护对于 ASG 管理的实例无效，因为 ASG 会忽略这个设置。如果 ASG 决定要替换一个不健康的实例，即使你手动开启了实例保护，ASG 依然可以绕过它去终止实例（或者会导致冲突但不是标准的排错流程）。\n\nC.设置 Termination Policy 为 OldestInstance 可能会让旧实例被优先终止，但这并不能保证你能登录到一个不健康的实例进行排查，因为 ASG 仍然会根据健康检查结果来决定哪些实例需要被替换。\n\nD.暂停 Terminate 过程可以防止 ASG 自动终止不健康的实例，即使健康检查标记实例为 Unhealthy，ASG 也没有权限去“动手”杀掉它。实例会一直保持在 Unhealthy 状态并在控制台可见，这样你就可以使用 Session Manager 登录到这些实例进行故障排查，而不会担心它们被自动替换掉。"
+},
+{
+  "QuestionID": 110,
+  "QuestionType": "multiple",
+  "QuestionText": "A company wants to deploy an AWS WAF solution to manage AWS WAF rules across multiple AWS accounts. The accounts are managed under different OUs in AWS Organizations. Administrators must be able to add or remove accounts or OUs from managed AWS WAF rule sets as needed. Administrators also must have the ability to automatically update and remediate noncompliant AWS WAF rules in all accounts. Which solution meets these requirements with the LEAST amount of operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use AWS Firewall Manager to manage AWS WAF rules across accounts in the organization. Use an AWS Systems Manager Parameter Store parameter to store account numbers and OUs to manage. Update the parameter as needed to add or remove accounts or OUs. Use an Amazon EventBridge rule to identify any changes to the parameter and to invoke an AWS Lambda function to update the security policy in the Firewall Manager administrative account." },
+    { "label": "B", "text": "Deploy an organization-wide AWS Config rule that requires all resources in the selected OUs to associate the AWS WAF rules. Deploy automated remediation actions by using AWS Lambda to fix noncompliant resources. Deploy AWS WAF rules by using an AWS CloudFormation stack set to target the same OUs where the AWS Config rule is applied." },
+    { "label": "C", "text": "Create AWS WAF rules in the management account of the organization. Use AWS Lambda environment variables to store account numbers and OUs to manage. Update environment variables as needed to add or remove accounts or OUs. Create cross-account IAM roles in member accounts. Assume the roles by using AWS Security Token Service (AWS STS) in the Lambda function to create and update AWS WAF rules in the member accounts." },
+    { "label": "D", "text": "Use AWS Control Tower to manage AWS WAF rules across accounts in the organization. Use AWS Key Management Service (AWS KMS) to store account numbers and OUs to manage. Update AWS KMS as needed to add or remove accounts or OUs. Create IAM users in member accounts. Allow AWS Control Tower in the management account to use the access key and secret access key to create and update AWS WAF rules in the member accounts." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "AWS WAF (Web Application Firewall)：一种云原生的安全服务，可以帮助保护 web 应用免受常见的 web 攻击\nAWS Firewall Manager：一种安全管理服务，可以集中管理多个 AWS 账户和资源上的 AWS WAF 规则和安全策略\nAWS Systems Manager Parameter Store：一种集中化的配置管理服务，可以安全地存储和管理参数（如字符串、密钥等）\nAmazon EventBridge：一种无服务器事件总线服务，可以连接应用程序与 AWS 服务，触发基于事件的自动化工作流\nAWS Lambda：一种无服务器计算服务，允许你运行代码而无需预置或管理服务器\nAWS Config：一种服务，用于评估、审核和评估 AWS 资源的配置，支持自动修复非合规资源\nAWS CloudFormation StackSets：一种 CloudFormation 功能，允许你在多个账户和区域中部署 CloudFormation 模板\nAWS Control Tower：一种服务，提供了一个预配置的环境来设置和治理多账户 AWS 环境\nAWS KMS (Key Management Service)：一种托管的加密密钥管理服务，主要用于加密数据，而不是存储配置信息\nCross-account IAM Roles：允许一个 AWS 账户中的用户或服务临时获得另一个账户中资源的访问权限\nAWS STS (Security Token Service)：一种服务，允许你请求临时、安全的访问凭证，以访问 AWS 资源\n\nA.使用 AWS Firewall Manager 是最直接且低运维的解决方案，因为它是专门设计来跨多个账户管理 AWS WAF 规则的。通过 Parameter Store 来动态存储需要管理的账户和 OU 列表，并使用 EventBridge 和 Lambda 来自动更新 Firewall Manager 的安全策略，可以实现高度自动化和灵活的管理。\n\nB.虽然可以使用 AWS Config 和 CloudFormation StackSets 来实现跨账户规则部署和合规性检查，但需要自己维护 Config 规则、编写 Lambda 修复逻辑，并手动管理 CloudFormation StackSets 的部署范围，相比 Firewall Manager 来说运维复杂度更高。\n\nC.使用 Lambda 环境变量来存储账户信息并通过 STS 实现跨账户访问虽然可行，但这需要大量自定义代码来处理权限、错误处理和更新逻辑，相比 Firewall Manager 的内置功能来说运维负担更重。\n\nD.使用 AWS Control Tower可以管理多账号，但它不是直接管理 WAF 规则的工具,方案中提到存储 Access Keys/Secret Keys 并在多账号间共享，这违反了 AWS 的安全最佳实践（应该使用 IAM Role 而不是长期的 Access Key），并且 Control Tower 主要用于账户治理，而不是安全规则管理，因此这个方案不太合适。"
+},
+{
+  "QuestionID": 111,
+  "QuestionType": "multiple",
+  "QuestionText": "A solutions architect is auditing the security setup of an AWS Lambda function for a company. The Lambda function retrieves the latest changes from an Amazon Aurora database. The Lambda function and the database run in the same VPC. Lambda environment variables are providing the database credentials to the Lambda function. The Lambda function aggregates data and makes the data available in an Amazon S3 bucket that is configured for server-side encryption with AWS KMS managed encryption keys (SSE-KMS). The data must not travel across the Internet. If any database credentials become compromised, the company needs a solution that minimizes the impact of the compromise. What should the solutions architect recommend to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Enable IAM database authentication on the Aurora DB cluster. Change the IAM role for the Lambda function to allow the function to access the database by using IAM database authentication. Deploy a gateway VPC endpoint for Amazon S3 in the VPC." },
+    { "label": "B", "text": "Enable IAM database authentication on the Aurora DB cluster. Change the IAM role for the Lambda function to allow the function to access the database by using IAM database authentication. Enforce HTTPS on the connection to Amazon S3 during data transfers." },
+    { "label": "C", "text": "Save the database credentials in AWS Systems Manager Parameter Store. Set up password rotation on the credentials in Parameter Store. Change the IAM role for the Lambda function to allow the function to access Parameter Store. Modify the Lambda function to retrieve the credentials from Parameter Store. Deploy a gateway VPC endpoint for Amazon S3 in the VPC." },
+    { "label": "D", "text": "Save the database credentials in AWS Secrets Manager. Set up password rotation on the credentials in Secrets Manager. Change the IAM role for the Lambda function to allow the function to access Secrets Manager. Modify the Lambda function to retrieve the credentials from Secrets Manager. Enforce HTTPS on the connection to Amazon S3 during data transfers." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "IAM Database Authentication：一种 AWS RDS 和 Aurora 的认证方式，允许你使用 IAM 角色和策略来控制对数据库的访问，而不是使用传统的用户名和密码\nAWS Systems Manager Parameter Store：一种集中化的配置管理服务，可以安全地存储和管理参数（如字符串、密钥等），支持自动轮换功能\nAWS Secrets Manager：一种托管的秘密管理服务，专门用于存储和管理敏感信息（如数据库凭证），支持自动轮换功能\nGateway VPC Endpoint for S3：一种 VPC 端点类型，允许你在 VPC 内部直接访问 S3，而无需通过互联网\nEnforce HTTPS：确保数据在传输过程中加密，防止中间人攻击\n\nA.启用 IAM 认证后，Lambda 根本不需要密码，直接用自己的 IAM Role 就能访问数据库。部署 S3 的 Gateway VPC Endpoint 可以确保数据在传输过程中不经过互联网，满足数据不离开 VPC 的要求。\n\nB.虽然启用 IAM 数据库认证是一个好主意，但仅仅强制使用 HTTPS 并不能保证数据不经过互联网，因为如果没有 VPC 端点，Lambda 仍然需要通过公共网络访问 S3。HTTPS 虽然保证了传输加密，但它默认走的是公网路径\n\nC.将数据库凭证存储在 Parameter Store 并设置密码轮换是一个改进，但相比 Secrets Manager 来说，Parameter Store 在安全性和功能上不如 Secrets Manager 专门化。此外，虽然部署 Gateway VPC Endpoint 是必要的，但这个方案没有利用 IAM 数据库认证来完全消除静态凭证的风险。\n\nD.虽然 Secrets Manager 是一个更专业的秘密管理工具，但它可能会引入额外的成本和复杂性。启用 IAM 数据库认证已经足够减少凭证泄露的风险，而强制 HTTPS 并不能保证数据不经过互联网"
+},
+{
+  "QuestionID": 112,
+  "QuestionType": "multiple",
+  "QuestionText": "A large mobile gaming company has successfully migrated all of its on-premises infrastructure to the AWS Cloud. A solutions architect is reviewing the environment to ensure that it was built according to the design and that it is running in alignment with the Well-Architected Framework. While reviewing previous monthly costs in Cost Explorer, the solutions architect notices that the creation and subsequent termination of several large instance types account for a high proportion of the costs. The solutions architect finds out that the company’s developers are launching new Amazon EC2 instances as part of their testing and that the developers are not using the appropriate instance types. The solutions architect must implement a control mechanism to limit the instance types that only the developers can launch. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a desired-instance-type managed rule in AWS Config. Configure the rule with the instance types that are allowed. Attach the rule to an event to run each time a new EC2 instance is launched." },
+    { "label": "B", "text": "In the EC2 console, create a launch template that specifies the instance types that are allowed. Assign the launch template to the developers’ IAM accounts." },
+    { "label": "C", "text": "Create a new IAM policy. Specify the instance types that are allowed. Attach the policy to an IAM group that contains the IAM accounts for the developers." },
+    { "label": "D", "text": "Use EC2 Image Builder to create an image pipeline for the developers and assist them in the creation of a golden image." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Condition Elements in IAM Policies：IAM 策略中的条件元素允许你基于特定的条件来限制或允许对 AWS 资源的访问，例如基于实例类型、标签等\nAWS Config Rules：一种服务，用于评估 AWS 资源的配置是否符合预定义的规则，但它主要用于监控和合规性检查，而不是直接控制资源的创建\nEC2 Launch Templates：一种 EC2 功能，允许你预定义实例的配置，但它并不能强制开发人员只能使用特定的实例类型，除非你完全禁止其他方式启动实例\nEC2 Image Builder：一种服务，帮助你自动化创建和维护 EC2 镜像，但它并不直接控制开发人员可以启动哪些实例类型\n\nA.虽然 AWS Config 可以监控 EC2 实例的创建并评估是否符合指定的实例类型，但它无法阻止开发人员启动不符合条件的实例。Config 是一个被动监控工具，而不是一个主动控制工具。\n\nB.创建一个包含特定实例类型的启动模板虽然可以提供一个方便的选项，但开发人员仍然可以绕过这个模板直接启动其他类型的实例，因此这并不能完全解决问题。\n\nC.通过创建一个 IAM 策略，明确指定允许使用哪些 EC2 实例类型，并将该策略附加到开发人员所在的 IAM 组，可以直接限制他们只能启动符合条件的实例。这是最有效且运维负担最小的方法。\n\nD.使用 EC2 Image Builder 创建一个 golden image 虽然有助于标准化环境，但它并不能直接限制开发人员启动哪些实例类型。开发人员仍然可以选择不同的实例类型来运行镜像。"
+},
+{
+  "QuestionID": 113,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is developing and hosting several projects in the AWS Cloud. The projects are developed across multiple AWS accounts under the same organization in AWS Organizations. The company requires the cost for cloud infrastructure to be allocated to the owning project. The team responsible for all of the AWS accounts has discovered that several Amazon EC2 instances are lacking the Project tag used for cost allocation. Which actions should a solutions architect take to resolve the problem and prevent it from happening in the future? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an AWS Config rule in each account to find resources with missing tags." },
+    { "label": "B", "text": "Create an SCP in the organization with a deny action for ec2:RunInstances if the Project tag is missing." },
+    { "label": "C", "text": "Use Amazon Inspector in the organization to find resources with missing tags." },
+    { "label": "D", "text": "Create an IAM policy in each account with a deny action for ec2:RunInstances if the Project tag is missing." },
+    { "label": "E", "text": "Create an AWS Config aggregator for the organization to collect a list of EC2 instances with the missing Project tag." },
+    { "label": "F", "text": "Use AWS Security Hub to aggregate a list of EC2 instances with the missing Project tag." }
+  ],
+  "CorrectAnswer": ["A", "B", "E"],
+  "Explanation": "AWS Config Rule： 检测性控制工具。它可以持续监控资源配置。如果发现某个资源不符合规则（比如缺少标签），它会标记为 Non-compliant（不合规），并且可以触发自动修复措施或通知。\nService Control Policy (SCP)：一种 AWS Organizations 的功能，可以用来限制组织内账户或 OU 的权限。通过 SCP，你可以强制执行某些规则（如必须包含特定标签）来控制资源的创建和管理。\nAWS Config Aggregator：一种 AWS Config 的功能，允许你跨多个账户和区域收集和汇总资源配置和合规性数据，方便集中查看和分析。\nAmazon Inspector：一种自动化安全评估服务，主要用于检查 EC2 实例的安全漏洞和不符合最佳实践的配置，而不是用于标签管理。\nAWS Security Hub：一种安全服务，提供了一个全面的视图来监控 AWS 环境中的安全状态\n\n第一部分：发现问题（针对存量资源）\n我们需要一套机制来全局扫描缺失标签的实例。\n选项 A： 正确。在每个账号里建立 Config 规则，检查 EC2 是否有 Project 标签。\n选项 E： 正确。通过聚合器 (Aggregator)，你不需要登录每个账号去查看。管理账号可以直接拉出一张清单，显示整个公司哪些实例不合规。这是“Resolve”问题的关键一步。\n\n第二部分：预防问题（针对增量资源）\n我们需要一个强制性的手段，让不带标签的请求直接失败。\n选项 B： 正确。在 Organizations 级别应用 SCP。这比在每个账号单独写 IAM 策略（选项 D）要高效得多，且具备全局强制力（甚至能限制成员账号的 Root 用户）。\n选项 D： 虽然功能相似，但在多账号环境下，SCP 是比 IAM 策略更优、开销更小的集中管理方式。\n\n排除项分析：\n选项 C (Inspector)： 用于漏洞扫描和网络安全评估，不负责标签检查。\n选项 F (Security Hub)： 汇总安全发现（如配置错误的防火墙），虽然可以集成 Config，但它不是处理标签合规性最直接、开销最小的工具。"
+},
+{
+  "QuestionID": 114,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has an on-premises monitoring solution using a PostgreSQL database for persistence of events. The database is unable to scale due to heavy ingestion and it frequently runs out of storage.The company wants to create a hybrid solution and has already set up a VPN connection between its network and AWS. The solution should include the following attributes:\n• Managed AWS services to minimize operational complexity.\n• A buffer that automatically scales to match the throughput of data and requires no ongoing administration.\n• A visualization tool to create dashboards to observe events in near-real time.\n• Support for semi-structured JSON data and dynamic schemas.\nWhich combination of components will enable the company to create a monitoring solution that will satisfy these requirements? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use Amazon Kinesis Data Firehose to buffer events. Create an AWS Lambda function to process and transform events." },
+    { "label": "B", "text": "Create an Amazon Kinesis data stream to buffer events. Create an AWS Lambda function to process and transform events." },
+    { "label": "C", "text": "Configure an Amazon Aurora PostgreSQL DB cluster to receive events. Use Amazon QuickSight to read from the database and create near-real-time visualizations and dashboards." },
+    { "label": "D", "text": "Configure Amazon Elasticsearch Service (Amazon ES) to receive events. Use the Kibana endpoint deployed with Amazon ES to create near-real-time visualizations and dashboards." },
+    { "label": "E", "text": "Configure an Amazon Neptune DB instance to receive events. Use Amazon QuickSight to read from the database and create near-real-time visualizations and dashboards." }
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "Amazon Kinesis Data Firehose：一种完全托管的服务，可以轻松地将数据流式传输到多个目标，包括 Amazon S3、Amazon Redshift 和 Amazon Elasticsearch Service。它可以自动扩展以匹配数据吞吐量，并且无需用户进行持续管理。全托管 (Managed)： 你不需要管理服务器或分片，它自动扩容。缓冲区 (Buffer)： 它会先攒一会数据（比如攒够 1MB 或者等了 60 秒），然后再一次性发给目的地，这样效率最高。\n\nAmazon Elasticsearch Service (也叫OpenSearch Service)：一种托管的 Elasticsearch 服务，允许用户轻松地搜索、分析和可视化数据。通过与 Kibana 集成，用户可以创建实时仪表板，以监控和分析事件数据。就像一个超级图书馆索引系统。它存的不是书，而是 JSON 格式的文档。不管你存多少，它都能在毫秒内帮你搜出来,半结构化数据： 非常适合处理日志（Logs），字段可以动态增加。\nKibana: 通过与 Elasticsearch 集成，Kibana 提供了一个用户友好的界面，用于创建可视化和仪表板。它直接连在 OpenSearch 上，把你搜出来的文字变成饼图、折线图和实时波形图。实时性: 只要 OpenSearch 里有新数据，Kibana 仪表板就会自动刷新,零代码： 通过鼠标拖拽就能生成报表\nAmazon Kinesis Data Streams：一种托管的服务，允许用户实时处理和分析流数据。就像一个带标签的大型传送带。数据放上去后，多个工人（消费者）可以同时从传送带上拿数据进行不同的处理,延迟通常在毫秒级，比 Firehose 快。同样的数据，你可以一边让 Lambda 处理，一边让另一个程序存进数据库。\nAmazon QuickSight:是 AWS 提供的企业级商业智能服务。就像是云端的超级 Excel + Tableau。它用来分析存储在数据库（如 Aurora, Redshift, S3）里的历史数据\nKibana 擅长看“刚才发生了什么”（实时日志、监控）\nQuickSight 擅长看“上个月发生了什么”或者“销售趋势如何”（商业分析、复杂报表）\n\nA. 使用 Amazon Kinesis Data Firehose 来缓冲事件。Firehose 是完全无服务器的，它根据数据吞吐量自动缩放，无需人工干预（满足“缓冲区”要求）,创建一个 AWS Lambda 函数来处理和转换事件。通过集成 Lambda，可以在数据写入目标（如 ES）之前进行实时清洗和转换。\n\nD. 配置 Amazon Elasticsearch Service 来接收事件。ES 非常适合存储和查询半结构化的 JSON 数据，并且可以处理动态模式。使用 Kibana 来创建近实时的可视化和仪表板，满足监控需求。\n\nB.相比 Firehose，Data Stream 更偏向于底层的流处理，通常需要消费者（Consumer）端持续运行。Firehose 专注于“交付（Delivery）”，运维开销更低\n\nC.尽管 PostgreSQL 支持 JSONB，但它本质上是关系型数据库。处理动态 Schema 和海量日志时，其灵活性和近实时可视化的延迟表现不如 ES + Kibana\n\nE.配置 Amazon Neptune DB 实例来接收事件。使用 Amazon QuickSight 从数据库中读取并创建近实时的可视化和仪表板。Neptune 是图数据库（Graph Database），用于处理复杂的社交网络或推荐引擎关系。用它做日志监控可视化是完全错误的工具选型。"
+},
+{
+  "QuestionID": 115,
+  "QuestionType": "multiple",
+  "QuestionText": "A team collects and routes behavioral data for an entire company. The company runs a Multi-AZ VPC environment with public subnets, private subnets, and an internet gateway. Each public subnet also contains a NAT gateway. Most of the company’s applications read from and write to Amazon Kinesis Data Streams. Most of the workloads run in private subnets. A solutions architect must review the infrastructure. The solutions architect needs to reduce costs and maintain the function of the applications. The solutions architect uses Cost Explorer and notices that the cost in the EC2-Other category is consistently high. A further review shows that NatGateway-Bytes charges are increasing the cost in the EC2-Other category. What should the solutions architect do to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Enable VPC Flow Logs. Use Amazon Athena to analyze the logs for traffic that can be removed. Ensure that security groups are blocking traffic that is responsible for high costs." },
+    { "label": "B", "text": "Add an interface VPC endpoint for Kinesis Data Streams to the VPC. Ensure that applications have the correct IAM permissions to use the interface VPC endpoint." },
+    { "label": "C", "text": "Enable VPC Flow Logs and Amazon Detective. Review Detective findings for traffic that is not related to Kinesis Data Streams. Configure security groups to block that traffic." },
+    { "label": "D", "text": "Add an interface VPC endpoint for Kinesis Data Streams to the VPC. Ensure that the VPC endpoint policy allows traffic from the applications." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "Interface VPC Endpoint：一种 VPC 端点类型，它由 AWS PrivateLink 提供支持。它会在你的 VPC 私有子网内创建一个弹性网络接口（ENI），并分配一个私有 IP,允许你通过私有 IP 地址直接访问 AWS 服务（如 Kinesis Data Streams），流量直接从私有实例发送到这个私有 IP，然后通过 AWS 内部网络到达 Kinesis，而无需通过 NAT 网关或互联网。这可以显著降低 NAT 网关的流量成本，因为数据流量不会经过 NAT 网关。\nVPC Flow Logs：一种功能，可以捕获有关 VPC 中网络接口的 IP 流量信息，帮助分析和排查网络流量问题\nAmazon Athena：一种交互式查询服务，可以使用标准 SQL 来分析存储在 Amazon S3 中的数据，包括 VPC Flow Logs\nAmazon Detective：一种安全服务，可以帮助你分析、调查和快速识别 AWS 环境中的安全问题\nSecurity Groups：一种虚拟防火墙，用于控制 EC2 实例的入站和出站流量\nVPC Endpoint Policy：一种资源策略，可以用来控制对 VPC 端点的访问权限，确保只有授权的应用程序能够使用该端点访问 AWS 服务\n\nA.虽然启用 VPC Flow Logs 和使用 Athena 分析日志可以帮助识别不必要的流量，但这并不能直接解决 NAT 网关成本高的问题。更有效的方法是直接减少通过 NAT 网关的数据流量。\n\nB.添加一个接口 VPC 端点可以直接解决 NAT 网关成本高的问题，因为它允许应用程序直接访问 Kinesis Data Streams，而不需要经过 NAT 网关。然而，确保应用程序具有正确的 IAM 权限是必要的，但这只是实现方案的一部分。现在的瓶颈是网络访问策略。\n\nC.启用 VPC Flow Logs 和 Amazon Detective 可以帮助分析不相关的流量，但这并不能直接降低 NAT 网关的成本。更有效的方法是通过添加接口 VPC 端点来减少通过 NAT 网关的数据流量。\n\nD.添加一个Interface Endpoint,并确保 VPC Endpoint Policy 允许来自应用的流量,是最直接有效的方法来降低 NAT 网关成本，因为它允许应用程序直接访问 Kinesis Data Streams，而不需要经过 NAT 网关。同时，确保 VPC 端点策略允许应用程序访问也是必要的"
+},
+{
+  "QuestionID": 116,
+  "QuestionType": "multiple",
+  "QuestionText": "A retail company has an on-premises data center in Europe. The company also has a multi-Region AWS presence that includes the eu-west-1 and us-east-1 Regions. The company wants to be able to route network traffic from its on-premises infrastructure into VPCs in either of those Regions. The company also needs to support traffic that is routed directly between VPCs in those Regions. No single points of failure can exist on the network. The company already has created two 1 Gbps AWS Direct Connect connections from its on-premises data center. Each connection goes into a separate Direct Connect location in Europe for high availability. These two locations are named DX-A and DX-B, respectively. Each Region has a single AWS Transit Gateway that is configured to route all inter-VPC traffic within that Region. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a private VIF from the DX-A connection into a Direct Connect gateway. Create a private VIF from the DX-B connection into the same Direct Connect gateway for high availability. Associate both the eu-west-1 and us-east-1 transit gateways with the Direct Connect gateway. Peer the transit gateways with each other to support cross-Region routing." },
+    { "label": "B", "text": "Create a transit VIF from the DX-A connection into a Direct Connect gateway. Associate the eu-west-1 transit gateway with this Direct Connect gateway. Create a transit VIF from the DX-B connection into a separate Direct Connect gateway. Associate the us-east-1 transit gateway with this separate Direct Connect gateway. Peer the Direct Connect gateways with each other to support high availability and cross-Region routing." },
+    { "label": "C", "text": "Create a transit VIF from the DX-A connection into a Direct Connect gateway. Create a transit VIF from the DX-B connection into the same Direct Connect gateway for high availability. Associate both the eu-west-1 and us-east-1 transit gateways with this Direct Connect gateway. Configure the Direct Connect gateway to route traffic between the transit gateways." },
+    { "label": "D", "text": "Create a transit VIF from the DX-A connection into a Direct Connect gateway. Create a transit VIF from the DX-B connection into the same Direct Connect gateway for high availability. Associate both the eu-west-1 and us-east-1 transit gateways with this Direct Connect gateway. Peer the transit gateways with each other to support cross-Region routing." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "Transit Gateway (TGW)：一种 AWS 网络服务，充当云中的“区域路由器”,允许你连接多个 VPC 和本地网络，通过一个中心化的网关进行路由管理\nAWS Direct Connect：一种云服务解决方案，提供专用网络连接，从你的数据中心直接连接到 AWS\nVirtual Interface (VIF)：Direct Connect 中的一个概念，分为 Private VIF（用于连接到 VPC）和 Transit VIF（用于连接到 Transit Gateway）\nDirect Connect Gateway：一种资源，可以让你将 Direct Connect 连接与多个 Transit Gateway 关联，实现跨 Region 的网络连接,Direct Connect Gateway 本身不支持在其关联的两个 TGW 之间路由流量（它不是路由器，只是个连接器）。因此，跨 Region 的 TGW 通信必须靠 TGW Peering。\nPeering：一种网络连接方式，允许两个 Transit Gateway 直接通信，实现跨 Region 的路由\n\nA.创建 Private VIF 不适合连接到 Transit Gateway，因为 Private VIF 是用于直接连接到 VPC 的，而不是 Transit Gateway。正确的做法是使用 Transit VIF 来连接到 Transit Gateway。\n\nB.它建议创建两个独立的 DXGW 并尝试将它们“对等（Peer）”。AWS 不支持 Direct Connect Gateway 之间的对等连接。\n\nC.它试图通过 DXGW 来路由两个 TGW 之间的流量。DXGW 不支持跨 TGW 路由\n\nD.创建一个 Direct Connect Gateway，并使用 Transit VIF 连接两个 Direct Connect 连接，同时关联两个 Transit Gateway，并通过 Peering 来支持跨 Region 路由，是满足高可用性和无单点故障要求的最佳解决方案。"
+},
+{
+  "QuestionID": 117,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is running an application in the AWS Cloud. The company's security team must approve the creation of all new IAM users. When a new IAM user is created, all access for the user must be removed automatically. The security team must then receive a notification to approve the user. The company has a multi-Region AWS CloudTrail trail in the AWS account. Which combination of steps will meet these requirements? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an Amazon EventBridge (Amazon CloudWatch Events) rule. Define a pattern with the detail-type value set to AWS API Call via CloudTrail and an eventName of CreateUser." },
+    { "label": "B", "text": "Configure CloudTrail to send a notification for the CreateUser event to an Amazon Simple Notification Service (Amazon SNS) topic." },
+    { "label": "C", "text": "Invoke a container that runs in Amazon Elastic Container Service (Amazon ECS) with AWS Fargate technology to remove access." },
+    { "label": "D", "text": "Invoke an AWS Step Functions state machine to remove access." },
+    { "label": "E", "text": "Use Amazon Simple Notification Service (Amazon SNS) to notify the security team." },
+    { "label": "F", "text": "Use Amazon Pinpoint to notify the security team." }
+  ],
+  "CorrectAnswer": ["A", "D", "E"],
+  "Explanation": "AWS CloudTrail：记录账号内所有的 API 活动。它是审计的核心，能捕获“谁、在什么时候、做了什么”。\nAmazon EventBridge (CloudWatch Events)：一种无服务器事件总线服务，可以连接应用程序与 AWS 服务，触发基于事件的自动化工作流，它像一个“监听器”，可以根据特定的模式（Pattern）匹配 CloudTrail 记录到的事件，并触发后续操作\nAmazon Simple Notification Service (SNS)：一种托管的消息发布/订阅服务，可以用来发送通知给订阅者\nAWS Step Functions：一种工作流编排服务，允许你协调多个 AWS 服务成一个serverless 工作流，以实现自动化任务，它可以把多个步骤（如：移除权限 -> 发送邮件 -> 等待审批 -> 恢复权限）串联起来\nAmazon Elastic Container Service (ECS) with Fargate：一种容器管理服务，允许你运行容器化应用程序，无需管理底层服务器\nAmazon Pinpoint：一种客户参与服务，主要用于发送营销活动和客户沟通，不适合内部安全通知\n\nA.创建一个 EventBridge 规则，监听 CloudTrail 中的 CreateUser 事件。当有新的 IAM 用户被创建时，这个规则会被触发。\nD.当 EventBridge 规则被触发时，调用一个 Step Functions 状态机来执行自动化任务，例如移除新用户的访问权限。这可以通过调用 AWS SDK 来修改 IAM 用户的权限。\nE.使用 SNS 来通知安全团队。Step Functions 状态机可以在完成权限修改后发布一条消息到 SNS 主题，安全团队订阅这个主题就能收到通知。\n\nB.CloudTrail 本身可以集成 SNS，但它通常用于记录日志文件已送达的通知，而不是针对某个具体的 API 调用进行精细化的逻辑处理。需要通过 EventBridge 来捕获这个事件并触发后续操作。\nC.使用 ECS 和 Fargate 来运行一个容器来移除访问权限虽然可行，但相比 Step Functions 来说更复杂且运维负担更重。Step Functions 更适合这种基于事件的自动化工作流。\nF.Amazon Pinpoint 主要用于客户沟通和营销活动，不适合内部安全通知，因此不推荐使用。"
+},
+{
+  "QuestionID": 118,
+  "QuestionType": "multiple",
+  "QuestionText": "A company wants to migrate to AWS. The company wants to use a multi-account structure with centrally managed access to all accounts and applications. The company also wants to keep the traffic on a private network. Multi-factor authentication (MFA) is required at login, and specific roles are assigned to user groups. The company must create separate accounts for development, staging, production, and shared network. The production account and the shared network account must have connectivity to all accounts. The development account and the staging account must have access only to each other. Which combination of steps should a solutions architect take to meet these requirements? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Deploy a landing zone environment by using AWS Control Tower. Enroll accounts and invite existing accounts into the resulting organization in AWS Organizations." },
+    { "label": "B", "text": "Enable AWS Security Hub in all accounts to manage cross-account access. Collect findings through AWS CloudTrail to force MFA login." },
+    { "label": "C", "text": "Create transit gateways and transit gateway VPC attachments in each account. Configure appropriate route tables." },
+    { "label": "D", "text": "Set up and enable AWS IAM Identity Center (AWS Single Sign-On). Create appropriate permission sets with required MFA for existing accounts." },
+    { "label": "E", "text": "Enable AWS Control Tower in all accounts to manage routing between accounts. Collect findings through AWS CloudTrail to force MFA login." },
+    { "label": "F", "text": "Create IAM users and groups. Configure MFA for all users. Set up Amazon Cognito user pools and identity pools to manage access to accounts and between accounts." }
+  ],
+  "CorrectAnswer": ["A", "C", "D"],
+  "Explanation": "AWS Control Tower:用于自动化设置和治理安全、合规的多账号环境（即 Landing Zone），适合快速部署一个安全、合规的多账户架构\nAWS IAM Identity Center (AWS Single Sign-On)：集中管理多个账号和云应用的登录访问。它支持 MFA（Multi-Factor Authentication），并能根据用户组分配权限集（Permission Sets）\nAWS Transit Gateway：一种网络服务，充当云中的“区域路由器”，允许你连接多个 VPC 和本地网络，通过一个中心化的网关进行路由管理\nAWS Security Hub：一种安全服务，提供了一个全面的视图来监控 AWS 环境中的安全状态，但它不负责管理跨账户访问或强制 MFA\nAmazon Cognito：一种用户身份验证和授权服务，主要用于应用程序用户管理，不适合企业级的跨账户访问管理\n\nA.部署一个使用 AWS Control Tower 的着陆区环境，可以快速建立一个多账户架构，Control Tower 会自动创建组织结构（Organizations），并确立合规性基准。通过AWS Organizations 来集中管理这些账户。这是满足多账户结构和集中管理需求的最佳起点。\nC.创建 Transit Gateway 和相应的 VPC 附件，并配置路由表，可以实现不同账户之间的私有网络连接。生产账号和共享网络账号可以连接到所有账号，而开发账号和测试账号只能相互连接。\nD.设置并启用 AWS IAM Identity Center (AWS Single Sign-On)，创建适当的权限集，并强制要求 MFA 登录，可以满足集中化访问管理和安全要求。\n\nB.虽然 Security Hub 可以帮助监控安全状态，但它不负责强制 MFA 登录或管理跨账户访问，因此不适合这个场景。\nE.Control Tower 是一个全局管理服务，不需要在“所有账号”里单独启用。此外，它负责的是治理（Governance），而不是底层的 VPC 网络路由，也不能通过 CloudTrail 强制 MFA 登录\nF.创建 IAM 用户和组并配置 MFA 是基本的访问控制方法，但在多账户环境中，使用 AWS IAM Identity Center 提供更集中化和可扩展的访问管理解决方案，而不是在每个账户中单独管理 IAM 用户。Cognito 主要用于面向外部客户的 App 身份验证，不用于企业内部管理 AWS 账号访问"
+},
+{
+  "QuestionID": 119,
+  "QuestionType": "multiple",
+  "QuestionText": "A company runs its application in the eu-west-1 Region and has one account for each of its environments: development, testing, and production. All the environments are running 24 hours a day, 7 days a week by using stateful Amazon EC2 instances and Amazon RDS for MySQL databases. The databases are between 500 GB and 800 GB in size. The development team and testing team work on business days during business hours, but the production environment operates 24 hours a day, 7 days a week. The company wants to reduce costs. All resources are tagged with an environment tag with either development, testing, or production as the key. What should a solutions architect do to reduce costs with the LEAST operational effort?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an Amazon EventBridge rule that runs once every day. Configure the rule to invoke one AWS Lambda function that starts or stops instances based on the tag, day, and time." },
+    { "label": "B", "text": "Create an Amazon EventBridge rule that runs every business day in the evening. Configure the rule to invoke an AWS Lambda function that stops instances based on the tag. Create a second EventBridge rule that runs every business day in the morning. Configure the second rule to invoke another Lambda function that starts instances based on the tag." },
+    { "label": "C", "text": "Create an Amazon EventBridge rule that runs every business day in the evening. Configure the rule to invoke an AWS Lambda function that terminates instances based on the tag. Create a second EventBridge rule that runs every business day in the morning. Configure the second rule to invoke another Lambda function that restores the instances from their last backup based on the tag." },
+    { "label": "D", "text": "Create an Amazon EventBridge rule that runs every hour. Configure the rule to invoke one AWS Lambda function that terminates or restores instances from their last backup based on the tag, day, and time." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "Stateful EC2 Instances and RDS Databases：当你Stop一个 EC2 实例或 RDS 数据库时，底层的计算资源会被释放，但存储资源（如 EBS 卷和 RDS 存储）仍然存在，并且数据会被保留。这意味着你可以在需要时重新启动实例或数据库，而不丢失数据,terminate会删除计算资源和存储资源，数据丢失\nAmazon EventBridge：一种无服务器事件总线服务，可以连接应用程序与 AWS 服务，触发基于事件的自动化工作流\nAWS Lambda：一种无服务器计算服务，允许你运行代码来响应事件，而无需管理服务器\n\nA.虽然这个方案可以实现自动化，但它每天只运行一次，可能无法满足开发和测试环境在工作日内的需求。此外，单个 Lambda 函数同时处理启动和停止逻辑可能会增加复杂性。\nB.这个方案通过两个 EventBridge 规则分别处理停止和启动操作，工作日晚上触发 Lambda，执行 stop,工作日早上触发 Lambda，执行 start,确保开发和测试环境在工作日内按需运行，同时生产环境保持全天候运行。有状态的实例，stop/start 完美保留了数据，且操作是 API 级别的，极其简便\nCD.“有状态（Stateful）”实例，且数据库很大（500-800 GB）。每天早上从备份恢复数百 GB 的数据库会消耗大量时间（IO 性能）和人力成本，且可能导致数据丢失（如果备份不是最新的）。这种方案不适合需要频繁启动和停止的环境"
+},
+{
+  "QuestionID": 120,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is building a software-as-a-service (SaaS) solution on AWS. The company has deployed an Amazon API Gateway REST API with AWS Lambda integration in multiple AWS Regions and in the same production account. The company offers tiered pricing that gives customers the ability to pay for the capacity to make a certain number of API calls per second. The premium tier offers up to 3,000 calls per second, and customers are identified by a unique API key. Several premium tier customers in various Regions report that they receive error responses of 429 Too Many Requests from multiple API methods during peak usage hours. Logs indicate that the Lambda function is never invoked. What could be the cause of the error messages for these customers?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "The Lambda function reached its concurrency limit." },
+    { "label": "B", "text": "The Lambda function hit its Region limit for concurrency." },
+    { "label": "C", "text": "The company reached its API Gateway account limit for calls per second." },
+    { "label": "D", "text": "The company reached its API Gateway default per-method limit for calls per second." }
+  ], 
+  "CorrectAnswer": ["C"],
+  "Explanation": "API Keys in API Gateway：一种身份验证机制，可以用来识别和控制对 API 的访问。API Key 可以与使用计划（Usage Plan）关联，以限制每个客户的调用速率和配额\n429 Too Many Requests：HTTP 状态码，表示客户端发送了过多的请求，超过了服务器的处理能力或配置的限制\nAPI Gateway Account Limit：AWS 对每个账户在每个区域内的 API 调用速率有默认限制，超过这个限制会导致 429 错误\nAPI Gateway Per-Method Limit：AWS 对每个 API 方法的调用速率也有默认限制，但这个限制通常是针对单个方法的，而不是整个账户\nLambda Concurrency Limit：Lambda 函数的并发执行数量有限制，但如果 Lambda 函数从未被调用，那么这个限制不太可能是问题的根源\nLambda Region Limit for Concurrency：Lambda 函数在每个区域内都有一个总的并发执行限制，但同样，如果 Lambda 函数从未被调用，这也不太可能是问题的根源\nThrottling:\nAccount Level (账号级)：整个区域内所有 API 共享的池子。\nMethod Level (方法级)：针对特定 API 路径（如 /get-data）设置的限制。\n\nAB.如果 Lambda 函数达到了并发限制，应该会看到 Lambda 被调用但返回错误，而不是完全没有调用\n\nC.如果公司达到了 API Gateway 账户级别的调用速率限制，那么所有超过该限制的请求都会直接返回 429 错误，而不会触发 Lambda 函数。这与日志中显示 Lambda 从未被调用相符。\n\nD.虽然 API Gateway 对每个方法有默认的调用速率限制，但如果多个方法都返回 429 错误，并且 Lambda 从未被调用，更可能是账户级别的限制，而不是单个方法的限制。"
+},
+{
+  "QuestionID": 121,
+  "QuestionType": "multiple",
+  "QuestionText": "A financial company is planning to migrate its web application from on premises to AWS. The company uses a third-party security tool to monitor the inbound traffic to the application. The company has used the security tool for the last 15 years, and the tool has no cloud solutions available from its vendor. The company's security team is concerned about how to integrate the security tool with AWS technology. The company plans to deploy the application migration to AWS on Amazon EC2 instances. The EC2 instances will run in an Auto Scaling group in a dedicated VPC. The company needs to use the security tool to inspect all packets that come in and out of the VPC. This inspection must occur in real time and must not affect the application's performance. A solutions architect must design a target architecture on AWS that is highly available within an AWS Region. Which combination of steps should the solutions architect take to meet these requirements? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Deploy the security tool on EC2 instances in a new Auto Scaling group in the existing VPC." },
+    { "label": "B", "text": "Deploy the web application behind a Network Load Balancer." },
+    { "label": "C", "text": "Deploy an Application Load Balancer in front of the security tool instances." },
+    { "label": "D", "text": "Provision a Gateway Load Balancer for each Availability Zone to redirect the traffic to the security tool." },
+    { "label": "E", "text": "Provision a transit gateway to facilitate communication between VPCs." }
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "Gateway Load Balancer (GWLB)：一种 AWS 负载均衡器类型，专门设计用于第三方网络虚拟设备（如防火墙、入侵检测系统等）的流量分发和管理。它允许你将流量透明地重定向到这些设备进行检查和处理，同时保持高可用性和可扩展性\nNetwork Load Balancer (NLB)：一种 AWS 负载均衡器类型，适用于处理数百万级别的请求，提供极低的延迟和高吞吐量，适合 TCP 和 UDP 流量\nApplication Load Balancer (ALB)：一种 AWS 负载均衡器类型，适用于 HTTP 和 HTTPS 流量，提供基于内容的路由功能\nAuto Scaling Group：一种 AWS 服务，可以根据定义的条件自动调整 EC2 实例的数量，以满足应用程序的需求\nVPC (Virtual Private Cloud)：一种 AWS 服务，允许你在 AWS 云中创建一个逻辑隔离的网络环境\nTransit Gateway：一种 AWS 网络服务，充当云中的“区域路由器”，允许你连接多个 VPC 和本地网络，通过一个中心化的网关进行路由管理\n高可用性：通过在多个可用区部署资源来确保应用程序在某个可用区发生故障时仍然可用\n\nD.通过在每个 AZ 部署 GWLB 终端节点（Endpoint），并修改 VPC 路由表，可以强制流量在到达应用之前先跳到 GWLB 进行检查。这实现了实时、透明、高可用\n\nB.NLB 的作用与 GWLB 重叠\n\nC.ALB（应用负载均衡器）工作在 7 层（HTTP/HTTPS）。安全工具需要检查的是网络包（IP/TCP 层）\n\nE.Transit Gateway (TGW) 是为了跨 VPC。题目只给了一个 VPC，用 TGW 会增加不必要的成本和复杂度"
+},
+{
+  "QuestionID": 122,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has purchased appliances from different vendors. The appliances all have IoT sensors. The sensors send status information in the vendors' proprietary formats to a legacy application that parses the information into JSON. The parsing is simple, but each vendor has a unique format. Once daily, the application parses all the JSON records and stores the records in a relational database for analysis. The company needs to design a new data analysis solution that can deliver faster and optimize costs. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Connect the IoT sensors to AWS IoT Core. Set a rule to invoke an AWS Lambda function to parse the information and save a .csv file to Amazon S3. Use AWS Glue to catalog the files. Use Amazon Athena and Amazon QuickSight for analysis." },
+    { "label": "B", "text": "Migrate the application server to AWS Fargate, which will receive the information from IoT sensors and parse the information into a relational format. Save the parsed information to Amazon Redshift for analysis." },
+    { "label": "C", "text": "Create an AWS Transfer for SFTP server. Update the IoT sensor code to send the information as a .csv file through SFTP to the server. Use AWS Glue to catalog the files. Use Amazon Athena for analysis." },
+    { "label": "D", "text": "Use AWS Snowball Edge to collect data from the IoT sensors directly to perform local analysis. Periodically collect the data into Amazon Redshift to perform global analysis." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "AWS IoT Core:一种托管云服务，允许连接物联网设备并安全地与云应用程序和其他设备进行交互。它支持规则引擎(Rules Engine连接 MQTT(Message Queuing Telemetry Transport) 消息与 AWS 其他服务)，可以根据设备发送的数据触发 Lambda 函数进行处理\nAWS Lambda：一种无服务器计算服务，允许你运行代码来响应事件，而无需管理服务器\nAmazon S3：一种对象存储服务，适合存储大量的非结构化数据，如日志文件、CSV 文件等\nAWS Glue：一种完全托管的 ETL（Extract, Transform, Load）服务，可以自动发现和编目数据，并生成查询数据所需的元数据,它的 Catalog（数据目录）功能可以自动扫描 S3 中的文件，生成类似数据库表结构的元数据。\nAmazon Athena：一种交互式查询服务，可以使用标准 SQL 来分析存储在 Amazon S3 中的数据\nAmazon QuickSight：一种商业智能服务，可以创建可视化和仪表板来分析数据\n\nSFTP (SSH File Transfer Protocol) 是一种基于 SSH 的安全文件传输协议。它和传统的 FTP 不同，所有传输的数据和认证信息都是加密的。\n\nA.这个方案利用 AWS IoT Core 来接收来自 IoT 传感器的数据，并使用 Lambda 函数来解析这些数据并将其保存为 CSV 文件到 S3。然后，使用 AWS Glue 来编目这些文件，使其可以通过 Athena 进行查询和分析，最后使用 QuickSight 来创建可视化和仪表板。这种方案能够提供更快的分析速度，并且成本相对较低，因为它利用了无服务器技术和按需付费的服务。\n\nB.虽然 Fargate 可以运行容器化应用程序，但它可能会增加不必要的复杂性和成本，因为你需要管理容器和相关资源。Redshift 是一个强大的数据仓库，通常用于超大规模数据集，对于简单的传感器记录分析，成本比 S3 + Athena 高得多。\n\nC.传感器通常使用轻量级的 MQTT 或 HTTP 协议。SFTP 协议对于 IoT 设备来说过于繁重，且需要修改设备端的硬代码（Update sensor code），这在实际生产中往往不可行或成本极高。\n\nD.Snowball Edge 是一种物理硬件设备，用于离线数据迁移或边缘计算。题目中的场景是设备联网发送状态信息，不需要物理搬运数据"
+},
+{
+  "QuestionID": 123,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is migrating some of its applications to AWS. The company wants to migrate and modernize the applications quickly after it finalizes networking and security strategies. The company has set up an AWS Direct Connect connection in a central network account. The company expects to have hundreds of AWS accounts and VPCs in the near future. The corporate network must be able to access the resources on AWS seamlessly and also must be able to communicate with all the VPCs. The company also wants to route its cloud resources to the internet through its on-premises data center. Which combination of steps will meet these requirements? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a Direct Connect gateway in the central account. In each of the accounts, create an association proposal by using the Direct Connect gateway and the account ID for every virtual private gateway." },
+    { "label": "B", "text": "Create a Direct Connect gateway and a transit gateway in the central network account. Attach the transit gateway to the Direct Connect gateway by using a transit VIF." },
+    { "label": "C", "text": "Provision an internet gateway. Attach the internet gateway to subnets. Allow internet traffic through the gateway." },
+    { "label": "D", "text": "Share the transit gateway with other accounts. Attach VPCs to the transit gateway." },
+    { "label": "E", "text": "Provision VPC peering as necessary." },
+    { "label": "F", "text": "Provision only private subnets. Open the necessary route on the transit gateway and customer gateway to allow outbound internet traffic from AWS to flow through NAT services that run in the data center." }
+  ],
+  "CorrectAnswer": ["B", "D", "F"],
+  "Explanation": "AWS Transit Gateway (TGW):一种网络服务，充当云中的“区域路由器”，允许你连接多个 VPC 和本地网络，通过一个中心化的网关进行路由管理\nAWS Direct Connect Gateway：一种资源，可以让你将 Direct Connect 连接与多个 Transit Gateway 关联，实现跨 Region 的网络连接\nTransit VIF：Direct Connect 中的一个概念，专门用于连接到 Transit Gateway 的虚拟接口\nInternet Gateway：一种 AWS 资源，允许 VPC 中的资源访问互联网\nVPC Peering：一种网络连接方式，允许两个 VPC 直接通信\nPrivate Subnets：VPC 中的一种子网类型，不能直接访问互联网，需要通过 NAT 网关或其他方式来访问互联网\nNAT Services：一种网络地址转换服务，允许私有子网中的资源访问互联网，同时保持其私有 IP 地址不暴露\n\nB.创建一个 Direct Connect Gateway 和一个 Transit Gateway，并通过 Transit VIF 将它们连接起来，可以实现从企业网络到 AWS 的无缝连接，并且可以支持未来的扩展。\nD.共享 Transit Gateway 给其他账户，并将 VPC 附加到 Transit Gateway，可以实现不同账户之间的通信，同时也能让企业网络访问所有 VPC。\nF.通过只使用私有子网，并在 Transit Gateway 和客户网关（CGW）之间打开必要的路由，可以确保所有流量都通过数据中心的 NAT 服务进行互联网访问，从而满足公司希望通过其数据中心路由云资源到互联网的要求\n\nA.创建一个 Direct Connect Gateway，并在每个账户中使用 Direct Connect Gateway 和每个虚拟私有网关的账户 ID 创建关联提案。VGW 是 1 对 1 的（一个 VGW 对应一个 VPC）。如果有数百个 VPC，这种方案的配额和管理复杂度会非常高，不适合大规模环境\nC.题目要求通过数据中心路由互联网流量，因此不应该直接在 AWS 侧配置 Internet Gateway 来允许互联网访问\nE.虽然 VPC Peering 可以实现 VPC 之间的通信，但在有数百个 VPC 的环境中，管理大量的对等连接会变得非常复杂和不可维护。使用 Transit Gateway 是更好的选择"
+},
+{
+  "QuestionID": 124,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has hundreds of AWS accounts. The company recently implemented a centralized internal process for purchasing new Reserved Instances and modifying existing Reserved Instances. This process requires all business units that want to purchase or modify Reserved Instances to submit requests to a dedicated team for procurement. Previously, business units directly purchased or modified Reserved Instances in their own respective AWS accounts autonomously. A solutions architect needs to enforce the new process in the most secure way possible. Which combination of steps should the solutions architect take to meet these requirements? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Ensure that all AWS accounts are part of an organization in AWS Organizations with all features enabled." },
+    { "label": "B", "text": "Use AWS Config to report on the attachment of an IAM policy that denies access to the ec2:PurchaseReservedInstancesOffering action and the ec2:ModifyReservedInstances action." },
+    { "label": "C", "text": "In each AWS account, create an IAM policy that denies the ec2:PurchaseReservedInstancesOffering action and the ec2:ModifyReservedInstances action." },
+    { "label": "D", "text": "Create an SCP that denies the ec2:PurchaseReservedInstancesOffering action and the ec2:ModifyReservedInstances action. Attach the SCP to each OU of the organization." },
+    { "label": "E", "text": "Ensure that all AWS accounts are part of an organization in AWS Organizations that uses the consolidated billing feature." }
+  ],
+  "CorrectAnswer": ["A", "D"],
+  "Explanation": "All Features Enabled：AWS Organizations 的一个设置，允许你使用组织中的所有功能，包括服务控制策略（SCP）\nService Control Policy (SCP)：一种 AWS Organizations 的功能，可以用来管理和限制组织中账户的权限。SCP 可以定义允许或拒绝特定 AWS 服务的操作，并且可以应用于整个组织、特定的组织单元（OU）或单个账户\nIAM Policy：一种 AWS Identity and Access Management (IAM) 的功能，用于定义用户、组或角色的权限，但它只能在单个账户内生效，无法跨账户管理权限\nConsolidated Billing：AWS Organizations 的一个功能，允许你将多个 AWS 账户的账单合并到一个主账户中进行管理，但它不提供权限管理功能\n\nA.确保所有 AWS 账户都属于一个启用了所有功能的组织，这样就可以使用 SCP 来集中管理权限。\nD.创建一个 SCP，拒绝 ec2:PurchaseReservedInstancesOffering 和 ec2:ModifyReservedInstances 操作，并将这个 SCP 附加到每个 OU 中，以确保所有账户都受到这个限制。SCP 就像是一道“防盗窗”，装在账号的最外层。无论业务账号里的 IAM 用户权限有多大，只要 SCP 说了“No”，他们就绝对买不了 RI。这比在几百个账号里一个个去改 IAM 政策（选项 C）要高效且安全得多\n\nB.虽然 AWS Config 可以监控 IAM 策略的变化，但它不能直接阻止用户购买或修改 Reserved Instances。它只能提供报告，而不是预防措施。\nC.在每个 AWS 账户中创建一个 IAM 策略来拒绝这些操作是分散且容易出错的方法，因为需要在每个账户中正确配置和维护这些策略。\nE.虽然 Consolidated Billing 可以帮助管理多个账户的账单，但它不提供权限控制功能，因此无法满足强制执行采购流程的要求。"
+},
+{
+  "QuestionID": 125,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is running a critical application that uses an Amazon RDS for MySQL database to store data. The RDS DB instance is deployed in Multi-AZ mode. A recent RDS database failover test caused a 40-second outage to the application. A solutions architect needs to design a solution to reduce the outage time to less than 20 seconds. Which combination of steps should the solutions architect take to meet these requirements? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use Amazon ElastiCache for Memcached in front of the database" },
+    { "label": "B", "text": "Use Amazon ElastiCache for Redis in front of the database" },
+    { "label": "C", "text": "Use RDS Proxy in front of the database." },
+    { "label": "D", "text": "Migrate the database to Amazon Aurora MySQL." },
+    { "label": "E", "text": "Create an Amazon Aurora Replica." },
+    { "label": "F", "text": "Create an RDS for MySQL read replica" }
+  ],
+  "CorrectAnswer": ["C", "D", "E"],
+  "Explanation": "RDS Proxy:一种托管的数据库代理服务，可以帮助应用程序更高效地连接到 RDS 数据库。它通过连接池和智能路由来减少数据库连接的建立和断开时间，从而降低故障转移时的停机时间\nAmazon Aurora MySQL：一种兼容 MySQL 的关系数据库引擎，提供更高的性能和可用性。Aurora 的故障转移时间通常比标准 RDS MySQL 更短，因为它使用分布式存储系统来实现快速恢复\nAmazon Aurora Replica：Aurora 的一个功能，允许你创建一个或多个只读副本，这些副本可以在主实例发生故障时快速提升为主实例，从而减少停机时间\nAmazon ElastiCache for Memcached/Redis：一种托管的内存数据存储服务，可以用来缓存数据库查询结果，但它不能直接减少 RDS 故障转移的停机时间\nRDS for MySQL Read Replica：一种 RDS 功能，允许你创建一个只读副本，但它不提供自动故障转移功能，因此在主实例发生故障时需要手动提升副本，这可能会增加停机时间\n\nAB.使用 Amazon ElastiCache for Memcached/ Redis 可以在数据库前面添加一个缓存层，从而减少对数据库的直接请求。这可以降低数据库的负载，提高响应速度，但它无法改变数据库本身的故障转移机制或时间。\n\nC.使用 RDS Proxy 可以在数据库和应用程序之间提供一个连接池，从而减少连接建立和断开的时间。这可以降低故障转移时的停机时间。\n\nD.将数据库迁移到 Amazon Aurora MySQL 可以利用 Aurora 的快速故障转移特性，从而减少停机时间。\n\nE.创建一个 Amazon Aurora 副本可以在主实例发生故障时快速提升为主实例，从而减少停机时间。\n\nF.创建一个 RDS for MySQL 只读副本可以在主实例发生故障时提供备用数据源，但它不提供自动故障转移功能，因此在主实例发生故障时需要手动提升副本，这可能会增加停机时间。"
+},
+{
+  "QuestionID": 126,
+  "QuestionType": "single",
+  "QuestionText": "An AWS partner company is building a service in AWS Organizations using its organization named org1. This service requires the partner company to have access to AWS resources in a customer account, which is in a separate organization named org2. The company must establish least privilege security access using an API or command line tool to the customer account. What is the MOST secure way to allow org1 to access resources in org2?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "The customer should provide the partner company with their AWS account access keys to log in and perform the required tasks." },
+    { "label": "B", "text": "The customer should create an IAM user and assign the required permissions to the IAM user. The customer should then provide the credentials to the partner company to log in and perform the required tasks." },
+    { "label": "C", "text": "The customer should create an IAM role and assign the required permissions to the IAM role. The partner company should then use the IAM role’s Amazon Resource Name (ARN) when requesting access to perform the required tasks." },
+    { "label": "D", "text": "The customer should create an IAM role and assign the required permissions to the IAM role. The partner company should then use the IAM role’s Amazon Resource Name (ARN), including the external ID in the IAM role’s trust policy, when requesting access to perform the required tasks." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "Trust Policy：IAM 角色的一个组件，定义了哪些实体（如用户、组或服务）可以假设该角色，以及在什么条件下可以假设该角色\nExternal ID：一种安全机制，用于防止“信任关系攻击”（Trust Relationship Attack）。当一个第三方需要访问你的 AWS 资源时，你可以要求他们提供一个外部 ID，这个 ID 是一个随机字符串，只有你和第三方知道。当第三方尝试假设角色时，他们必须提供这个外部 ID，AWS 会验证它是否正确，以确保请求是来自合法的第三方，而不是恶意攻击者\nLeast Privilege Access：一种安全原则，建议只授予用户或服务完成其任务所需的最小权限，以减少潜在的安全风险\nAWS Organizations：一种 AWS 服务，允许你集中管理多个 AWS 账户，并提供了跨账户访问和权限管理的功能\nIAM Role：一种 AWS Identity and Access Management (IAM) 的资源，可以被用户、应用程序或服务假设，以获得临时的安全凭证来访问 AWS 资源\nARN (Amazon Resource Name)：一种 AWS 资源的唯一标识符，用于指定特定的 AWS 资源\n\nA.提供 AWS 账户访问密钥是一种非常不安全的做法，因为它会暴露整个账户的访问权限，并且无法实现细粒度的权限控制。\n\nB.创建一个 IAM 用户并提供凭据虽然比直接提供账户访问密钥更安全，但仍然存在风险，因为这些凭据可能被泄露，并且无法实现基于角色的访问控制。\n\nC.创建一个 IAM 角色并使用 ARN 来请求访问是一种更安全的方法，因为它允许基于角色的访问控制，但如果没有使用外部 ID，仍然可能受到信任关系攻击。\nD.创建一个 IAM 角色并在信任策略中使用外部 ID 是最安全的方法，因为它不仅允许基于角色的访问控制，还通过外部 ID 提供了额外的保护层，防止未经授权的访问。"
+},
+{
+  "QuestionID": 127,
+  "QuestionType": "single",
+  "QuestionText": "A delivery company needs to migrate its third-party route planning application to AWS. The third party supplies a supported Docker image from a public registry. The image can run in as many containers as required to generate the route map. The company has divided the delivery area into sections with supply hubs so that delivery drivers travel the shortest distance possible from the hubs to the customers. To reduce the time necessary to generate route maps, each section uses its own set of Docker containers with a custom configuration that processes orders only in the section's area. The company needs the ability to allocate resources cost-effectively based on the number of running containers. Which solution will meet these requirements with the LEAST operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an Amazon Elastic Kubernetes Service (Amazon EKS) cluster on Amazon EC2. Use the Amazon EKS CLI to launch the planning application in pods by using the --tags option to assign a custom tag to the pod." },
+    { "label": "B", "text": "Create an Amazon Elastic Kubernetes Service (Amazon EKS) cluster on AWS Fargate. Use the Amazon EKS CLI to launch the planning application. Use the AWS CLI tag-resource API call to assign a custom tag to the pod." },
+    { "label": "C", "text": "Create an Amazon Elastic Container Service (Amazon ECS) cluster on Amazon EC2. Use the AWS CLI with run-tasks set to true to launch the planning application by using the --tags option to assign a custom tag to the task." },
+    { "label": "D", "text": "Create an Amazon Elastic Container Service (Amazon ECS) cluster on AWS Fargate. Use the AWS CLI run-task command and set enableECSManagedTags to true to launch the planning application. Use the --tags option to assign a custom tag to the task." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "Amazon ECS (Elastic Container Service):一种完全托管的容器编排服务，支持在 Amazon EC2 或 AWS Fargate 上运行容器化应用程序。ECS 提供了两种启动类型：EC2（需要管理底层 EC2 实例）和 Fargate（无服务器，自动管理底层基础设施）\nAWS Fargate：一种无服务器计算引擎，允许你运行容器而无需管理服务器或集群。它与 Amazon ECS 和 Amazon EKS 集成，提供按需的资源分配和自动扩展功能\nAWS CLI (Command Line Interface)：一种命令行工具，允许你与 AWS 服务进行交互和管理资源\nTags：一种 AWS 资源的元数据，可以用来标识和组织资源。通过标签，你可以为资源分配自定义属性，以便于成本分配、访问控制等\n\nD.使用 Amazon ECS 在 AWS Fargate 上创建一个集群，并使用 AWS CLI 的 run-task 命令来启动规划应用程序，同时启用 enableECSManagedTags 以自动管理标签，开启此项后，你在启动任务（Run-task）时打上的标签会自动关联到计费资源上。公司可以清晰地看到每个配送区域到底花了多少钱。这种方案提供了最少的操作开销，因为 Fargate 会自动处理底层基础设施的管理，而 ECS 提供了简单的容器编排功能。\n\nA.虽然 Amazon EKS 是一个强大的 Kubernetes 服务，但它需要更多的操作管理，包括集群维护和节点管理，这可能会增加运营开销。\nB.使用 EKS 在 Fargate 上运行虽然减少了基础设施管理，但 EKS 本身仍然需要更多的操作管理，相比于 ECS 来说更复杂。\nC.使用 ECS 在 EC2 上运行需要你管理底层 EC2 实例，这增加了运营开销，因为你需要处理实例的维护、扩展和故障恢复等问题。"
+},
+{
+  "QuestionID": 128,
+  "QuestionType": "multiple",
+  "QuestionText": "A software company hosts an application on AWS with resources in multiple AWS accounts and Regions. The application runs on a group of Amazon EC2 instances in an application VPC located in the us-east-1 Region with an IPv4 CIDR block of 10.10.0.0/16. In a different AWS account, a shared services VPC is located in the us-east-2 Region with an IPv4 CIDR block of 10.10.10.0/24. When a cloud engineer uses AWS CloudFormation to attempt to peer the application VPC with the shared services VPC, an error message indicates a peering failure. Which factors could cause this error? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "The IPv4 CIDR ranges of the two VPCs overlap" },
+    { "label": "B", "text": "The VPCs are not in the same Region" },
+    { "label": "C", "text": "One or both accounts do not have access to an Internet gateway" },
+    { "label": "D", "text": "One of the VPCs was not shared through AWS Resource Access Manager" },
+    { "label": "E", "text": "The IAM role in the peer accepter account does not have the correct permissions" }
+  ],
+  "CorrectAnswer": ["A", "E"],
+  "Explanation": "Peering 三大禁忌：\nCIDR 重叠：绝对不行。\n传递路由（Transitive Routing）：A 连 B，B 连 C，A 无法直接通过 B 访问 C。\n配额限制：一个 VPC 默认只有 50-125 个 Peering 限制。\nCIDR Overlap (CIDR 重叠):就像两个房间的门牌号重复了，邮差（路由器）不知道该把信送往哪个房间。AWS 规定，相互对等的 VPC 之间 CIDR 必须是唯一的。\n\nInter-Region Peering: 跨区域对等。虽然支持，但要注意跨区域流量会产生传输费用，且不支持传输数据包的分段（MTU 限制在 1500 字节）\nAccepter Account: 在跨账号场景下，主动发起请求的是 Requester，被动确认的是 Accepter。两边都需要正确的 IAM 权限。\n\nA.应用 VPC 的范围是 10.10.0.0 到 10.10.255.255，而共享服务 VPC 的范围是 10.10.10.0 到 10.10.10.255。由于这两个范围重叠，因此无法建立对等连接。\n\nE.在对等连接接受方帐户中的 IAM 角色可能没有正确的权限，导致无法建立对等连接。在跨账号建立对等连接时，发起方账号需要请求连接，而接受方账号必须有权限去“接受（Accept）”这个请求。如果 CloudFormation 使用的角色或执行操作的用户在账号 B 中缺乏 ec2:AcceptVpcPeeringConnection 权限，连接就会失败。\n\nB.虽然 VPC 对等连接支持跨区域，但这不是导致错误的原因，因为 AWS 允许在不同区域之间建立对等连接。\n\nC.对等连接不需要 Internet 网关，因此缺乏 Internet 网关不会导致对等连接失败。\nD.对于跨账号的 VPC 对等连接，VPC 不需要通过 AWS Resource Access Manager 共享。只要双方账户有正确的权限，就可以直接建立对等连接。"
+},
+{
+  "QuestionID": 129,
+  "QuestionType": "single",
+  "QuestionText": "An external audit of a company’s serverless application reveals IAM policies that grant too many permissions. These policies are attached to the company's AWS Lambda execution roles. Hundreds of the company's Lambda functions have broad access permissions such as full access to Amazon S3 buckets and Amazon DynamoDB tables. The company wants each function to have only the minimum permissions that the function needs to complete its task. A solutions architect must determine which permissions each Lambda function needs. What should the solutions architect do to meet this requirement with the LEAST amount of effort?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Set up Amazon CodeGuru to profile the Lambda functions and search for AWS API calls. Create an inventory of the required API calls and resources for each Lambda function. Create new IAM access policies for each Lambda function. Review the new policies to ensure that they meet the company's business requirements." },
+    { "label": "B", "text": "Turn on AWS CloudTrail logging for the AWS account. Use AWS Identity and Access Management Access Analyzer to generate IAM access policies based on the activity recorded in the CloudTrail log. Review the generated policies to ensure that they meet the company's business requirements." },
+    { "label": "C", "text": "Turn on AWS CloudTrail logging for the AWS account. Create a script to parse the CloudTrail log, search for AWS API calls by Lambda execution role, and create a summary report. Review the report. Create IAM access policies that provide more restrictive permissions for each Lambda function." },
+    { "label": "D", "text": "Turn on AWS CloudTrail logging for the AWS account. Export the CloudTrail logs to Amazon S3. Use Amazon EMR to process the CloudTrail logs in Amazon S3 and produce a report of API calls and resources used by each execution role. Create a new IAM access policy for each role. Export the generated roles to an S3 bucket. Review the generated policies to ensure that they meet the company’s business requirements." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "IAM Execution Role：AWS Lambda 函数在执行时使用的 IAM 角色，定义了函数可以访问哪些 AWS 资源和服务\nAWS CloudTrail：一种 AWS 服务，提供对 AWS 账户中的 API 调用的监控和记录功能，可以帮助你了解谁在何时对哪些资源进行了什么操作\nAWS Identity and Access Management (IAM) Access Analyzer：一种 AWS 服务，可以分析你的 IAM 策略和权限，功能 1 (分析外部访问): 检查你的资源（如 S3 桶）是否被外部账号意外访问。功能 2 (策略生成): 通过分析 CloudTrail 日志，自动反推函数需要的最小权限\nAPI Calls：Lambda 函数在执行过程中调用的 AWS API，这些调用会记录在 CloudTrail 中\nResource Usage：Lambda 函数访问的 AWS 资源，如 S3 桶、DynamoDB 表等\n\nB.开启 CloudTrail 日志记录后，使用 IAM Access Analyzer 可以自动分析日志中的 API 调用，并生成建议的 IAM 访问策略。这种方法相对自动化，能够快速识别每个 Lambda 函数实际需要的权限，并且减少了手动分析日志和编写脚本的工作量。Access Analyzer 花了几分钟扫描日志，生成了一段 JSON。它发现函数虽然有 FullAccess，但实际上 30 天内只做过 s3:GetObject 和 dynamodb:PutItem。替换策略： 运维人员审核一下生成的 JSON 没问题，直接替换掉原本的 FullAccess。\n\nA.虽然 Amazon CodeGuru 可以分析代码并提供性能和安全建议，是用来进行代码审查（性能优化、安全漏洞扫描）的工具,但它并不是专门设计来分析 Lambda 函数的权限需求的工具，因此可能无法准确识别所需的权限。\nC.虽然手动解析 CloudTrail 日志可以获得所需的信息，但这需要编写自定义脚本来处理日志数据，这增加了工作量和复杂性。\nD.使用 Amazon EMR（大数据处理集群）来处理 CloudTrail 日志虽然可以处理大量数据，但对于这个特定任务来说可能过于复杂和昂贵，因为你只需要分析 Lambda 函数的 API 调用，而不是进行大规模的数据处理。"
+},
+{
+  "QuestionID": 130,
+  "QuestionType": "single",
+  "QuestionText": "A solutions architect must analyze a company’s Amazon EC2 instances and Amazon Elastic Block Store (Amazon EBS) volumes to determine whether the company is using resources efficiently. The company is running several large, high-memory EC2 instances to host database clusters that are deployed in active/passive configurations. The utilization of these EC2 instances varies by the applications that use the databases, and the company has not identified a pattern. The solutions architect must analyze the environment and take action based on the findings. Which solution meets these requirements MOST cost-effectively?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a dashboard by using AWS Systems Manager OpsCenter. Configure visualizations for Amazon CloudWatch metrics that are associated with the EC2 instances and their EBS volumes. Review the dashboard periodically, and identify usage patterns. Rightsize the EC2 instances based on the peaks in the metrics." },
+    { "label": "B", "text": "Turn on Amazon CloudWatch detailed monitoring for the EC2 instances and their EBS volumes. Create and review a dashboard that is based on the metrics. Identify usage patterns. Rightsize the EC2 instances based on the peaks in the metrics." },
+    { "label": "C", "text": "Install the Amazon CloudWatch agent on each of the EC2 instances. Turn on AWS Compute Optimizer, and let it run for at least 12 hours. Review the recommendations from Compute Optimizer, and rightsize the EC2 instances as directed." },
+    { "label": "D", "text": "Sign up for the AWS Enterprise Support plan. Turn on AWS Trusted Advisor. Wait 12 hours. Review the recommendations from Trusted Advisor, and rightsize the EC2 instances as directed." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "AWS Compute Optimizer:一种 AWS 服务，使用机器学习分析你的 AWS 资源的历史使用情况，并提供优化建议，以帮助你降低成本和提高性能。它可以分析 EC2 实例、EBS 卷、Lambda 函数等资源，并提供关于是否应该调整资源大小或更改实例类型的建议\nAmazon CloudWatch Detailed Monitoring：一种 AWS 功能，允许你以更高的频率（每分钟）收集和查看 EC2 实例和 EBS 卷的性能指标\nAWS Systems Manager OpsCenter：一种 AWS 服务，提供一个集中式的界面来查看和管理你的 AWS 资源的操作问题\nAWS Trusted Advisor：一种 AWS 服务，提供关于 AWS 资源的最佳实践建议，包括成本优化、安全性、容错性等方面\nRightsizing：一种优化策略，指的是调整云资源的大小或类型，以更好地匹配实际需求，从而降低成本并提高性能,确保实例规格与工作负载匹配。如果一个 64G 内存的机器常年只用 8G，Rightsizing 就会建议你换成更便宜的 16G 机型\nCloudWatch Agent: 一个运行在服务器里的轻量级程序，负责把 CPU 以外的深度指标（内存使用率、交换分区、进程统计）推送到 CloudWatch。\n\nC.安装 CloudWatch Agent 可以收集更详细的性能数据，在实例内部安装插件，这是获取内存利用率和磁盘剩余空间等 OS 层级指标的唯一标准方法。而 Compute Optimizer 可以基于这些数据提供具体的优化建议。它会自动分析 CPU、内存、存储等指标，并直接告诉你：“你的实例太大了，建议降级到 X 类型，每月可省 Y 元”。\n\nAB.这两个选项都依赖原生的 CloudWatch 指标。原生的 CloudWatch 只能看到 CPU 和磁盘 IO，看不到内存使用率。对于“高内存实例”的数据库，如果不看内存利用率就进行缩减（Rightsizing），极有可能导致数据库崩溃\nD.虽然 Trusted Advisor 提供了一些优化建议，但它主要关注于安全性、容错性等方面，对于资源利用率的分析和优化建议可能不够深入。为了优化几个实例去购买昂贵的 Enterprise Support (企业级支持) 是非常不经济的（每月至少 $15,000）"
 }
 
 
