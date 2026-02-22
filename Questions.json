@@ -9235,6 +9235,291 @@
   ],
   "CorrectAnswer": ["C"],
   "Explanation": "AWS Compute Optimizer:一种 AWS 服务，使用机器学习分析你的 AWS 资源的历史使用情况，并提供优化建议，以帮助你降低成本和提高性能。它可以分析 EC2 实例、EBS 卷、Lambda 函数等资源，并提供关于是否应该调整资源大小或更改实例类型的建议\nAmazon CloudWatch Detailed Monitoring：一种 AWS 功能，允许你以更高的频率（每分钟）收集和查看 EC2 实例和 EBS 卷的性能指标\nAWS Systems Manager OpsCenter：一种 AWS 服务，提供一个集中式的界面来查看和管理你的 AWS 资源的操作问题\nAWS Trusted Advisor：一种 AWS 服务，提供关于 AWS 资源的最佳实践建议，包括成本优化、安全性、容错性等方面\nRightsizing：一种优化策略，指的是调整云资源的大小或类型，以更好地匹配实际需求，从而降低成本并提高性能,确保实例规格与工作负载匹配。如果一个 64G 内存的机器常年只用 8G，Rightsizing 就会建议你换成更便宜的 16G 机型\nCloudWatch Agent: 一个运行在服务器里的轻量级程序，负责把 CPU 以外的深度指标（内存使用率、交换分区、进程统计）推送到 CloudWatch。\n\nC.安装 CloudWatch Agent 可以收集更详细的性能数据，在实例内部安装插件，这是获取内存利用率和磁盘剩余空间等 OS 层级指标的唯一标准方法。而 Compute Optimizer 可以基于这些数据提供具体的优化建议。它会自动分析 CPU、内存、存储等指标，并直接告诉你：“你的实例太大了，建议降级到 X 类型，每月可省 Y 元”。\n\nAB.这两个选项都依赖原生的 CloudWatch 指标。原生的 CloudWatch 只能看到 CPU 和磁盘 IO，看不到内存使用率。对于“高内存实例”的数据库，如果不看内存利用率就进行缩减（Rightsizing），极有可能导致数据库崩溃\nD.虽然 Trusted Advisor 提供了一些优化建议，但它主要关注于安全性、容错性等方面，对于资源利用率的分析和优化建议可能不够深入。为了优化几个实例去购买昂贵的 Enterprise Support (企业级支持) 是非常不经济的（每月至少 $15,000）"
+},
+{
+  "QuestionID": 131,
+  "QuestionType": "single",
+  "QuestionText": "A company uses AWS Organizations for a multi-account setup in the AWS Cloud. The company uses AWS Control Tower for governance and uses AWS Transit Gateway for VPC connectivity across accounts. In an AWS application account, the company’s application team has deployed a web application that uses AWS Lambda and Amazon RDS. The company's database administrators have a separate DBA account and use the account to centrally manage all the databases across the organization. The database administrators use an Amazon EC2 instance that is deployed in the DBA account to access an RDS database that is deployed in the application account. The application team has stored the database credentials as secrets in AWS Secrets Manager in the application account. The application team is manually sharing the secrets with the database administrators. The secrets are encrypted by the default AWS managed key for Secrets Manager in the application account. A solutions architect needs to implement a solution that gives the database administrators access to the database and eliminates the need to manually share the secrets. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use AWS Resource Access Manager (AWS RAM) to share the secrets from the application account with the DBA account. In the DBA account, create an IAM role that is named DBA-Admin. Grant the role the required permissions to access the shared secrets. Attach the DBA-Admin role to the EC2 instance for access to the cross-account secrets." },
+    { "label": "B", "text": "In the application account, create an IAM role that is named DBA-Secret. Grant the role the required permissions to access the secrets. In the DBA account, create an IAM role that is named DBA-Admin. Grant the DBA-Admin role the required permissions to assume the DBA-Secret role in the application account. Attach the DBA-Admin role to the EC2 instance for access to the cross-account secrets." },
+    { "label": "C", "text": "In the DBA account create an IAM role that is named DBA-Admin. Grant the role the required permissions to access the secrets and the default AWS managed key in the application account. In the application account, attach resource-based policies to the key to allow access from the DBA account. Attach the DBA-Admin role to the EC2 instance for access to the cross-account secrets." },
+    { "label": "D", "text": "In the DBA account, create an IAM role that is named DBA-Admin. Grant the role the required permissions to access the secrets in the application account. Attach an SCP to the application account to allow access to the secrets from the DBA account. Attach the DBA-Admin role to the EC2 instance for access to the cross-account secrets." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "AWS Secrets Manager:专门管理数据库凭证、API 密钥等。支持自动轮换（Rotation）密码。\nDefault AWS Managed Key:AWS Secrets Manager 默认使用 AWS KMS 的默认密钥(格式通常为 aws/secretsmanager）进行加密。它是免费的，但缺点是不支持跨账号访问。\nCustomer Managed Key (CMK):用户自己创建的 KMS 密钥。如果想实现更简单的跨账号访问（直接让另一个账号读取，而不切换角色），应该把默认密钥换成 CMK。\n\nA.AWS RAM 目前不支持共享 Secrets Manager 的密钥（Secrets）。RAM 主要用于共享子网、Transit Gateway、控制面板等资源\n\nB.在应用程序账户中创建一个 IAM 角色 DBA-Secret，并授予其访问 Secrets Manager 中秘密的权限，然后在 DBA 账户中创建一个 IAM 角色 DBA-Admin，并授予其Assume DBA-Secret 角色的权限，这样可以实现跨账户访问。为什么不直接在应用账号给 DBA 权限？因为题目提到密码是用 AWS 托管密钥加密的。AWS 托管密钥不支持跨账号授权（无法修改其 Key Policy）。因此，必须让 DBA 暂时“变成”应用账号里的一个合法身份（通过 AssumeRole），才能绕过托管密钥的跨账号限制。\n\nC.题目明确说明使用的是 Default AWS managed key。这种密钥的策略（Key Policy）是无法修改的，因此你无法通过附加资源策略（Resource-based policies）来允许来自 DBA 账号的访问。\n\nD.SCP（服务控制策略） 是用来限制最高权限的，它本身不能用来授予（Grant）跨账号的访问权限。"
+},
+{
+  "QuestionID": 132,
+  "QuestionType": "multiple",
+  "QuestionText": "A company manages multiple AWS accounts by using AWS Organizations. Under the root OU, the company has two OUs: Research and DataOps. Because of regulatory requirements, all resources that the company deploys in the organization must reside in the ap-northeast-1 Region. Additionally, EC2 instances that the company deploys in the DataOps OU must use a predefined list of instance types. A solutions architect must implement a solution that applies these restrictions. The solution must maximize operational efficiency and must minimize ongoing maintenance. Which combination of steps will meet these requirements? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an IAM role in one account under the DataOps OU. Use the ec2:InstanceType condition key in an inline policy on the role to restrict access to specific instance type." },
+    { "label": "B", "text": "Create an IAM user in all accounts under the root OU. Use the aws:RequestedRegion condition key in an inline policy on each user to restrict access to all AWS Regions except ap-northeast-1." },
+    { "label": "C", "text": "Create an SCP. Use the aws:RequestedRegion condition key to restrict access to all AWS Regions except ap-northeast-1. Apply the SCP to the root OU." },
+    { "label": "D", "text": "Create an SCP. Use the ec2:Region condition key to restrict access to all AWS Regions except ap-northeast-1. Apply the SCP to the root OU, the DataOps OU, and the Research OU." },
+    { "label": "E", "text": "Create an SCP. Use the ec2:InstanceType condition key to restrict access to specific instance types. Apply the SCP to the DataOps OU." }
+  ],
+  "CorrectAnswer": ["C", "E"],
+  "Explanation": "Condition Keys:\naws:RequestedRegion:当用户请求 AWS 服务时，AWS 会检查请求中指定的区域，并将其与 SCP 中定义的条件进行比较。\nec2:InstanceType:这是一个特定于 EC2 的条件密钥，用于限制用户可以使用的 EC2 实例类型。\nec2:Region:这是一个特定于 EC2 的条件密钥，用于限制用户可以在特定区域内使用 EC2 实例。\nRoot OU:组织的根节点。在这里应用的策略会影响整个组织。\nInheritance (继承): 在父节点（OU）挂载的 SCP 会自动“传递”给所有子节点\n\nA.创建一个 IAM 角色并在其上使用 ec2:InstanceType 条件键来限制访问特定实例类型，这种方法只能限制特定角色的权限，而无法全面应用于整个 OU。在拥有“多个账号”的情况下，去几百个账号里给成千上万个用户逐一配置策略是运维灾难\n\nB.创建 IAM 用户并使用 aws:RequestedRegion 条件键来限制访问所有 AWS 区域除了 ap-northeast-1，这种方法需要在每个账户中创建用户并设置策略，维护起来非常麻烦\n\nC.创建一个 SCP 并使用 aws:RequestedRegion 条件键来限制访问所有 AWS 区域除了 ap-northeast-1，并将 SCP 应用到根 OU，这样可以确保整个组织中的所有账户都受到区域限制的约束，满足题目要求。\n\nD.创建一个 SCP 并使用 ec2:Region 条件键来限制访问所有 AWS 区域除了 ap-northeast-1，（这通常只针对 EC2）;并将 SCP 应用到根 OU、DataOps OU 和 Research OU分别在三个地方挂载，这增加了维护成本\n\nE.创建一个 SCP 并使用 ec2:InstanceType 条件键来限制访问特定实例类型，并将 SCP 应用到 DataOps OU，这样可以确保 DataOps OU 中的账户只能使用预定义的实例类型，满足题目要求。"
+},
+{
+  "QuestionID": 133,
+  "QuestionType": "multiple",
+  "QuestionText": "A company runs a serverless application in a single AWS Region. The application accesses external URLs and extracts metadata from those sites. The company uses an Amazon Simple Notification Service (Amazon SNS) topic to publish URLs to an Amazon Simple Queue Service (Amazon SQS) queue. An AWS Lambda function uses the queue as an event source and processes the URLs from the queue. Results are saved to an Amazon S3 bucket. The company wants to process each URL in other Regions to compare possible differences in site localization. URLs must be published from the existing Region. Results must be written to the existing S3 bucket in the current Region. Which combination of changes will produce multi-Region deployment that meets these requirements? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Deploy the SQS queue with the Lambda function to other Regions." },
+    { "label": "B", "text": "Subscribe the SNS topic in each Region to the SQS queue." },
+    { "label": "C", "text": "Subscribe the SQS queue in each Region to the SNS topic." },
+    { "label": "D", "text": "Configure the SQS queue to publish URLs to SNS topics in each Region." },
+    { "label": "E", "text": "Deploy the SNS topic and the Lambda function to other Regions." }
+  ],
+  "CorrectAnswer": ["A", "C"],
+  "Explanation": "SNS Fan-out: SNS 主题可以将消息发布到多个订阅端点，包括 SQS 队列、Lambda 函数和 HTTP/S 端点。通过订阅 SQS 队列到 SNS 主题，可以实现消息的分发。\nCross-Region Subscription: SNS 允许订阅者（SQS, Lambda, HTTP）位于与 SNS 主题不同的区域\nEvent Source Mapping: Lambda 与 SQS 之间的连接方式。Lambda 会持续“长轮询”关联的 SQS 队列，一旦有消息就自动执行。\nSNS (Simple Notification Service) “广播员”,是一个“发布/订阅 (Pub/Sub)”系统。你把一条消息发给 SNS 的一个 Topic，它会瞬间把这条消息推送给所有订阅了它的人。特点：Push，它不等你来拿，只要有消息，它就立刻分发出去\n举例： 你的信用卡被刷了 $100。银行系统发一条消息给 SNS，SNS 同时发短信给你、发邮件给你、还通知银行的防欺诈系统。\nSQS (Simple Queue Service)是一个“消息队列 (Queue)”系统,“储物柜”.生产者把消息放进队列里，消息就在那儿坐等。消费者（比如你的服务器）有空了，就过来取走一条处理掉.特点:Pull/Poll, 消息不会主动飞向你，你需要主动去队列里“取”。如果消费者忙不过来，消息就在柜子里安全地攒着。\n举例： 双十一期间，一秒钟有 10 万人下单。数据库处理不过来，系统就把订单先塞进 SQS。数据库慢慢从 SQS 里一个一个拿出来处理。这样系统就不会因为压力太大而崩溃。\n\nA.部署 SQS 队列和 Lambda 函数到其他区域，这样每个区域都有自己的队列和函数来处理来自 SNS 主题的消息。\n\nC.订阅每个区域的 SQS 队列到 SNS 主题，这样当 SNS 主题发布消息时，所有订阅的 SQS 队列都会收到消息，从而实现多区域处理。这是实现跨Cross-Region Fan-out的关键。SNS 支持跨区域订阅——也就是说，Region A 的 SNS 主题可以将消息推送到 Region B 的 SQS 队列,现有的 SNS 发出一条 URL，Region A 的 SQS 会收到，Region B、Region C 的 SQS 也会同时收到。这样，分布在各地的 Lambda 就能同步开始工作了\n\nB.应该是 SQS 订阅 SNS，而不是 SNS 订阅 SQS\n\nD.SQS 是消息的消费者，它不负责向 SNS 发布消息来触发流程\n\nE.题目明确要求“URL 必须从现有区域发布”。如果在每个区域都部署 SNS，会导致消息源分散，不符合题意。而且这种做法会产生大量重复且难以管理的发布逻辑。"
+},
+{
+  "QuestionID": 134,
+  "QuestionType": "single",
+  "QuestionText": "A company runs a proprietary stateless ETL application on Amazon EC2 Linux instances. The application is a Linux binary, and the source code cannot be modified. The application is single-threaded, uses 2 GB of RAM, and is highly CPU intensive. The application is scheduled to run every 4 hours and runs for up to 20 minutes. A solutions architect wants to revise the architecture for the solution. Which strategy should the solutions architect use?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use AWS Lambda to run the application. Use Amazon CloudWatch Logs to invoke the Lambda function every 4 hours." },
+    { "label": "B", "text": "Use AWS Batch to run the application. Use an AWS Step Functions state machine to invoke the AWS Batch job every 4 hours." },
+    { "label": "C", "text": "Use AWS Fargate to run the application. Use Amazon EventBridge (Amazon CloudWatch Events) to invoke the Fargate task every 4 hours." },
+    { "label": "D", "text": "Use Amazon EC2 Spot Instances to run the application. Use AWS CodeDeploy to deploy and run the application every 4 hours." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "stateless ETL(Extract,Transform,Load) application:应用程序不依赖于任何特定的服务器或实例状态，可以在任何计算资源上运行,每一次运行都是独立的，它不依赖也不保存任何本地的“记忆”\nAWS Batch: 专门用于处理大规模批处理任务。它底层可以使用 EC2 或 Fargate。适合需要长时间运行、资源密集型的批处理作业，但对于短时间运行的任务可能会有较高的启动延迟\nAWS Fargate: 是一种无服务器计算引擎，适用于容器化应用程序。它可以快速启动和停止容器，非常适合短时间运行的任务\nAmazon EventBridge (Amazon CloudWatch Events): 是一个事件总线服务，可以用来定时触发任务\nSpot Instances用很便宜的价格租用 AWS 的“空闲服务器”，但可能随时被收回\n\nA.虽然 Lambda 可以运行 Linux 二进制文件，但它有内存和执行时间的限制（最大 15 分钟）。题目中应用程序需要运行 20 分钟，因此 Lambda 不适合这个场景。\n\nB.AWS Batch 适合长时间运行的批处理成千上万个任务的队列，但对于短时间运行的任务可能会有较高的启动延迟，对于“每 4 小时运行一个任务”这种简单的需求，使用 Step Functions + Batch 架构过于复杂（Overkill）\n\nC.Fargate: 它是无服务器容器。既然不能改源码，你可以把 Linux 二进制文件塞进一个简单的 Docker 镜像里。Fargate 没有运行时间限制（跑几小时都没问题），且支持 2 GB 内存配置。使用 EventBridge 定时触发 Fargate 任务，可以满足每 4 小时运行一次的需求\n\nD.使用EC2 Spot Instances 可能会导致实例被中断，尤其是在资源需求高峰期，这不适合需要可靠执行的 ETL 任务。AWS CodeDeploy 主要用于部署应用程序，而不是定时执行任务。且仍然需要管理 EC2 实例的开关，运维成本比 Fargate 高得多。"
+},
+{
+  "QuestionID": 135,
+  "QuestionType": "single",
+  "QuestionText": "A company is creating a sequel for a popular online game. A large number of users from all over the world will play the game within the first week after launch. Currently, the game consists of the following components deployed in a single AWS Region: • Amazon S3 bucket that stores game assets • Amazon DynamoDB table that stores player scores A solutions architect needs to design a multi-Region solution that will reduce latency, improve reliability, and require the least effort to implement. What should the solutions architect do to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an Amazon CloudFront distribution to serve assets from the S3 bucket. Configure S3 Cross-Region Replication. Create a new DynamoDB table in a new Region. Use the new table as a replica target for DynamoDB global tables." },
+    { "label": "B", "text": "Create an Amazon CloudFront distribution to serve assets from the S3 bucket. Configure S3 Same-Region Replication. Create a new DynamoDB table in a new Region. Configure asynchronous replication between the DynamoDB tables by using AWS Database Migration Service (AWS DMS) with change data capture (CDC)." },
+    { "label": "C", "text": "Create another S3 bucket in a new Region, and configure S3 Cross-Region Replication between the buckets. Create an Amazon CloudFront distribution and configure origin failover with two origins accessing the S3 buckets in each Region. Configure DynamoDB global tables by enabling Amazon DynamoDB Streams, and add a replica table in a new Region." },
+    { "label": "D", "text": "Create another S3 bucket in the same Region, and configure S3 Same-Region Replication between the buckets. Create an Amazon CloudFront distribution and configure origin failover with two origins accessing the S3 buckets. Create a new DynamoDB table in a new Region. Use the new table as a replica target for DynamoDB global tables." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "S3 资源优化： 游戏资源（如贴图、模型）很大。使用 Amazon CloudFront (CDN)。它可以将 S3 的资源缓存到全球各地的边缘节点（Edge Locations），玩家只需访问最近的节点即可。\nDynamoDB 优化： 玩家的分数需要实时读写。使用 DynamoDB Global Tables（全局表）。它能实现多区域之间的全自动、双向同步，且配置极其简单\n\nAmazon CloudFront: 是一个全球分布的内容分发网络 (CDN)，可以将内容缓存到离用户更近的位置，从而降低延迟。\nS3 Cross-Region Replication: 允许自动复制 S3 存储桶中的对象到另一个区域的存储桶，适用于需要跨区域冗余和灾难恢复的场景。\nDynamoDB Global Tables: 是 DynamoDB 的一种多主复制功能，允许在多个 AWS 区域中创建表的副本，并实现数据的自动同步。\n\nA.虽然这个选项提到了 CloudFront 和 S3 Cross-Region Replication，但它没有提到如何配置 CloudFront 来利用多个区域的 S3 存储桶。此外，DynamoDB global tables 的配置也不完整。\n\nB.使用 AWS DMS 进行 DynamoDB 的异步复制不是最佳选择，因为 DynamoDB 已经提供了内置的 global tables 功能来实现多区域复制。AWS DMS 主要用于数据库迁移，而不是持续的数据同步。\n\nC.这个选项正确地描述了如何使用 S3 Cross-Region Replication 来创建另一个 S3 存储桶，并使用 CloudFront 的 origin failover 功能来提高可靠性。同时，它还正确地描述了如何配置 DynamoDB global tables 来实现多区域数据同步。\n\nD.使用 S3 Same-Region Replication 不符合题目中关于多区域部署的要求。此外，这个选项没有正确描述如何配置 CloudFront 来利用多个区域的 S3 存储桶。"
+},
+{
+  "QuestionID": 136,
+  "QuestionType": "single",
+  "QuestionText": "A company has an on-premises website application that provides real estate information for potential renters and buyers. The website uses a Java backend and a NoSQL MongoDB database to store subscriber data. The company needs to migrate the entire application to AWS with a similar structure. The application must be deployed for high availability, and the company cannot make changes to the application. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use an Amazon Aurora DB cluster as the database for the subscriber data. Deploy Amazon EC2 instances in an Auto Scaling group across multiple Availability Zones for the Java backend application." },
+    { "label": "B", "text": "Use MongoDB on Amazon EC2 instances as the database for the subscriber data. Deploy EC2 instances in an Auto Scaling group in a single Availability Zone for the Java backend application." },
+    { "label": "C", "text": "Configure Amazon DocumentDB (with MongoDB compatibility) with appropriately sized instances in multiple Availability Zones as the database for the subscriber data. Deploy Amazon EC2 instances in an Auto Scaling group across multiple Availability Zones for the Java backend application." },
+    { "label": "D", "text": "Configure Amazon DocumentDB (with MongoDB compatibility) in on-demand capacity mode in multiple Availability Zones as the database for the subscriber data. Deploy Amazon EC2 instances in an Auto Scaling group across multiple Availability Zones for the Java backend application." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Amazon DocumentDB (with MongoDB compatibility): 是一个完全托管的 NoSQL 数据库服务，兼容 MongoDB API。它提供高可用性和自动化的备份功能，非常适合需要 MongoDB 兼容性的应用程序。\nMongoDB 是目前世界上最流行的“文档型数据库”（Document Database）是 NoSQL 的代表.传统数据库 (如 MySQL/Oracle)：像 Excel 表格。你必须先定义好列名（姓名、年龄、电话），如果某一行想多存个“住址”，你必须修改整个表的结构,MongoDB： 像 文件夹里的文档。它不存“行”和“列”，而是存一份份的 JSON 文件（在内部称为 BSON）,MongoDB 就是一个存 JSON 的“大仓库”。它让开发者不再被死板的表格结构束缚，想存什么、怎么存，都由代码说了算。\nAmazon EC2 Auto Scaling: 可以根据需求自动调整 EC2 实例的数量，确保应用程序在高负载时有足够的资源，同时在低负载时节省成本。\n多可用区部署: 将 EC2 实例和 DocumentDB 部署在多个可用区可以提高应用程序的可用性和容错能力。\n\nA. Aurora 是一个关系型数据库，不适合需要 MongoDB 兼容性的应用程序。如果换成 Aurora，公司必须重写数据层代码。这违反了“不能修改应用程序”的限制。\n\nB. 在单个可用区部署 EC2 实例会导致单点故障，不满足高可用性的要求。\n\nC. Amazon DocumentDB 作为数据库，完全兼容 MongoDB 协议,并且在多个可用区部署了 EC2 实例，满足了高可用性的要求。\n\nD. Amazon DocumentDB 不支持 on-demand capacity mode（那是 DynamoDB 的特性），这个选项描述不准确。"
+},
+{
+  "QuestionID": 137,
+  "QuestionType": "multiple",
+  "QuestionText": "A digital marketing company has multiple AWS accounts that belong to various teams. The creative team uses an Amazon S3 bucket in its AWS account to securely store images and media files that are used as content for the company’s marketing campaigns. The creative team wants to share the S3 bucket with the strategy team so that the strategy team can view the objects. A solutions architect has created an IAM role that is named strategy_reviewer in the Strategy account. The solutions architect also has set up a custom AWS Key Management Service (AWS KMS) key in the Creative account and has associated the key with the S3 bucket. However, when users from the Strategy account assume the IAM role and try to access objects in the S3 bucket, they receive an Access Denied error. The solutions architect must ensure that users in the Strategy account can access the S3 bucket. The solution must provide these users with only the minimum permissions that they need. Which combination of steps should the solutions architect take to meet these requirements? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a bucket policy that includes read permissions for the S3 bucket. Set the principal of the bucket policy to the account ID of the Strategy account." },
+    { "label": "B", "text": "Update the strategy_reviewer IAM role to grant full permissions for the S3 bucket and to grant decrypt permissions for the custom KMS key." },
+    { "label": "C", "text": "Update the custom KMS key policy in the Creative account to grant decrypt permissions to the strategy_reviewer IAM role." },
+    { "label": "D", "text": "Create a bucket policy that includes read permissions for the S3 bucket. Set the principal of the bucket policy to an anonymous user." },
+    { "label": "E", "text": "Update the custom KMS key policy in the Creative account to grant encrypt permissions to the strategy_reviewer IAM role." },
+    { "label": "F", "text": "Update the strategy_reviewer IAM role to grant read permissions for the S3 bucket and to grant decrypt permissions for the custom KMS key." }
+  ],
+  "CorrectAnswer": ["A", "C", "F"],
+  "Explanation": "Bucket Policy: 是一种resource-based policy，直接附加在 S3 存储桶上。它定义了谁可以访问存储桶以及他们可以执行哪些操作。\nKMS Key Policy: 是一种resource-based policy，直接附加在 KMS 密钥上。它定义了谁可以使用密钥进行加密和解密操作。\nIAM Role Policy: 是一种身份-based policy，直接附加在 IAM 角色上。它定义了角色的权限。\n\nA.创建一个 bucket policy，授予 Strategy 账户的用户对 S3 存储桶的读取权限，这样他们才能访问存储桶中的对象。\n\nC.更新 KMS 密钥策略，授予 strategy_reviewer IAM 角色解密权限，允许角色调用 kms:Decrypt,这样当用户尝试访问加密的对象时，他们才能成功解密并查看内容。\n\nF.更新 strategy_reviewer IAM 角色，授予其对 S3 存储桶的读取权限和对 KMS 密钥的解密权限，这样当用户从 Strategy 账户假设该角色时，他们就有足够的权限来访问存储桶中的对象。\n\nB.违反了最小特权（Full permissions 太大了）\n\nD.将 bucket policy 的 principal 设置为匿名用户（Anonymous）会导致所有用户都可以访问存储桶，这违反了最小特权原则。\n\nE. strategy_reviewer IAM role只需要“查看”文件，所以只需要 Decrypt。Encrypt是上传文件时才需要的，不符合最小特权"
+},
+{
+  "QuestionID": 138,
+  "QuestionType": "single",
+  "QuestionText": "A life sciences company is using a combination of open source tools to manage data analysis workflows and Docker containers running on servers in its on-premises data center to process genomics data. Sequencing data is generated and stored on a local storage area network (SAN), and then the data is processed. The research and development teams are running into capacity issues and have decided to re-architect their genomics analysis platform on AWS to scale based on workload demands and reduce the turnaround time from weeks to days. The company has a high-speed AWS Direct Connect connection. Sequencers will generate around 200 GB of data for each genome, and individual jobs can take several hours to process the data with ideal compute capacity. The end result will be stored in Amazon S3. The company is expecting 10-15 job requests each day. Which solution meets these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use regularly scheduled AWS Snowball Edge devices to transfer the sequencing data into AWS. When AWS receives the Snowball Edge device and the data is loaded into Amazon S3, use S3 events to trigger an AWS Lambda function to process the data." },
+    { "label": "B", "text": "Use AWS Data Pipeline to transfer the sequencing data to Amazon S3. Use S3 events to trigger an Amazon EC2 Auto Scaling group to launch custom-AMI EC2 instances running the Docker containers to process the data." },
+    { "label": "C", "text": "Use AWS DataSync to transfer the sequencing data to Amazon S3. Use S3 events to trigger an AWS Lambda function that starts an AWS Step Functions workflow. Store the Docker images in Amazon Elastic Container Registry (Amazon ECR) and trigger AWS Batch to run the container and process the sequencing data." },
+    { "label": "D", "text": "Use an AWS Storage Gateway file gateway to transfer the sequencing data to Amazon S3. Use S3 events to trigger an AWS Batch job that executes on Amazon EC2 instances running the Docker containers to process the data." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "AWS DataSync: 是一种在线数据传输服务，可以自动化和加速数据在本地存储和 AWS 之间的传输。它支持高吞吐量的数据迁移，适合大规模数据传输。\nAWS Step Functions: 是一种服务器无关的编排服务，可以协调多个 AWS 服务来构建复杂的工作流。它可以管理任务的执行顺序、错误处理和重试逻辑。\nAmazon Elastic Container Registry (Amazon ECR): 是一个完全托管的 Docker 容器注册表，使开发人员能够轻松存储、管理和部署 Docker 容器镜像。\nAWS Batch: 是一个完全托管的批处理服务，可以高效地运行数千个批处理作业。它可以自动调整计算资源以满足作业需求。\n\nA.已经有了 Direct Connect 专线，就不需要定期寄送 Snowball Edge 了。物理邮寄会增加数天的延迟，无法满足“缩短交付周期”的要求。此外，Lambda 无法运行长达数小时的任务\n\nB.使用 AWS Data Pipeline 已经过时了，不是推荐的数据迁移工具。此外，使用 S3 事件直接触发 EC2 Auto Scaling 组可能会导致资源管理上的复杂性。你需要写脚本来管理容器的启动、监控和任务排队。\n\nC.使用 AWS DataSync 进行数据传输是一个高效且自动化的解决方案。AWS DataSync: 它是专门为 Direct Connect 设计的，能以极高速度（利用专线带宽）将 SAN (Storage Area Network，存储区域网络)中的数据同步到 S3，通过 S3 事件触发 Lambda 函数来启动 Step Functions 工作流，可以有效地管理整个处理流程。将 Docker 镜像存储在 Amazon ECR 并使用 AWS Batch 来运行容器，能够满足高计算需求并提供良好的扩展性。Batch是专门为这种“每天 10-15 个、每个跑数小时、使用 Docker”的场景设计的。它会自动管理 EC2 的申请、任务排队、容器运行和自动释放，完全不需要你管理底层的 Auto Scaling。\n\nD.虽然 AWS Storage Gateway 可以用于数据传输，但它更适合持续的数据访问而不是大规模的数据迁移。直接使用 S3 事件触发 AWS Batch 可能会导致资源管理上的复杂性。"
+},
+{
+  "QuestionID": 139,
+  "QuestionType": "single",
+  "QuestionText": "A company runs a content management application on a single Windows Amazon EC2 instance in a development environment. The application reads and writes static content to a 2 TB Amazon Elastic Block Store (Amazon EBS) volume that is attached to the instance as the root device. The company plans to deploy this application in production as a highly available and fault-tolerant solution that runs on at least three EC2 instances across multiple Availability Zones. A solutions architect must design a solution that joins all the instances that run the application to an Active Directory domain. The solution also must implement Windows ACLs to control access to file contents. The application always must maintain exactly the same content on all running instances at any given point in time. Which solution will meet these requirements with the LEAST management overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an Amazon Elastic File System (Amazon EFS) file share. Create an Auto Scaling group that extends across three Availability Zones and maintains a minimum size of three instances. Implement a user data script to install the application, join the instance to the AD domain, and mount the EFS file share." },
+    { "label": "B", "text": "Create a new AMI from the current EC2 Instance that is running. Create an Amazon FSx for Lustre file system. Create an Auto Scaling group that extends across three Availability Zones and maintains a minimum size of three instances. Implement a user data script to join the instance to the AD domain and mount the FSx for Lustre file system." },
+    { "label": "C", "text": "Create an Amazon FSx for Windows File Server file system. Create an Auto Scaling group that extends across three Availability Zones and maintains a minimum size of three instances. Implement a user data script to install the application and mount the FSx for Windows File Server file system. Perform a seamless domain join to join the instance to the AD domain." },
+    { "label": "D", "text": "Create a new AMI from the current EC2 instance that is running. Create an Amazon Elastic File System (Amazon EFS) file system. Create an Auto Scaling group that extends across three Availability Zones and maintains a minimum size of three Instances. Perform a seamless domain join to join the instance to the AD domain." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Amazon FSx for Windows File Server: 是一个完全托管的 Windows 文件系统，提供原生的 Windows 文件共享功能和集成的 Active Directory 支持。它支持 Windows ACLs，可以满足应用程序对文件访问控制的需求\nUser Data Script: 可以自动化实例启动时的配置过程，包括安装应用程序、加入 AD 域和挂载文件系统。\nSeamless Domain Join: 是一种 AWS Systems Manager 功能，可以自动将 EC2 实例加入 Active Directory 域，无需手动干预。\nWindows ACLs（Access Control Lists）: 是 Windows 操作系统中的一种访问控制机制，可以对文件和文件夹的访问权限进行精细化管理。就是在 Windows 里右键文件夹 -> “属性” -> “安全” 里看到的那些复杂的权限设置。只有 FSx for Windows 能完美保留这些设置\nSMB (Server Message Block): Windows 共享文件的标准协议\nAMI (Amazon Machine Image，亚马逊机器映像) 就是你虚拟服务器的“克隆母盘”或“系统镜像”,把 EC2 实例比作一台电脑硬件，那么 AMI 就是这台电脑里硬盘上的所有内容（操作系统、驱动程序、预装软件和配置）\n\nA.虽然Amazon EFS (Elastic File System)是一个分布式文件系统，它主要针对 Linux 系统,不支持 Windows ACLs\n\nB. Amazon FSx for Lustre 是一个高性能文件系统，适用于计算密集型工作负载，但它不支持 Windows ACLs，也不适合需要与 Active Directory 集成的应用程序。\n\nC. Amazon FSx for Windows File Server 提供了对 Windows ACLs 的支持，并且可以无缝集成到 Active Directory 中，满足了题目中的所有要求。\n\nD.虽然 Amazon EFS 可以提供共享存储，但它不支持 Windows ACLs，使用 AMI 来复制实例可能会增加管理复杂性，而使用用户数据脚本来安装应用程序和配置实例更为简便。"
+},
+{
+  "QuestionID": 140,
+  "QuestionType": "single",
+  "QuestionText": "A software as a service (SaaS) based company provides a case management solution to customers. As part of the solution, the company uses a standalone Simple Mail Transfer Protocol (SMTP) server to send email messages from an application. The application also stores an email template for acknowledgement email messages that populate customer data before the application sends the email message to the customer. The company plans to migrate this messaging functionality to the AWS Cloud and needs to minimize operational overhead. Which solution will meet these requirements MOST cost-effectively?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Set up an SMTP server on Amazon EC2 instances by using an AMI from the AWS Marketplace. Store the email template in an Amazon S3 bucket. Create an AWS Lambda function to retrieve the template from the S3 bucket and to merge the customer data from the application with the template. Use an SDK in the Lambda function to send the email message." },
+    { "label": "B", "text": "Set up Amazon Simple Email Service (Amazon SES) to send email messages. Store the email template in an Amazon S3 bucket. Create an AWS Lambda function to retrieve the template from the S3 bucket and to merge the customer data from the application with the template. Use an SDK in the Lambda function to send the email message." },
+    { "label": "C", "text": "Set up an SMTP server on Amazon EC2 instances by using an AMI from the AWS Marketplace. Store the email template in Amazon Simple Email Service (Amazon SES) with parameters for the customer data. Create an AWS Lambda function to call the SES template and to pass customer data to replace the parameters. Use the AWS Marketplace SMTP server to send the email message." },
+    { "label": "D", "text": "Set up Amazon Simple Email Service (Amazon SES) to send email messages. Store the email template on Amazon SES with parameters for the customer data. Create an AWS Lambda function to call the SendTemplatedEmail API operation and to pass customer data to replace the parameters and the email destination." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "Amazon SES (Simple Email Service): 是一个可伸缩的电子邮件发送服务，适用于发送事务性邮件和营销邮件。它提供了内置的模板功能，可以直接在 SES 中存储和管理电子邮件模板，并通过 API 调用来发送邮件。亚马逊的云端邮局。它处理了所有复杂的底层工作（如 DKIM 签名、退信处理、IP 预热），你只需要调用 API 即可发信。\nSendTemplatedEmail API: 是 Amazon SES 提供的一个 API 操作，允许你使用预定义的模板来发送电子邮件，并且可以动态替换模板中的参数。\nSMTP (Simple Mail Transfer Protocol): 是一种用于发送电子邮件的标准协议。Amazon SES (Simple Email Service)既支持标准的 SMTP 接口，也支持更现代的 HTTP API 接口。\n\nA.虽然这个选项使用了 Lambda 来处理模板合并，但它需要维护一个独立的 SMTP 服务器，这增加了运维复杂性和成本。维护 EC2 实例涉及打补丁、监控、处理 IP 信誉、防垃圾邮件等繁琐工作，这违反了“最低运维开销”的要求。此外，EC2 24小时开机的成本远高于按量计费的 SES\n\nB.虽然这个选项使用了 Lambda 来处理模板合并，但它没有利用 SES 的内置模板功能，仍然需要在 S3 中管理模板，增加了不必要的复杂性。\n\nC.虽然这个选项使用了 SES 的模板功能，但它仍然依赖于一个独立的 SMTP 服务器来发送邮件，这增加了运维复杂性和成本。\n\nD.这个选项直接利用了 Amazon SES 的内置模板功能，并通过 Lambda 调用 SendTemplatedEmail API 来发送邮件，这是一个非常强大的 API。你只需把客户数据传给它，SES 会自动帮你填充模板并发送。"
+},
+{
+  "QuestionID": 141,
+  "QuestionType": "single",
+  "QuestionText": "A company is processing videos in the AWS Cloud by using Amazon EC2 instances in an Auto Scaling group. It takes 30 minutes to process a video. Several EC2 instances scale in and out depending on the number of videos in an Amazon Simple Queue Service (Amazon SQS) queue. The company has configured the SQS queue with a redrive policy that specifies a target dead-letter queue and a maxReceiveCount of 1. The company has set the visibility timeout for the SQS queue to 1 hour. The company has set up an Amazon CloudWatch alarm to notify the development team when there are messages in the dead-letter queue. Several times during the day, the development team receives notification that messages are in the dead-letter queue and that videos have not been processed properly. An investigation finds no errors in the application logs. How can the company solve this problem?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Turn on termination protection for the EC2 instances." },
+    { "label": "B", "text": "Update the visibility timeout for the SQS queue to 3 hours." },
+    { "label": "C", "text": "Configure scale-in protection for the instances during processing." },
+    { "label": "D", "text": "Update the redrive policy and set maxReceiveCount to 0." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Scale-in Protection: 是 Auto Scaling 的一个功能，可以防止正在处理任务的实例被自动缩减（Scale-in）时终止。当实例正在处理 SQS 消息时，启用 Scale-in Protection 可以确保实例不会被 Auto Scaling 终止，从而避免消息被重新放回队列并进入死信队列。\nVisibility Timeout: 是 SQS 消息的一个属性，定义了当一个消息被一个消费者接收后，在该消息再次变为可见之前的时间窗口。设置过长的 Visibility Timeout 可能会导致消息长时间不可见，而设置过短则可能导致消息被多个消费者同时处理。\nRedrive Policy: 定义了当消息达到 maxReceiveCount 后被移动到死信队列的规则。将 maxReceiveCount 设置为 0 会导致消息永远不会进入死信队列，这可能会掩盖潜在的问题。\nDead-letter Queue (DLQ):专门存放那些多次处理都失败的消息，方便人工排查\n\nA.开启实例的termination protection可以防止实例被意外终止，通常是针对手动误删的,它并不能解决正在处理任务的实例被 Auto Scaling 缩减的问题。\n\nB.将 Visibility Timeout 设置为 3 小时可能会导致消息长时间不可见，如果处理时间超过了这个值，可能会导致其他消费者无法及时处理消息。\n\nC.配置 Scale-in Protection 可以确保正在处理 SQS 消息的实例不会被 Auto Scaling 终止，从而避免消息被重新放回队列并进入死信队列\n\nD.将 maxReceiveCount 设置为 0 会导致消息永远不会进入死信队列，这可能会掩盖潜在的问题"
+},
+{
+  "QuestionID": 142,
+  "QuestionType": "single",
+  "QuestionText": "A company has developed APIs that use Amazon API Gateway with Regional endpoints. The APIs call AWS Lambda functions that use API Gateway authentication mechanisms. After a design review, a solutions architect identifies a set of APIs that do not require public access. The solutions architect must design a solution to make the set of APIs accessible only from a VPC. All APIs need to be called with an authenticated user. Which solution will meet these requirements with the LEAST amount of effort?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an internal Application Load Balancer (ALB). Create a target group. Select the Lambda function to call. Use the ALB DNS name to call the API from the VPC." },
+    { "label": "B", "text": "Remove the DNS entry that is associated with the API in API Gateway. Create a hosted zone in Amazon Route 53. Create a CNAME record in the hosted zone. Update the API in API Gateway with the CNAME record. Use the CNAME record to call the API from the VPC." },
+    { "label": "C", "text": "Update the API endpoint from Regional to private in API Gateway. Create an interface VPC endpoint in the VPC. Create a resource policy, and attach it to the API. Use the VPC endpoint to call the API from the VPC." },
+    { "label": "D", "text": "Deploy the Lambda functions inside the VPC. Provision an EC2 instance, and install an Apache server. From the Apache server, call the Lambda functions. Use the internal CNAME record of the EC2 instance to call the API from the VPC." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "Amazon API Gateway (Regional Endpoints): 是一种 API Gateway 的部署选项，允许 API 在特定的 AWS 区域内被访问。Regional endpoints 适用于需要在特定区域内提供低延迟访问的场景，但它们仍然是公开可访问的。\nPrivate API Endpoints: 是 API Gateway 的一种部署选项，允许 API 只能通过 VPC 内部访问。使用 Private API Endpoints 可以确保 API 只能被授权的 VPC 内的资源访问，从而提高安全性。\nInterface VPC Endpoint: 是一种 AWS PrivateLink 功能，允许你在 VPC 内创建一个私有连接到支持 PrivateLink 的 AWS 服务（如 API Gateway）。通过创建一个 Interface VPC Endpoint，你可以将流量直接路由到 API Gateway，而无需通过公共互联网。\nResource Policy: 是一种基于资源的策略，一种 JSON 策略文档，可以直接附加到 API Gateway 上，用于控制对 API 的访问权限。对于私有 API，通常需要配置资源策略来显式允许来自特定 VPC Endpoint 的访问。\n\nA.虽然这能实现 VPC 内访问，但它彻底抛弃了 API Gateway。原本在 API Gateway 上配置的认证机制（如 Cognito, Custom Authorizer）需要重新在 ALB 或 Lambda 逻辑中实现。这违反了“最小工作量”原则\n\nB.修改 DNS 和 Route 53 配置可能会增加复杂性，并且无法真正限制 API 的访问范围，因为 DNS 记录可以被解析到公共 IP 地址。即使你改了 DNS 记录，原本的 API Gateway Regional 端点在互联网上依然是物理可达的（只要知道原始 URL 就能访问）。它没有从根本上改变 API 的类型。\n\nC.将 API Gateway 的端点类型更新为 Private，直接将 API 锁定在 AWS 内部网络。并创建一个 Interface VPC Endpoint，可以确保 API 只能从指定的 VPC 内部访问。Resource Policy：是私有 API 的强制要求，用来定义访问权限。\n\nD.将 Lambda 函数部署在 VPC 内部并通过 EC2 实例调用增加了不必要的复杂性和管理开销，维护 EC2 增加了运维压力，且安全性和扩展性远不如原生的 API Gateway 私有方案"
+},
+{
+  "QuestionID": 143,
+  "QuestionType": "multiple",
+  "QuestionText": "A weather service provides high-resolution weather maps from a web application hosted on AWS in the eu-west-1 Region. The weather maps are updated frequently and stored in Amazon S3 along with static HTML content. The web application is fronted by Amazon CloudFront. The company recently expanded to serve users in the us-east-1 Region, and these new users report that viewing their respective weather maps is slow from time to time. Which combination of steps will resolve the us-east-1 performance issues? (Choose two.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Configure the AWS Global Accelerator endpoint for the S3 bucket in eu-west-1. Configure endpoint groups for TCP ports 80 and 443 in us-east-1." },
+    { "label": "B", "text": "Create a new S3 bucket in us-east-1. Configure S3 cross-Region replication to synchronize from the S3 bucket in eu-west-1." },
+    { "label": "C", "text": "Use Lambda@Edge to modify requests from North America to use the S3 Transfer Acceleration endpoint in us-east-1." },
+    { "label": "D", "text": "Use Lambda@Edge to modify requests from North America to use the S3 bucket in us-east-1." },
+    { "label": "E", "text": "Configure the AWS Global Accelerator endpoint for us-east-1 as an origin on the CloudFront distribution. Use Lambda@Edge to modify requests from North America to use the new origin." }
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "S3 Cross-Region Replication (CRR): 是一种 S3 功能，允许自动复制一个 S3 存储桶中的对象到另一个区域的存储桶\nLambda@Edge:是 CloudFront 的一个功能，允许你在 CloudFront 的边缘位置运行代码来修改请求和响应。它可以根据用户的地理位置，实时修改请求（比如把请求重定向到不同的后端）\nS3 Transfer Acceleration：是一种 S3 功能，允许通过 Amazon CloudFront 的边缘位置加速上传和下载 S3 对象的速度。\nAWS Global Accelerator:通过 AWS 的全球网络骨干来优化访问路径，通常用于加速 TCP/UDP 流量，不是解决 S3 跨洋访问延迟的最直接办法。\n\nA. AWS Global Accelerator 是一种网络服务，可以优化全球用户访问应用程序的路径，但它不适用于直接优化 S3 存储桶的访问。\n\nB.创建一个新的 S3 存储桶在 us-east-1，并使用 S3 Cross-Region Replication 来同步数据，是解决性能问题的有效方法，因为它允许用户从更近的存储桶获取数据。这是解决“物理距离”最有效的办法。让美国的数据直接存在美国。当欧洲的 S3 更新时，AWS 会自动把图片拷贝一份到美国\n\nC.虽然 S3 Transfer Acceleration 可以加速跨区域的数据传输，但它可能会增加成本，并且对于频繁更新的数据来说可能不是最佳选择。Transfer Acceleration 主要是为了加速长距离上传。题目里用户是在查看（下载）地图\n\nD.使用 Lambda@Edge 来修改请求，使其指向 us-east-1 的 S3 存储桶，可以确保用户能够从更近的存储桶获取数据，提高访问速度。有了 B 选项复制好的数据，我们得让 CloudFront 变聪明。Lambda@Edge 可以识别用户是不是从北美来的，如果是，就把回源地址从“欧洲 S3”改为“美国 S3”。这样美国用户就近取图，速度极快\n\nE.虽然 AWS Global Accelerator 可以优化网络路径，但它不适用于直接优化 S3 存储桶的访问。CloudFront 本身就已经是一个全球加速网络了，它利用 AWS 的边缘节点（Edge Locations）让用户就近接入。Global Accelerator 也是利用 AWS 的边缘节点来加速此外，把 Global Accelerator 放在 CloudFront 后面，就像是你已经坐上了高铁（CloudFront），结果中途又换乘了另一趟平行的高铁（Global Accelerator）。这不仅没变快，反而因为多了一层中转，增加了处理延迟，美国用户请求 → 美国 CloudFront 节点 → 美国 Global Accelerator 入口 → 跨越大西洋 → 欧洲 S3"
+},
+{
+  "QuestionID": 144,
+  "QuestionType": "single",
+  "QuestionText": "A solutions architect is investigating an issue in which a company cannot establish new sessions in Amazon Workspaces. An initial analysis indicates that the issue involves user profiles. The Amazon Workspaces environment is configured to use Amazon FSx for Windows File Server as the profile share storage. The FSx for Windows File Server file system is configured with 10 TB of storage. The solutions architect discovers that the file system has reached its maximum capacity. The solutions architect must ensure that users can regain access. The solution also must prevent the problem from occurring again. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Remove old user profiles to create space. Migrate the user profiles to an Amazon FSx for Lustre file system." },
+    { "label": "B", "text": "Increase capacity by using the update-file-system command. Implement an Amazon CloudWatch metric that monitors free space. Use Amazon EventBridge to invoke an AWS Lambda function to increase capacity as required." },
+    { "label": "C", "text": "Monitor the file system by using the FreeStorageCapacity metric in Amazon CloudWatch. Use AWS Step Functions to increase the capacity as required." },
+    { "label": "D", "text": "Remove old user profiles to create space. Create an additional FSx for Windows File Server file system. Update the user profile redirection for 50% of the users to use the new file system." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "Amazon WorkSpaces: 是一种托管的桌面即服务（DaaS）解决方案，允许用户从任何地方访问云中的虚拟桌面。\nAmazon FSx for Windows File Server: 是一个完全托管的 Windows 文件系统，提供原生的 Windows 文件共享功能和集成的 Active Directory 支持。它支持动态扩展存储容量，可以根据需要增加存储空间。它支持在线扩容，而不需要停机。\nCloudWatch Metrics: 提供了监控 AWS 资源和应用程序的能力，可以创建自定义指标来跟踪特定资源的性能和状态。\nEventBridge: 是一个无服务器事件总线服务，可以连接应用程序与 AWS 服务，允许你设置规则来响应特定事件并触发相应的操作\n\nA.虽然移除旧用户配置文件可以暂时解决存储空间问题，但这不是一个可持续的解决方案，因为用户数据可能会继续增长。迁移到 FSx for Lustre 不适合这种需要 Windows 文件共享和 Active Directory 集成的场景。FSx for Lustre 是专门为高性能计算（HPC）和机器学习设计的，并不支持 Windows 的SMB (Server Message Block)网络文件共享协议和复杂的权限管理NTFS (New Technology File System微软开发的本地磁盘文件系统。它决定了数据在硬盘（物理或虚拟磁盘）上是如何排列、存储和命名的。)。对于 Windows 用户配置文件，必须使用 FSx for Windows\n\nB.使用 update-file-system 命令动态增加 FSx 的存储容量是一个有效且可持续的解决方案。通过 CloudWatch 监控 FreeStorageCapacity 指标，并使用 EventBridge 和 Lambda 自动增加容量，可以确保系统能够根据需求自动调整，避免再次发生存储空间不足的问题。\n\nC.虽然监控 FreeStorageCapacity 是必要的，但使用 Step Functions 来增加容量可能会增加不必要的复杂性。Lambda 更适合处理这种自动化任务，因为它可以直接响应事件并执行所需的操作。\n\nD.虽然创建一个新的 FSx 文件系统并分散用户配置文件可以暂时缓解存储压力，但这增加了管理复杂性，并且没有解决根本问题，这属于“手动运维”。这种方法增加了管理成本（要管两个文件系统），而且未来如果用户数据继续增长，还是会面临同样的问题，没有从根本上实现自动化"
+},
+{
+  "QuestionID": 145,
+  "QuestionType": "single",
+  "QuestionText": "An international delivery company hosts a delivery management system on AWS. Drivers use the system to upload confirmation of delivery. Confirmation includes the recipient’s signature or a photo of the package with the recipient. The driver’s handheld device uploads files through FTP to a single Amazon EC2 instance. Each handheld device saves a file in a directory based on the signed-in user, and the file name matches the delivery number. The EC2 instance then adds metadata to the file after querying a central database to pull delivery information. The file is then placed in Amazon S3 for archiving. As the company expands, drivers report that the system is rejecting connections. The FTP server is having problems because of dropped connections and memory issues; in response to these problems, a system engineer schedules a cron task to reboot the EC2 instance every 30 minutes. The billing team reports that files are not always in the archive and that the central system is not always updated. A solutions architect needs to design a solution that maximizes scalability to ensure that the archive always receives the files and that systems are always updated. The handheld devices cannot be modified, so the company cannot deploy a new application. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an AMI of the existing EC2 instance. Create an Auto Scaling group of EC2 instances behind an Application Load Balancer. Configure the Auto Scaling group to have a minimum of three instances." },
+    { "label": "B", "text": "Use AWS Transfer Family to create an FTP server that places the files in Amazon Elastic File System (Amazon EFS). Mount the EFS volume to the existing EC2 instance. Point the EC2 instance to the new path for file processing." },
+    { "label": "C", "text": "Use AWS Transfer Family to create an FTP server that places the files in Amazon S3. Use an S3 event notification through Amazon Simple Notification Service (Amazon SNS) to invoke an AWS Lambda function. Configure the Lambda function to add the metadata and update the delivery system." },
+    { "label": "D", "text": "Update the handheld devices to place the files directly in Amazon S3. Use an S3 event notification through Amazon Simple Queue Service (Amazon SQS) to invoke an AWS Lambda function. Configure the Lambda function to add the metadata and update the delivery system." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "AWS Transfer Family (FTP/SFTP/FTPS): 是一个完全托管的服务，支持通过 FTP、SFTP 和 FTPS 协议进行文件传输。它可以直接将上传的文件存储在 Amazon S3 中，提供了高可用性和可扩展性。\nAmazon S3 Event Notifications: 允许你在特定事件发生时（如对象创建）触发通知，可以通过 SNS、SQS 或 Lambda 来处理这些事件。\n\nA.虽然使用 Auto Scaling 可以提高可用性，但它并不能解决 FTP(File Transfer Protocol文件传输协议) 服务器本身的性能问题。ALB（应用负载均衡器）不支持 FTP 协议。FTP 是一种非常特殊的协议，它使用端口 21 控制和随机端口传输数据，普通的 ALB 处理不了。即使你用 NLB（网络负载均衡器），你仍然需要管理 EC2 里的 FTP 服务，没解决根本的维护麻烦。\n\nB.虽然使用 AWS Transfer Family 来创建一个新的 FTP 服务器是一个改进，但后端还是依赖那台“经常崩溃”的 EC2 去处理文件。这只是换汤不换药，依然存在处理层面的单点故障。\n\nC.使用 AWS Transfer Family 创建一个 FTP 服务器，将文件直接存储在 Amazon S3 中，可以大大提高系统的可扩展性和可靠性。通过 S3 事件通知触发 Lambda 函数来处理文件，可以确保每个上传的文件都能被及时处理和归档，同时更新交付系统。这种方法最大程度地减少了管理开销，并且利用了 AWS 的无服务器架构优势。\n\nD.虽然直接将文件上传到 S3 是一个好主意，但题目明确指出手持设备无法修改，因此这个选项不可行。手持设备只会发 FTP 请求，它们不懂怎么发 S3 的 API 请求。"
+},
+{
+  "QuestionID": 146,
+  "QuestionType": "single",
+  "QuestionText": "A company is running an application in the AWS Cloud. The application runs on containers in an Amazon Elastic Container Service (Amazon ECS) cluster. The ECS tasks use the Fargate launch type. The application's data is relational and is stored in Amazon Aurora MySQL. To meet regulatory requirements, the application must be able to recover to a separate AWS Region in the event of an application failure. In case of a failure, no data can be lost. Which solution will meet these requirements with the LEAST amount of operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Provision an Aurora Replica in a different Region." },
+    { "label": "B", "text": "Set up AWS DataSync for continuous replication of the data to a different Region." },
+    { "label": "C", "text": "Set up AWS Database Migration Service (AWS DMS) to perform a continuous replication of the data to a different Region." },
+    { "label": "D", "text": "Use Amazon Data Lifecycle Manager (Amazon DLM) to schedule a snapshot every 5 minutes." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "Aurora Global Database: 是 Amazon Aurora 的一个功能，允许你在多个 AWS 区域之间创建一个全局数据库。它使用物理复制技术来实现数据的同步，确保在主区域发生故障时，其他区域的数据是最新的，并且可以快速切换到备用区域。\nFargate: 是一种无服务器计算引擎，适用于容器化应用程序，可以自动管理底层基础设施。\nAurora Replica (Cross-Region)：在另一个区域创建一个只读副本\nDataSync:是一个高性能、托管的数据迁移和同步服务，用来在本地存储、S3、EFS、FSx 之间快速、安全地传输数据\nAWS DMS (Database Migration Service)：是一个托管的数据库迁移服务，用来把数据库从一个地方迁移到另一个地方，同时尽量减少停机时间\nData Lifecycle Manager（DLM） AWS 提供的托管服务，用来自动化管理 EBS 卷的快照和 AMI（镜像）的创建、保留和删除策略。\n\nA.通过在不同的 Region 中创建一个 Aurora Replica，可以实现数据的实时复制和高可用性。当主区域发生故障时，可以快速切换到备用区域，满足零数据丢失的要求。这是最直接、最可靠的解决方案，且几乎没有运维开销，因为 Aurora 会自动处理复制和故障转移。\n\nB.虽然 AWS DataSync 可以用于数据迁移和同步，但它不适合实时复制数据库数据，并且可能会导致数据丢失，因为它不是为数据库复制设计的。DataSync 是搬运“文件”的，不是搬运“数据库记录”的。\n\nC.虽然 AWS DMS 可以用于数据库迁移和复制，但它通常用于一次性迁移或定期同步，而不是实时复制。它可能会导致数据丢失，因为它不是为高可用性设计的。作为长期的灾备方案，它的运维开销很大（需要监控任务状态、处理链路中断等）\n\nD.使用 Amazon DLM 来定期创建快照并不能满足零数据丢失的要求，因为在快照之间的数据更改可能会丢失。只要故障发生在两次拍照之间，那段时间的数据就丢了。此外，这种方法需要手动恢复快照，增加了运维复杂性。"
+},
+{
+  "QuestionID": 147,
+  "QuestionType": "single",
+  "QuestionText": "A financial services company receives a regular data feed from its credit card servicing partner. Approximately 5,000 records are sent every 15 minutes in plaintext, delivered over HTTPS directly into an Amazon S3 bucket with server-side encryption. This feed contains sensitive credit card primary account number (PAN) data. The company needs to automatically mask the PAN before sending the data to another S3 bucket for additional internal processing. The company also needs to remove and merge specific fields, and then transform the record into JSON format. Additionally, extra feeds are likely to be added in the future, so any design needs to be easily expandable. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Invoke an AWS Lambda function on file delivery that extracts each record and writes it to an Amazon SQS queue. Invoke another Lambda function when new messages arrive in the SQS queue to process the records, writing the results to a temporary location in Amazon S3. Invoke a final Lambda function once the SQS queue is empty to transform the records into JSON format and send the results to another S3 bucket for internal processing." },
+    { "label": "B", "text": "Invoke an AWS Lambda function on file delivery that extracts each record and writes it to an Amazon SQS queue. Configure an AWS Fargate container application to automatically scale to a single instance when the SQS queue contains messages. Have the application process each record, and transform the record into JSON format. When the queue is empty, send the results to another S3 bucket for internal processing and scale down the AWS Fargate instance." },
+    { "label": "C", "text": "Create an AWS Glue crawler and custom classifier based on the data feed formats and build a table definition to match. Invoke an AWS Lambda function on file delivery to start an AWS Glue ETL job to transform the entire record according to the processing and transformation requirements. Define the output format as JSON. Once complete, have the ETL job send the results to another S3 bucket for internal processing." },
+    { "label": "D", "text": "Create an AWS Glue crawler and custom classiﬁer based upon the data feed formats and build a table definition to match. Perform an Amazon Athena query on file delivery to start an Amazon EMR ETL job to transform the entire record according to the processing and transformation requirements. Define the output format as JSON. Once complete, send the results to another S3 bucket for internal processing and scale down the EMR cluster." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "PAN (Primary Account Number)：信用卡的主账号，属于高度敏感的个人隐私数据（PII），必须经过脱敏处理（例如只显示后四位）\nAWS Glue：是一种完全托管的 ETL（Extract, Transform, Load）服务，可以轻松地准备和加载数据进行分析。通过创建爬虫和自定义分类器，可以自动识别和分类数据，构建表定义以匹配数据源格式。\nETL (Extract, Transform, Load)：\nExtract：从 S3 读取原始文本。\nTransform：在内存中进行脱敏、合并字段、转成 JSON。\nLoad：把结果存入目标 S3 桶。\nAmazon Athena / EMR：Athena 主要用于直接用 SQL 查询 S3 数据；EMR = “云上的大数据集群”,EMR（Elastic MapReduce）是大数据处理平台（Hadoop/Spark）。它们虽然能做 ETL，但相比 Glue，运维配置更复杂。\n当数据量大到一台电脑的硬盘装不下、CPU 算不动的时候，我们就需要一群电脑（集群）来分工合作。Hadoop 和 Spark 就是管理这群电脑的框架\n\nAB.对于 5000 条记录，调用这么多 Lambda 或启动 Fargate 容器太琐碎了。更重要的是，Lambda 处理这种“结构化转换”需要写大量的解析代码，而且很难管理多个不同的数据源。\n\nC.利用 AWS Glue 的 ETL 功能来处理和转换数据。Glue 是专为这种任务设计的。Crawler 负责识别格式，无论未来增加多少种新数据源，多跑几个 Crawler 就能轻松应对,Glue Job 内部基于 Spark，处理数千条记录非常快。它有内置的转换函数（如掩码、合并字段），并能直接输出 JSON格式，极大地简化了开发工作。\n\nD.虽然 Athena 和 EMR 可以处理 ETL 任务，但它们的配置和管理相对复杂，不如 Glue 直接且高效。EMR 集群的启动和关闭需要时间，可能会导致处理延迟，对于每 15 分钟一次、仅 5000 条记录的小批量处理来说，太慢且太贵了（Overkill）。对于这种规模的数据，Glue 是更合适的选择。"
+},
+{
+  "QuestionID": 148,
+  "QuestionType": "single",
+  "QuestionText": "A company wants to use AWS to create a business continuity solution in case the company's main on-premises application fails. The application runs on physical servers that also run other applications. The on-premises application that the company is planning to migrate uses a MySQL database as a data store. All the company's on-premises applications use operating systems that are compatible with Amazon EC2. Which solution will achieve the company's goal with the LEAST operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Install the AWS Replication Agent on the source servers, including the MySQL servers. Set up replication for all servers. Launch test instances for regular drills. Cut over to the test instances to fail over the workload in the case of a failure event." },
+    { "label": "B", "text": "Install the AWS Replication Agent on the source servers, including the MySQL servers. Initialize AWS Elastic Disaster Recovery in the target AWS Region. Define the launch settings. Frequently perform failover and fallback from the most recent point in time." },
+    { "label": "C", "text": "Create AWS Database Migration Service (AWS DMS) replication servers and a target Amazon Aurora MySQL DB cluster to host the database. Create a DMS replication task to copy the existing data to the target DB cluster. Create a local AWS Schema Conversion Tool (AWS SCT) change data capture (CDC) task to keep the data synchronized. Install the rest of the software on EC2 instances by starting with a compatible base AMI." },
+    { "label": "D", "text": "Deploy an AWS Storage Gateway Volume Gateway on premises. Mount volumes on all on-premises servers. Install the application and the MySQL database on the new volumes. Take regular snapshots. Install all the software on EC2 instances by starting with a compatible base AMI. Launch a Volume Gateway on an EC2 instance. Restore the volumes from the latest snapshot. Mount the new volumes on the EC2 instances in the case of a failure event." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "AWS Elastic Disaster Recovery (AWS DRS)：是一个完全托管的灾难恢复服务，它通过在源代码服务器上安装一个轻量级的 Replication Agent，将数据实时复制到 AWS 的一个低成本分段区域（Staging Area）。并在需要时快速启动这些服务器以进行灾难恢复。它支持持续复制，确保数据在 AWS 中保持最新，并且提供了自动化的故障转移和恢复流程。\nAWS Replication Agent: 是 AWS DRS 的一部分，安装在源服务器上，用于捕获和复制数据到 AWS。\nFailover:当本地挂了，在云端正式启动应用接管业务。\nFallback:当本地修好了，把云端更新的数据同步回本地。\nAWS Database Migration Service（DMS）迁移数据\nAWS Schema Conversion Tool（SCT）用于数据库架构转换。\nVolume Gateway (Storage Gateway)：一种将本地存储连接到云端 S3 的方式，通常用于备份或扩展存储，不适合做这种复杂的整机灾备。\n\nA.虽然安装 AWS Replication Agent 并设置复制可以实现数据同步，但定期启动测试实例进行演练可能会增加运维复杂性，并且“手动设置复制和切断”的操作繁琐,没有利用 AWS DRS 的自动化功能来简化灾难恢复流程。\n\nB.使用 AWS Elastic Disaster Recovery 可以实现自动化的灾难恢复流程，减少手动干预和运维开销。它提供了持续复制功能，确保数据在 AWS 中保持最新，并且支持快速启动实例以进行故障转移。\n\nC.虽然使用 AWS DMS 和 SCT 可以实现数据库迁移和同步，但它需要额外的配置和管理，并且没有提供完整的灾难恢复解决方案。你还需要手动管理 EC2 实例和应用程序，这增加了运维复杂性。\n\nD.使用 AWS Storage Gateway Volume Gateway 来复制数据并进行灾难恢复可能会增加管理复杂性，这种方式的恢复时间（RTO）非常长,并且不如 AWS DRS 提供的自动化功能高效。你需要手动管理快照、恢复过程和 EC2 实例，这增加了运维负担。"
+},
+{
+  "QuestionID": 149,
+  "QuestionType": "single",
+  "QuestionText": "A company is subject to regulatory audits of its financial information. External auditors who use a single AWS account need access to the company's AWS account. A solutions architect must provide the auditors with secure, read-only access to the company's AWS account. The solution must comply with AWS security best practices. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "In the company's AWS account, create resource policies for all resources in the account to grant access to the auditors' AWS account. Assign a unique external ID to the resource policy." },
+    { "label": "B", "text": "In the company's AWS account, create an IAM role that trusts the auditors' AWS account. Create an IAM policy that has the required permissions. Attach the policy to the role. Assign a unique external ID to the role's trust policy." },
+    { "label": "C", "text": "In the company's AWS account, create an IAM user. Attach the required IAM policies to the IAM user. Create API access keys for the IAM user. Share the access keys with the auditors." },
+    { "label": "D", "text": "In the company's AWS account, create an IAM group that has the required permissions. Create an IAM user in the company's account for each auditor. Add the IAM users to the IAM group." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "A.虽然为所有资源创建资源策略可以实现对审计员的访问控制，并非所有 AWS 资源都支持资源策略（例如 EC2 就不支持）。而且为成百上千个资源分别写策略，运维压力巨大，不符合“最小运维成本”和“安全管理”原则。\n\nB.使用 IAM 角色可以实现对审计员的安全、临时访问，并且符合 AWS 最佳安全实践。通过trust policy，审计员可以在其 AWS 账户中使用该角色，而无需共享长期凭证。使用外部 ID 可以防止角色被滥用。\n\nC.这是严重的安全违规。绝对不应该把长期密钥（Access Keys）分享给外部人员。一旦密钥被审计员不慎遗失，你的账号就面临被盗风险。\n\nD.使用 IAM 组可以简化权限管理，但仍然需要为每个审计员创建 IAM 用户。这种方法不如使用 IAM 角色灵活，并且可能导致管理开销增加。审计公司可能有几十个审计员离职或入职，你作为被审计方，不应该负责管理对方的人员名单。正确的做法是：你只管那个“角色”大门，至于对方谁能进这个门，由对方的账号管理员去管。"
+},
+{
+  "QuestionID": 150,
+  "QuestionType": "single",
+  "QuestionText": "A company has a latency-sensitive trading platform that uses Amazon DynamoDB as a storage backend. The company configured the DynamoDB table to use on-demand capacity mode. A solutions architect needs to design a solution to improve the performance of the trading platform. The new solution must ensure high availability for the trading platform. Which solution will meet these requirements with the LEAST latency?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a two-node DynamoDB Accelerator (DAX) cluster. Configure an application to read and write data by using DAX." },
+    { "label": "B", "text": "Create a three-node DynamoDB Accelerator (DAX) cluster. Configure an application to read data by using DAX and to write data directly to the DynamoDB table." },
+    { "label": "C", "text": "Create a three-node DynamoDB Accelerator (DAX) cluster. Configure an application to read data directly from the DynamoDB table and to write data by using DAX." },
+    { "label": "D", "text": "Create a single-node DynamoDB Accelerator (DAX) cluster. Configure an application to read data by using DAX and to write data directly to the DynamoDB table." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "DynamoDB Accelerator (DAX)：是一个完全托管的内存缓存服务，专为 DynamoDB 设计，可以提供微秒级的响应时间,专门为 DynamoDB 设计的内存中缓存（In-memory cache）。DAX 可以显著提高读取性能，特别适用于需要低延迟访问 DynamoDB 的应用程序。\nwrite-through:当你通过 DAX 写入数据时，DAX 会先确保数据成功写入 DynamoDB 表，然后再更新自己的缓存。这保证了数据的一致性，但也会让读取变得极快。\n\nA.虽然创建一个两节点的 DAX 集群可以提供一些性能提升，但它可能无法满足高可用性的要求，因为如果其中一个节点发生故障，性能可能会受到影响。\n\nB.创建一个三节点的 DAX 集群可以提供更高的可用性和性能。通过配置应用程序使用 DAX 进行读取操作，可以显著降低读取延迟，同时直接写入 DynamoDB 可以确保数据的一致性和可靠性。这种配置可以最大程度地提高性能，同时确保高可用性。\n\nC.DAX 的核心优势在于加速读取。如果你直接从表读取，你享受的是毫秒级延迟；而通过 DAX 写入反而会稍微增加一点点写入延迟。这不但没提速，反而降速了。\n\nD.使用单节点的 DAX 集群可能会成为单点故障，无法满足高可用性的要求。此外，直接写入 DynamoDB 而不利用 DAX 的写入功能可能会导致性能瓶颈。"
 }
 
 
