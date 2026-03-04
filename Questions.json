@@ -10239,6 +10239,291 @@
   ],
   "CorrectAnswer": ["B", "C", "E"],
   "Explanation": "SAML 2.0 (Security Assertion Markup Language 2.0):一种基于 XML的开放标准，用于在不同安全域之间交换认证和授权数据。通过 SAML 2.0，用户可以使用单一登录（SSO）访问多个应用程序和服务，而无需为每个应用程序单独输入凭据。\nIdP (Identity Provider)负责管理用户信息（用户名、密码、分组）的系统，例如公司本地的 Active Directory (AD) 或 Okta。\nAWS STS (Security Token Service):一种 AWS 服务，允许你请求临时安全凭证来访问 AWS 资源。当使用 SAML 2.0 联合身份验证时，AWS STS 的 AssumeRoleWithSAML API 被用来交换 SAML Assertion以获取临时安全凭证\nIAM Roles:一种 AWS Identity and Access Management (IAM) 资源，定义了一组权限，可以被 AWS 服务或用户临时承担。对于 SAML 联合身份验证，你需要创建一个 IAM 角色，并在其信任策略中指定 SAML 提供程序作为主体，以允许 SAML 用户承担该角色。\nSAML Assertions:一种 XML 格式的数据结构，由身份提供程序生成，包含关于用户的认证和授权信息。在 SAML 联合身份验证过程中，SAML Assertion被发送到 AWS STS，以获取临时安全凭证。IdP 发给 AWS 的一个“信封”，里面包含了用户的身份信息和他们被允许扮演的 IAM 角色信息。\nARN (Amazon Resource Name)是 AWS 环境中所有资源的“唯一身份证号”。无论是一个 S3 存储桶、一个 IAM 角色，还是一台 EC2 实例，在整个 AWS 的全球基础设施中，每一个资源都有一个全球唯一的 ARN\n\nA.检查 IAM 用户的权限策略是否允许该用户使用 SAML 联合身份验证。这种方法不适合，因为 SAML 联合身份验证是基于 IAM role而不是 IAM user的，因此不需要为每个用户单独配置权限。\n\nB.检查为联合用户或联合组创建的 IAM role的信任策略是否将 SAML 提供程序设置为主体。正确配置的信任策略是确保联合身份验证正常工作的关键因素。IAM 角色必须“信任”你的本地 IdP。如果 IAM 角色的信任策略（Trust Policy）里没有把创建好的 SAML Provider 列为 Principal（主体），那么即便用户通过了本地验证，AWS 也会拒绝颁发临时凭证\n\nC.检查 Web 门户是否调用了 AWS STS AssumeRoleWithSAML API，并提供了 SAML 提供程序的 ARN、IAM role的 ARN 和来自 IdP 的 SAML Assertion。这种方法满足了要求，因为正确调用 AssumeRoleWithSAML API 是实现 SAML 联合身份验证的核心步骤。联合登录的逻辑是：用户登录公司门户 → 门户获取 SAML 断言 → 门户调用 STS AssumeRoleWithSAML 接口。如果调用时传的参数（如角色 ARN 或提供者 ARN）不对，或者没传断言，验证就会失败。架构师能成功而用户不能，很可能是用户尝试扮演的角色 ARN 传递有误。\n\nD.检查本地 IdP 的 DNS Hostname是否可以从 AWS 环境 VPC 中访问。这种方法虽然有助于确保网络连接，但它不是导致用户无法访问 AWS 环境的主要原因，因为 SAML 联合身份验证主要依赖于正确配置的 IAM 角色和 API 调用。在 SAML 流程中，是用户的浏览器在 IdP 和 AWS 之间传递信息，AWS 后端并不需要直接通过网络访问本地 IdP 的 DNS。\n\nE.检查公司的 IdP 是否定义了正确的 SAML assertions，以将公司中的用户或组映射到具有适当权限的 IAM 角色。这种方法满足了要求，因为正确的 SAML 断言是确保用户能够成功进行身份验证并获得适当权限的关键。这是最常见的故障点。IdP 端需要定义特定的 SAML Claims（声明）。AWS 要求 IdP 必须发送 Role 和 RoleSessionName 两个属性。如果普通用户在本地 AD 里的分组没有正确映射到 AWS 的 IAM 角色 ARN，断言里就会缺少关键信息，导致 AWS 无法识别用户该用哪个角色"
+},
+{
+  "QuestionID": 201,
+  "QuestionType": "single",
+  "QuestionText": "A solutions architect needs to improve an application that is hosted in the AWS Cloud. The application uses an Amazon Aurora MySQL DB instance that is experiencing overloaded connections. Most of the application’s operations insert records into the database. The application currently stores credentials in a text-based configuration file. The solutions architect needs to implement a solution so that the application can handle the current connection load. The solution must keep the credentials secure and must provide the ability to rotate the credentials automatically on a regular basis. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Deploy an Amazon RDS Proxy layer in front of the DB instance. Store the connection credentials as a secret in AWS Secrets Manager." },
+    { "label": "B", "text": "Deploy an Amazon RDS Proxy layer in front of the DB instance. Store the connection credentials in AWS Systems Manager Parameter Store." },
+    { "label": "C", "text": "Create an Aurora Replica. Store the connection credentials as a secret in AWS Secrets Manager." },
+    { "label": "D", "text": "Create an Aurora Replica. Store the connection credentials in AWS Systems Manager Parameter Store." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "Amazon Aurora MySQL DB Instance: AWS 自研的与 MySQL 兼容的关系型数据库，其性能通常优于标准 MySQL。\nAmazon RDS Proxy: 是一个完全托管的数据库代理服务，通过连接池 (Connection Pooling) 技术允许多个应用共享数据库连接,可以帮助应用程序更高效地使用数据库连接，减少连接过载问题。\nAWS Secrets Manager: 是一个服务，用于安全地存储和管理敏感信息，如数据库凭证、API 密钥等，并支持自动轮换功能。\nAWS Systems Manager Parameter Store: 用于存储配置数据和密码。虽然它支持加密，但它不具备原生自动轮换数据库凭证的功能（需要手动结合 Lambda 实现，而 Secrets Manager 是开箱即用的）。\n\nA.RDS Proxy 解决了连接过载问题（通过池化技术），并且结合 Secrets Manager 可以实现凭证的安全存储和自动轮换。\n\nB.虽然 RDS Proxy 可以解决连接过载问题，但 Parameter Store 不支持自动轮换数据库凭证，因此不满足要求。\n\nC.创建 Aurora Replica 可以分担读取负载，但对于插入操作没有帮助，并且 Secrets Manager 是正确的选择来存储和轮换凭证。\n\nD.同样，创建 Aurora Replica 对于插入操作没有帮助，并且 Parameter Store 不支持自动轮换数据库凭证，因此不满足要求。"
+},
+{
+  "QuestionID": 202,
+  "QuestionType": "single",
+  "QuestionText": "A company needs to build a disaster recovery (DR) solution for its ecommerce website. The web application is hosted on a fleet of t3.large Amazon EC2 instances and uses an Amazon RDS for MySQL DB instance. The EC2 instances are in an Auto Scaling group that extends across multiple Availability Zones. In the event of a disaster, the web application must fail over to the secondary environment with an RPO of 30 seconds and an RTO of 10 minutes. Which solution will meet these requirements MOST cost-effectively?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use infrastructure as code (IaC) to provision the new infrastructure in the DR Region. Create a cross-Region read replica for the DB instance. Set up a backup plan in AWS Backup to create cross-Region backups for the EC2 instances and the DB instance. Create a cron expression to back up the EC2 instances and the DB instance every 30 seconds to the DR Region. Recover the EC2 instances from the latest EC2 backup. Use an Amazon Route 53 geolocation routing policy to automatically fail over to the DR Region in the event of a disaster." },
+    { "label": "B", "text": "Use infrastructure as code (IaC) to provision the new infrastructure in the DR Region. Create a cross-Region read replica for the DB instance. Set up AWS Elastic Disaster Recovery to continuously replicate the EC2 instances to the DR Region. Run the EC2 instances at the minimum capacity in the DR Region. Use an Amazon Route 53 failover routing policy to automatically fail over to the DR Region in the event of a disaster. Increase the desired capacity of the Auto Scaling group." },
+    { "label": "C", "text": "Set up a backup plan in AWS Backup to create cross-Region backups for the EC2 instances and the DB instance. Create a cron expression to back up the EC2 instances and the DB instance every 30 seconds to the DR Region. Use infrastructure as code (IaC) to provision the new infrastructure in the DR Region. Manually restore the backed-up data on new instances. Use an Amazon Route 53 simple routing policy to automatically fail over to the DR Region in the event of a disaster." },
+    { "label": "D", "text": "Use infrastructure as code (IaC) to provision the new infrastructure in the DR Region. Create an Amazon Aurora global database. Set up AWS Elastic Disaster Recovery to continuously replicate the EC2 instances to the DR Region. Run the Auto Scaling group of EC2 instances at full capacity in the DR Region. Use an Amazon Route 53 failover routing policy to automatically fail over to the DR Region in the event of a disaster." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "Infrastructure as Code (IaC): 使用工具（如 AWS CloudFormation、Terraform 等）来自动化和管理基础设施的部署。\nAmazon RDS for MySQL: 是一种关系型数据库服务，兼容 MySQL 数据库引擎。\nAWS Elastic Disaster Recovery: 是一个服务，前身是 CloudEndure,用于持续复制和恢复 EC2 实例，帮助实现快速灾难恢复。它通过轻量级代理持续复制 EC2 实例的状态到低成本的预备区，并在灾难发生时快速启动实例。\nAmazon Route 53: 是一个高度可用和可扩展的云域名系统 (DNS) 服务，支持多种路由策略，包括地理位置路由和故障转移路由。\nCross-Region Read Replica: 是一种在不同 AWS 区域之间复制 RDS 数据库的功能，将数据异步同步到另一个区域,它的延迟通常只有几秒，提供更高的可用性和灾难恢复能力。\n\nAC.虽它们建议使用 AWS Backup 配合 Cron 表达式每 30 秒备份一次，RDS 和 EC2 的快照备份（Snapshot）是非常重的操作，无法每 30 秒执行一次。此外，从快照恢复（Restore）数据库通常需要几十分钟甚至更久，无法满足 10 分钟的 RTO\n\nB.使用 AWS Elastic Disaster Recovery 可以持续复制 EC2 实例，确保在灾难发生时能够快速恢复，并且结合 Route 53 的故障转移路由可以实现自动化的故障转移，同时保持成本效益。\n\nD.虽然 Aurora 全球数据库可以提供跨区域复制，但运行 Auto Scaling 组的 EC2 实例在 DR 区域的Full Capacity全容量运行,可能会导致不必要的成本增加。此外，将 RDS MySQL 迁移到 Aurora Global Database 也会增加不必要的迁移成本和复杂度\n\nFull Capacity（全容量） 意味着你在备用区域（DR Region）运行的资源规模，与你当前生产区域（Primary Region）的规模完全一致,简单来说，如果你的主产区有 10 台 t3.large 实例在跑业务，那么在备机区也时刻开着 10 台一模一样的 t3.large。\n\nMinimum Capacity (最小容量)备用区域只运行 1-2 台实例，甚至 0 台,RTO (恢复时间) 可能会稍微长一些，因为在灾难发生时需要启动更多的实例来处理流量，但这种方式可以显著降低成本，因为你不需要为备用区域的所有资源支付费用，只有在真正需要时才会增加资源。\n\n对于 RPO (恢复点目标) 30 秒和 RTO (恢复时间目标) 10 分钟的要求，AWS Elastic Disaster Recovery 可以满足这些要求，同时保持成本效益。"
+},
+{
+  "QuestionID": 203,
+  "QuestionType": "single",
+  "QuestionText": "A company is planning a one-time migration of an on-premises MySQL database to Amazon Aurora MySQL in the us-east-1 Region. The company's current internet connection has limited bandwidth. The on-premises MySQL database is 60 TB in size. The company estimates that it will take a month to transfer the data to AWS over the current internet connection. The company needs a migration solution that will migrate the database more quickly. Which solution will migrate the database in the LEAST amount of time?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Request a 1 Gbps AWS Direct Connect connection between the on-premises data center and AWS. Use AWS Database Migration Service (AWS DMS) to migrate the on-premises MySQL database to Aurora MySQL." },
+    { "label": "B", "text": "Use AWS DataSync with the current internet connection to accelerate the data transfer between the on-premises data center and AWS. Use AWS Application Migration Service to migrate the on-premises MySQL database to Aurora MySQL." },
+    { "label": "C", "text": "Order an AWS Snowball Edge device. Load the data into an Amazon S3 bucket by using the S3 interface. Use AWS Database Migration Service (AWS DMS) to migrate the data from Amazon S3 to Aurora MySQL." },
+    { "label": "D", "text": "Order an AWS Snowball device. Load the data into an Amazon S3 bucket by using the S3 Adapter for Snowball. Use AWS Application Migration Service to migrate the data from Amazon S3 to Aurora MySQL." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "AWS Snowball Edge: 一种物理设备，由 AWS 寄送给你。你可以把数据拷贝进去，然后邮寄回 AWS 数据中心。它专为处理 PB 级（1 PB = 1000 TB）的数据迁移设计。\nSnowball Edge 目前主要分为两种型号以应对不同需求:\n--Storage Optimized (存储优化型)：空间极大（高达 210 TB），专门对付 60 TB 以上的大规模数据迁移\n--Compute Optimized (计算优化型)：内置强大的 vCPU 和大内存，甚至有 NVIDIA Tesla GPU，专门用于现场的人工智能推理或视频处理\nSnowball (旧版/标准版)仅离线数据传输（Storage only）\n\nAWS Database Migration Service (AWS DMS): 是一个服务，帮助你将数据库迁移到 AWS。它支持多种数据库引擎，包括 MySQL 和 Aurora MySQL。\nAWS Application Migration Service: 是一个服务，帮助你将应用程序和相关数据迁移到 AWS。它主要用于迁移服务器和应用程序，而不是专门针对数据库迁移。\nAWS DataSync: 是一个在线数据传输服务，可以加速数据在本地存储和 AWS 之间的传输，但对于大规模数据迁移（如 60 TB）来说，可能仍然需要较长时间。\n\nA.虽然 AWS Direct Connect 可以提供更快的网络连接，但建立 Direct Connect 连接通常需要几周的时间，这可能会延长整体迁移时间。\n\nB.虽然 AWS DataSync 可以加速数据传输，但对于 60 TB 的数据量来说，仍然可能需要较长时间，并且 AWS Application Migration Service 不适合数据库迁移。\n\nC.使用 AWS Snowball Edge 可以快速迁移大量数据，因为你可以直接将数据加载到设备中，然后邮寄回 AWS 数据中心。这种方法通常比通过互联网传输大规模数据更快。\n\nD.虽然 AWS Snowball 也可以用于数据迁移，但 Snowball Edge 更适合处理 PB 级的数据，并且 AWS Application Migration Service 不适合数据库迁移，因此不如选项 C 合适。"
+},
+{
+  "QuestionID": 204,
+  "QuestionType": "single",
+  "QuestionText": "A company has an application in the AWS Cloud. The application runs on a fleet of 20 Amazon EC2 instances. The EC2 instances are persistent and store data on multiple attached Amazon Elastic Block Store (Amazon EBS) volumes. The company must maintain backups in a separate AWS Region. The company must be able to recover the EC2 instances and their configuration within 1 business day, with loss of no more than 1 day's worth of data. The company has limited staff and needs a backup solution that optimizes operational efficiency and cost. The company already has created an AWS CloudFormation template that can deploy the required network configuration in a secondary Region. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a second CloudFormation template that can recreate the EC2 instances in the secondary Region. Run daily multivolume snapshots by using AWS Systems Manager Automation runbooks. Copy the snapshots to the secondary Region. In the event of a failure launch the CloudFormation templates, restore the EBS volumes from snapshots, and transfer usage to the secondary Region." },
+    { "label": "B", "text": "Use Amazon Data Lifecycle Manager (Amazon DLM) to create daily multivolume snapshots of the EBS volumes. In the event of a failure, launch the CloudFormation template and use Amazon DLM to restore the EBS volumes and transfer usage to the secondary Region." },
+    { "label": "C", "text": "Use AWS Backup to create a scheduled daily backup plan for the EC2 instances. Configure the backup task to copy the backups to a vault in the secondary Region. In the event of a failure, launch the CloudFormation template, restore the instance volumes and configurations from the backup vault, and transfer usage to the secondary Region." },
+    { "label": "D", "text": "Deploy EC2 instances of the same size and configuration to the secondary Region. Configure AWS DataSync daily to copy data from the primary Region to the secondary Region. In the event of a failure, launch the CloudFormation template and transfer usage to the secondary Region." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "AWS Backup: 一个全托管的备份服务。它可以集中管理多种 AWS 资源的备份（如 EC2, EBS, RDS, EFS 等），支持跨账号和跨区域自动复制\nAmazon Data Lifecycle Manager (DLM): 是一个服务，帮助你自动化 EBS 卷的快照创建和删除。\nAWS Systems Manager Automation: 是一个服务，帮助你自动化 AWS 资源的管理任务。虽然它可以执行自动化任务，但它不提供专门的备份和恢复功能。\nAWS DataSync: 是一个在线数据传输服务，可以加速数据在本地存储和 AWS 之间的传输，但它不适合用于 EC2 实例和 EBS 卷的备份和恢复。\n\nA.虽然这个方案可以实现备份和恢复，但它需要手动创建 CloudFormation 模板来重新部署 EC2 实例，并且需要手动管理快照的复制和恢复过程，操作复杂且容易出错。\n\nB.虽然 Amazon DLM 可以自动化 EBS 卷的快照创建，虽然也支持跨区域复制，但它对 EC2 实例级别的元数据（配置）管理不如 AWS Backup 完整。且恢复过程相对更手动化\n\nC.使用 AWS Backup 可以集中管理 EC2 实例和 EBS 卷的备份，并且支持自动将备份复制到另一个区域。在灾难发生时，可以通过 CloudFormation 模板快速恢复实例配置，并从备份中恢复数据，满足 RPO 和 RTO 的要求，同时优化了操作效率和成本。\n\nD.虽然这个方案可以实现数据同步，但它需要在备用区域持续运行 EC2 实例，这会增加成本，并且在灾难发生时需要手动启动实例并等待数据同步完成，可能无法满足 1 天内恢复的要求。"
+},
+{
+  "QuestionID": 205,
+  "QuestionType": "multiple",
+  "QuestionText": "A company is designing a new website that hosts static content. The website will give users the ability to upload and download large files. According to company requirements, all data must be encrypted in transit and at rest. A solutions architect is building the solution by using Amazon S3 and Amazon CloudFront. Which combination of steps will meet the encryption requirements? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Turn on S3 server-side encryption for the S3 bucket that the web application uses." },
+    { "label": "B", "text": "Add a policy attribute of \"aws:SecureTransport\": \"true\" for read and write operations in the S3 ACLs." },
+    { "label": "C", "text": "Create a bucket policy that denies any unencrypted operations in the S3 bucket that the web application uses." },
+    { "label": "D", "text": "Configure encryption at rest on CloudFront by using server-side encryption with AWS KMS keys (SSE-KMS)." },
+    { "label": "E", "text": "Configure redirection of HTTP requests to HTTPS requests in CloudFront." },
+    { "label": "F", "text": "Use the RequireSSL option in the creation of presigned URLs for the S3 bucket that the web application uses." }
+  ],
+  "CorrectAnswer": ["A", "C", "E"],
+  "Explanation": "SSE (Server-Side Encryption):服务器端加密。S3 在写入磁盘前自动加密数据，读取时自动解密。SSE-KMS: 是 SSE 的一种实现方式，使用 AWS Key Management Service (KMS) 管理加密密钥。\nS3 ACLs (Access Control Lists): 是一种访问控制机制，用于管理对 S3 资源的访问权限，但它不适合用于强制加密要求。\nBucket Policy: 是一种资源级别的权限策略，可以用来控制对 S3 存储桶和对象的访问权限，可以用来强制加密要求。\naws:SecureTransport: S3 策略中的一个条件键，用于检查请求是否通过 HTTPS 发送\nCloudFront: 是一个内容分发网络 (CDN) 服务，可以加速静态和动态内容的交付。虽然 CloudFront 可以配置为使用 HTTPS 来加密传输，但它不提供直接的加密存储功能，因为它主要是一个分发层，而不是存储层。\nPresigned URLs: 是一种允许用户在一定时间内访问 S3 对象的 URL，生成一个 Presigned URL：这是一个带有“通行证”的特殊链接。它包含了你的凭证信息，并设置了有效期（比如 15 分钟），允许临时授权非 AWS 用户上传或下载 S3 文件。\n\nA.开启 S3 服务器端加密可以确保数据在存储时被加密，满足数据在静止状态下的加密要求。\n\nC.创建一个桶策略来拒绝任何未加密的操作可以确保所有数据在存储时都必须被加密，进一步强化了数据在静止状态下的安全性。通过 Bucket Policy 设置 Deny 规则，如果请求中的 aws:SecureTransport 为 false（即使用 HTTP），则拒绝操作。这在存储桶层面强制执行了 HTTPS 传输\n\nE.配置 CloudFront 将 HTTP 请求重定向到 HTTPS 请求可以确保数据在传输过程中被加密，满足数据在传输状态下的加密要求。确保了用户从浏览器访问网站时，所有流量都会经过 SSL/TLS 加密。\n\nB.aws:SecureTransport 条件应该写在 Bucket Policy 中，而不是 S3 ACLs。ACL (访问控制列表) 的功能非常有限，无法处理复杂的条件逻辑。\n\nD.CloudFront 本身不提供存储功能，因此无法直接配置存储层的加密，SSE-KMS 是针对 S3 存储的，而不是 CloudFront 的。\n\nF.S3 的预签名 URL 生成时并没有 RequireSSL 这一项参数。SSL 的强制执行通常是在生成 URL 的代码逻辑里指定的，或者是通过 C 选项中的桶策略来强制拦截非 SSL 请求。如果你只在代码里生成了 https 链接，而没有在 S3 桶上设置 Bucket Policy，这并不叫“强制执行”，黑客拿到你的链接后，可以手动把开头的 https:// 改成 http://。如果 S3 桶没有策略拦截，S3 依然会允许这个 http 请求通过，因为签名（Signature）在数学上依然是有效的。"
+},
+{
+  "QuestionID": 206,
+  "QuestionType": "single",
+  "QuestionText": "A company is implementing a serverless architecture by using AWS Lambda functions that need to access a Microsoft SQL Server DB instance on Amazon RDS. The company has separate environments for development and production, including a clone of the database system. The company's developers are allowed to access the credentials for the development database. However, the credentials for the production database must be encrypted with a key that only members of the IT security team's IAM user group can access. This key must be rotated on a regular basis. What should a solutions architect do in the production environment to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Store the database credentials in AWS Systems Manager Parameter Store by using a SecureString parameter that is encrypted by an AWS Key Management Service (AWS KMS) customer managed key. Attach a role to each Lambda function to provide access to the SecureString parameter. Restrict access to the SecureString parameter and the customer managed key so that only the IT security team can access the parameter and the key." },
+    { "label": "B", "text": "Encrypt the database credentials by using the AWS Key Management Service (AWS KMS) default Lambda key. Store the credentials in the environment variables of each Lambda function. Load the credentials from the environment variables in the Lambda code. Restrict access to the KMS key so that only the IT security team can access the key." },
+    { "label": "C", "text": "Store the database credentials in the environment variables of each Lambda function. Encrypt the environment variables by using an AWS Key Management Service (AWS KMS) customer managed key. Restrict access to the customer managed key so that only the IT security team can access the key." },
+    { "label": "D", "text": "Store the database credentials in AWS Secrets Manager as a secret that is associated with an AWS Key Management Service (AWS KMS) customer managed key. Attach a role to each Lambda function to provide access to the secret. Restrict access to the secret and the customer managed key so that only the IT security team can access the secret and the key." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "AWS Secrets Manager: 是一个服务，用于安全地存储和管理敏感信息，如数据库凭证、API 密钥等，并支持自动轮换功能。\nAWS Key Management Service (AWS KMS): 是一个服务，用于创建和管理加密密钥，并控制对这些密钥的使用。\nAWS Systems Manager Parameter Store: 用于存储配置数据和密码。虽然它支持加密，但它不具备原生自动轮换数据库凭证的功能（需要手动结合 Lambda 实现，而 Secrets Manager 是开箱即用的）。\n\nA.虽然 AWS Systems Manager Parameter Store 可以存储加密的参数，但它不提供自动轮换数据库凭证的功能，因此不满足要求。\n\nBC.将凭证存储在Environment Variables中并使用 KMS 加密不是最佳实践，因为环境变量可能会被日志记录或暴露给其他服务，增加了安全风险。环境变量是静态的。如果你想换密码，你得手动去改每一个 Lambda 函数的配置。这不叫“自动轮换”，且管理 20 个 Lambda 的变量会非常混乱\n\nD.使用 AWS Secrets Manager 可以满足所有要求，包括安全存储、访问控制和自动轮换数据库凭证，使用 Customer Managed Key (CMK)，安全团队可以把控密钥权限。Lambda 通过 IAM Role 访问 Secrets Manager 是一种标准且安全的做法。"
+},
+{
+  "QuestionID": 207,
+  "QuestionType": "single",
+  "QuestionText": "An online retail company is migrating its legacy on-premises .NET application to AWS. The application runs on load-balanced frontend web servers, load-balanced application servers, and a Microsoft SQL Server database. The company wants to use AWS managed services where possible and does not want to rewrite the application. A solutions architect needs to implement a solution to resolve scaling issues and minimize licensing costs as the application scales. Which solution will meet these requirements MOST cost-effectively?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Deploy Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer for the web tier and for the application tier. Use Amazon Aurora PostgreSQL with Babelfish turned on to replatform the SQL Server database." },
+    { "label": "B", "text": "Create images of all the servers by using AWS Database Migration Service (AWS DMS). Deploy Amazon EC2 instances that are based on the on-premises imports. Deploy the instances in an Auto Scaling group behind a Network Load Balancer for the web tier and for the application tier. Use Amazon DynamoDB as the database tier." },
+    { "label": "C", "text": "Containerize the web frontend tier and the application tier. Provision an Amazon Elastic Kubernetes Service (Amazon EKS) cluster. Create an Auto Scaling group behind a Network Load Balancer for the web tier and for the application tier. Use Amazon RDS for SQL Server to host the database." },
+    { "label": "D", "text": "Separate the application functions into AWS Lambda functions. Use Amazon API Gateway for the web frontend tier and the application tier. Migrate the data to Amazon S3. Use Amazon Athena to query the data." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "Amazon Aurora PostgreSQL with Babelfish: Babelfish 是一个非常关键的特性。它能让 Aurora PostgreSQL 理解 SQL Server 的专有方言（T-SQL）应用几乎不需要修改数据库连接代码，就能从昂贵的 SQL Server 迁移到高性能、低成本的 Aurora 开源引擎上，极大地降低了许可费。\n\nA.使用 Amazon EC2 实例和 Auto Scaling 组可以有效地解决扩展问题，同时使用 Aurora PostgreSQL 可以降低许可成本，因此这是最具成本效益的解决方案。\n\nB.虽然使用 EC2 实例和 Auto Scaling 组可以解决扩展问题，但将关系型数据库（SQL Server）迁移到 DynamoDB 必须重写大部分数据访问层的代码，这不符合“不想重写应用程序”的要求。\n\nC.虽然 Amazon EKS 可以提供容器化的解决方案，但它可能会增加管理复杂性和成本，并且使用 RDS for SQL Server 仍然会有许可成本问题。RDS for SQL Server 虽然是托管服务，但它依然需要支付 SQL Server 的许可费\n\nD.改成 Lambda + API Gateway + S3/Athena 属于 Refactor (重构)。这需要彻底重写应用代码，成本极高，且 Athena 不适合作为 Web 应用的在线数据库。"
+},
+{
+  "QuestionID": 208,
+  "QuestionType": "single",
+  "QuestionText": "A software-as-a-service (SaaS) provider exposes APIs through an Application Load Balancer (ALB). The ALB connects to an Amazon Elastic Kubernetes Service (Amazon EKS) cluster that is deployed in the us-east-1 Region. The exposed APIs contain usage of a few non-standard REST methods: LINK, UNLINK, LOCK, and UNLOCK. Users outside the United States are reporting long and inconsistent response times for these APIs. A solutions architect needs to resolve this problem with a solution that minimizes operational overhead. Which solution meets these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Add an Amazon CloudFront distribution. Configure the ALB as the origin." },
+    { "label": "B", "text": "Add an Amazon API Gateway edge-optimized API endpoint to expose the APIs. Configure the ALB as the target." },
+    { "label": "C", "text": "Add an accelerator in AWS Global Accelerator. Configure the ALB as the origin." },
+    { "label": "D", "text": "Deploy the APIs to two additional AWS Regions: eu-west-1 and ap-southeast-2. Add latency-based routing records in Amazon Route 53." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "AWS Global Accelerator: 是一个网络流量管理服务，可以通过 AWS 全球网络优化用户的应用程序性能。它提供了静态 IP 地址，自动将用户流量路由到最近的 AWS 区域，并且支持 TCP 和 UDP 协议，适用于非标准 REST 方法的 API。\nAmazon CloudFront: 是一个内容分发网络 (CDN) 服务，主要用于加速静态和动态内容的交付，它对 HTTP 方法的支持非常有限（仅支持标准方法如 GET, POST, PUT 等）。但它不适合处理非标准 REST 方法的 API 请求。\nAmazon API Gateway: 是一个完全托管的服务，用于创建、发布、维护、监控和保护 API，但它不支持非标准 REST 方法，因此不适合这个场景。\nAmazon Route 53: 是一个高度可用和可扩展的云域名系统 (DNS) 服务，支持多种路由策略，包括基于延迟的路由，但它需要在多个区域部署应用程序，这增加了管理复杂性和成本。\nLatency-based routing (基于延迟的路由)：Route 53 根据用户所在位置，将流量导向延迟最低的区域。但前提是你必须在多个区域部署了相同的应用\n“标准方法”是通用的增删改查动作（如 GET,POST,PUT/PATCH,DELETE），几乎所有网络设备都认识；“非标准方法”是特殊的业务指令（如 LOCK/UNLOCK），像 CloudFront 这种“挑食”的服务会拒收，只有 Global Accelerator 这种只管运送的“搬运工”才完美支持。\n\nA.虽然 CloudFront 可以加速内容交付，但它不适合处理非标准 REST 方法的 API 请求，因此无法解决用户在全球范围内遇到的响应时间问题。\n\nB.虽然 API Gateway 是一个强大的工具，但它不支持非标准 REST 方法，因此无法满足 SaaS 提供商的需求。\n\nC.使用 AWS Global Accelerator 可以优化全球用户访问 ALB 的路径，减少响应时间，并且支持非标准 REST 方法，满足 SaaS 提供商的需求，同时最小化了运营开销。\n\nD.虽然在多个区域部署应用程序并使用 Route 53 进行路由可以改善性能，在欧洲和亚太地区部署两套完整的 EKS 集群涉及到数据库同步、代码部署和多区域监控，这会增加管理复杂性和成本，不是最优解。"
+},
+{
+  "QuestionID": 209,
+  "QuestionType": "single",
+  "QuestionText": "A company runs an IoT application in the AWS Cloud. The company has millions of sensors that collect data from houses in the United States. The sensors use the MQTT protocol to connect and send data to a custom MQTT broker. The MQTT broker stores the data on a single Amazon EC2 instance. The sensors connect to the broker through the domain named iot.example.com. The company uses Amazon Route 53 as its DNS service. The company stores the data in Amazon DynamoDB. On several occasions, the amount of data has overloaded the MQTT broker and has resulted in lost sensor data. The company must improve the reliability of the solution. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an Application Load Balancer (ALB) and an Auto Scaling group for the MQTT broker. Use the Auto Scaling group as the target for the ALB. Update the DNS record in Route 53 to an alias record. Point the alias record to the ALB. Use the MQTT broker to store the data." },
+    { "label": "B", "text": "Set up AWS IoT Core to receive the sensor data. Create and configure a custom domain to connect to AWS IoT Core. Update the DNS record in Route 53 to point to the AWS IoT Core Data-ATS endpoint. Configure an AWS IoT rule to store the data." },
+    { "label": "C", "text": "Create a Network Load Balancer (NLB). Set the MQTT broker as the target. Create an AWS Global Accelerator accelerator. Set the NLB as the endpoint for the accelerator. Update the DNS record in Route 53 to a multivalue answer record. Set the Global Accelerator IP addresses as values. Use the MQTT broker to store the data." },
+    { "label": "D", "text": "Set up AWS IoT Greengrass to receive the sensor data. Update the DNS record in Route 53 to point to the AWS IoT Greengrass endpoint. Configure an AWS IoT rule to invoke an AWS Lambda function to store the data." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "MQTT Protocol: 一种轻量级的、基于发布/订阅模式的消息协议，是 IoT 设备的标准通信协议\nAWS IoT Core: 是一个完全托管的服务，用于连接 IoT 设备并处理其数据。它支持 MQTT 协议，并提供了与其他 AWS 服务的集成。它内置了 MQTT Broker，可以处理数十亿台设备和数万亿条消息，且具备极高的可靠性和自动扩展能力。\nAWS IoT Greengrass: 是一个边缘计算服务，可以在本地设备上运行 AWS Lambda 函数，并与 AWS 云服务进行通信。\nData-ATS Endpoint:AWS IoT Core 提供的安全端点，用于设备连接。\nIoT Rule (规则引擎)：允许你对设备发送的数据进行过滤和处理，并直接将数据路由到其他 AWS 服务（如本题要求的 DynamoDB）\n\nA.Application Load Balancer (ALB) 工作在第 7 层（HTTP/HTTPS），它不支持 MQTT 协议。虽然 MQTT 基于 TCP，但 ALB 无法解析 MQTT 头部信息\n\nB.使用 AWS IoT Core 可以更好地处理 MQTT 消息，AWS IoT Core 是无服务器（Serverless）的，能够轻松处理“数百万个传感器”的并发连接，彻底解决了单台 EC2 的瓶颈,通过配置“自定义域（Custom Domain）”，公司可以继续使用 iot.example.com，传感器无需更改代码,使用 IoT Rule 可以直接将数据写入 DynamoDB，无需手动编写复杂的存储逻辑。\n\nC.虽然 NLB（第 4 层）支持 TCP/MQTT，但你仍然需要自己维护 EC2 上的 MQTT Broker 集群。对于“数百万级别”的传感器，自己管理 Broker 集群的难度和成本极高，不如直接使用托管的 IoT Core。\n\nD.虽然 AWS IoT Greengrass 可以在边缘设备上处理数据，而不是在云端接收数百万个分散房屋的数据,但它并不适合处理大量的 MQTT 消息。"
+},
+{
+  "QuestionID": 210,
+  "QuestionType": "single",
+  "QuestionText": "A company has Linux-based Amazon EC2 instances. Users must access the instances by using SSH with EC2 SSH key pairs. Each machine requires a unique EC2 key pair. The company wants to implement a key rotation policy that will, upon request, automatically rotate all the EC2 key pairs and keep the keys in a securely encrypted place. The company will accept less than 1 minute of downtime during key rotation. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Store all the keys in AWS Secrets Manager. Define a Secrets Manager rotation schedule to invoke an AWS Lambda function to generate new key pairs. Replace public keys on EC2 instances. Update the private keys in Secrets Manager." },
+    { "label": "B", "text": "Store all the keys in Parameter Store, a capability of AWS Systems Manager, as a string. Define a Systems Manager maintenance window to invoke an AWS Lambda function to generate new key pairs. Replace public keys on EC2 instances. Update the private keys in Parameter Store." },
+    { "label": "C", "text": "Import the EC2 key pairs into AWS Key Management Service (AWS KMS). Configure automatic key rotation for these key pairs. Create an Amazon EventBridge scheduled rule to invoke an AWS Lambda function to initiate the key rotation in AWS KMS." },
+    { "label": "D", "text": "Add all the EC2 instances to Fleet Manager, a capability of AWS Systems Manager. Define a Systems Manager maintenance window to issue a Systems Manager Run Command document to generate new key pairs and to rotate public keys to all the instances in Fleet Manager." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "AWS Secrets Manager: 专门用于存储敏感信息（如密码、SSH 私钥）。它的核心优势是内置了轮换框架（Rotation Framework），可以触发 Lambda 函数来执行复杂的轮换逻辑\nEC2 SSH Key Pairs: 包含私钥（用户持有）和公钥（存储在 EC2 的 ~/.ssh/authorized_keys 中）。\nAWS KMS (Key Management Service): 主要用于加密数据和管理加密密钥，但它不能直接管理或轮换用于 SSH 登录的非对称 RSA 密钥对\nAWS Systems Manager Parameter Store: 虽然可以存储字符串，但它不具备 Secrets Manager 的轮换功能，且安全性不如 Secrets Manager 专门设计的存储敏感信息的功能。\nFleet Manager: 是一个工具，用于集中管理 EC2 实例，但它不提供自动化的 SSH 密钥轮换功能。\n\nA.使用 AWS Secrets Manager 可以满足所有要求，包括安全存储、访问控制和自动轮换 SSH 密钥对。Lambda 函数可以在几秒钟内完成密钥生成和更新，满足 1 分钟的停机时间要求。\n\nB.虽然 Parameter Store 可以存储密钥，但它不提供自动轮换功能，因此需要额外的开发工作来实现轮换逻辑，增加了复杂性和维护成本。\n\nC.AWS KMS 不适合直接存储 SSH 密钥对，也没有内置的机制来处理 SSH 密钥的生成和分发，因此无法满足需求。\n\nD.虽然 Fleet Manager 可以帮助管理 EC2 实例，但它不提供自动化的 SSH 密钥轮换功能，需要手动执行命令来更新密钥，这可能会导致超过 1 分钟的停机时间。"
+},
+{
+  "QuestionID": 211,
+  "QuestionType": "single",
+  "QuestionText": "A company wants to migrate to AWS. The company is running thousands of VMs in a VMware ESXi environment. The company has no configuration management database and has little knowledge about the utilization of the VMware portfolio. A solutions architect must provide the company with an accurate inventory so that the company can plan for a cost-effective migration. Which solution will meet these requirements with the LEAST operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Use AWS Systems Manager Patch Manager to deploy Migration Evaluator to each VM. Review the collected data in Amazon QuickSight. Identify servers that have high utilization. Remove the servers that have high utilization from the migration list. Import the data to AWS Migration Hub." },
+    { "label": "B", "text": "Export the VMware portfolio to a .csv file. Check the disk utilization for each server. Remove servers that have high utilization. Export the data to AWS Application Migration Service. Use AWS Server Migration Service (AWS SMS) to migrate the remaining servers." },
+    { "label": "C", "text": "Deploy the Migration Evaluator agentless collector to the ESXi hypervisor. Review the collected data in Migration Evaluator. Identify inactive servers. Remove the inactive servers from the migration list. Import the data to AWS Migration Hub." },
+    { "label": "D", "text": "Deploy the AWS Application Migration Service Agent to each VM. When the data is collected, use Amazon Redshift to import and analyze the data. Use Amazon QuickSight for data visualization." }
+  ],
+  "CorrectAnswer": ["C"],
+  "Explanation": "VM (Virtual Machine）在单一物理服务器（宿主机）上通过软件模拟出来的完整计算机系统。\nVMware ESXi: 是 VMware 的一个裸机（Bare-metal）Hypervisor，直接安装在物理服务器上，用于创建和管理虚拟机。\nAWS Migration Evaluator(前身为 TSO Logic): 是一个工具，可以帮助评估现有环境的资源利用率和性能，以便为迁移到 AWS 做出明智的决策。它提供了一个无代理（Agentless）的收集器，可以直接部署在 ESXi Hypervisor 上，无需在每个 VM 内安装代理。\nAWS Migration Hub: 是一个服务，用于跟踪和管理迁移项目的进度和状态。\nAWS Application Migration Service: 是一个服务，帮助你将应用程序和相关数据迁移到 AWS。它主要用于迁移服务器和应用程序，而不是专门针对数据库迁移。\nAWS Server Migration Service (AWS SMS): 是一个服务，帮助你自动化将本地服务器迁移到 AWS 的过程。较旧的迁移工具，现多被 MGN 取代，主要用于将本地虚拟机的增量复制到 AWS\nCMDB (Configuration Management Database)用于存储企业 IT 环境中所有组件（配置项）及其相互关系的信息库。\n\nA.虽然 Patch Manager 可以部署软件，但它不适合用于评估 VMware 环境的资源利用率，并且需要在每个 VM 内安装代理，增加了操作复杂性。Patch Manager = 自动帮你给服务器打补丁 + 生成合规报告的工具\n\nB.手动导出 VMware 组合并检查磁盘利用率是一种非常繁琐且容易出错的方法，不适合处理成千上万的 VM。\n\nC.使用 Migration Evaluator 的无代理收集器可以直接从 ESXi Hypervisor 收集数据，无需在每个 VM 内安装代理，极大地减少了操作复杂性，同时提供了准确的资源利用率信息，满足需求。Migration Evaluator 专门用于生成迁移商业案例和库存评估。其 Agentless Collector（无代理收集器） 只需部署在 ESXi 管理层面，无需在数千个虚拟机内部安装软件，这完美符合“最低操作开销”。识别并移除“Inactive（非活跃）”服务器直接有助于实现“Cost-effective（高成本效益）”\n\nD.虽然 Application Migration Service 可以帮助迁移服务器，但它不适合用于评估现有环境的资源利用率，并且需要在每个 VM 内安装Agent，增加了操作复杂性。"
+},
+{
+  "QuestionID": 212,
+  "QuestionType": "single",
+  "QuestionText": "A company runs a microservice as an AWS Lambda function. The microservice writes data to an on-premises SQL database that supports a limited number of concurrent connections. When the number of Lambda function invocations is too high, the database crashes and causes application downtime. The company has an AWS Direct Connect connection between the company's VPC and the on-premises data center. The company wants to protect the database from crashes. Which solution will meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Write the data to an Amazon Simple Queue Service (Amazon SQS) queue. Configure the Lambda function to read from the queue and write to the existing database. Set a reserved concurrency limit on the Lambda function that is less than the number of connections that the database supports." },
+    { "label": "B", "text": "Create a new Amazon Aurora Serverless DB cluster. Use AWS DataSync to migrate the data from the existing database to Aurora Serverless. Reconfigure the Lambda function to write to Aurora." },
+    { "label": "C", "text": "Create an Amazon RDS Proxy DB instance. Attach the RDS Proxy DB instance to the Amazon RDS DB instance. Reconfigure the Lambda function to write to the RDS Proxy DB instance." },
+    { "label": "D", "text": "Write the data to an Amazon Simple Notification Service (Amazon SNS) topic. Invoke the Lambda function to write to the existing database when the topic receives new messages. Configure provisioned concurrency for the Lambda function to be equal to the number of connections that the database supports." }
+  ],
+  "CorrectAnswer": ["A"],
+  "Explanation": "Reserved Concurrency：是 Lambda 的一个功能，可以限制特定函数的最大并发执行数量。通过设置 Reserved Concurrency，可以确保 Lambda 函数不会超过数据库的连接限制，从而保护数据库免受过载。\nAmazon Simple Queue Service (Amazon SQS): 是一个完全托管的消息队列服务，可以用来解耦和缓冲请求，适合处理高并发的场景。\nAmazon Aurora Serverless: 是一个自动扩展的关系数据库服务，适合不确定负载的应用，但迁移到 Aurora Serverless 可能需要修改应用程序代码\nAmazon RDS Proxy: 是一个托管的数据库连接池代理服务，可以帮助管理数据库连接。应用程序并发高 → 数据库连接数爆炸 → 数据库崩溃，应用程序  →  RDS Proxy  →  RDS 数据库\nAmazon Simple Notification Service (Amazon SNS): 是一个完全托管的发布/订阅消息服务，虽然可以用来触发 Lambda 函数，但它不适合用于缓冲大量数据写入操作，并且配置 Provisioned Concurrency 可能会增加成本。\nProvisioned Concurrency 是指为 Lambda 函数预留的并发执行实例数量，可以确保在高负载情况下，函数仍然能够获得足够的资源来处理请求，从而提高应用程序的可用性和稳定性。\n\nA.通过将数据写入 SQS 队列，可以有效地解耦 Lambda 函数和数据库之间的关系，Lambda 不再直接写数据库，而是先把数据丢进 SQS 队列。即使瞬间有 1 万个请求，SQS 也能接住，不会冲击数据库避免因并发过高导致数据库崩溃。创建一个专门负责从 SQS 读数据并写入数据库的 Lambda，通过设置 Lambda 函数的保留并发限制（Reserved Concurrency），通过设置该 Lambda 的预留并发（例如限制为 5），确保无论队列里有多少消息，同一时间最多只有 5 个连接去访问本地数据库。可以确保不会超过数据库的连接限制，从而保护数据库。\n\nB.通过创建一个新的 Amazon Aurora Serverless 数据库集群，可以将现有数据库中的数据迁移到 Aurora Serverless，并重新配置 Lambda 函数以写入 Aurora。这种方法可以利用 Aurora Serverless 的自动扩展能力，但需要对应用程序代码进行修改。题目要求是保护“现有的本地数据库”，而不是更换数据库。虽然 Aurora Serverless 很强，但迁移数据库涉及业务改动和数据同步，且不符合保护“On-premises”数据库的原意。\n\nC.通过创建一个 Amazon RDS Proxy 数据库实例，可以有效地管理数据库连接池，减少数据库的连接压力。RDS Proxy 可以在 Lambda 函数和数据库之间充当中介，自动处理连接的创建和重用，从而提高数据库的并发处理能力,但是RDS Proxy 只能用于 AWS 内部的 RDS 或 Aurora 数据库。题目明确说明是 On-premises SQL database（本地数据库），RDS Proxy 无法连接到本地非 RDS 环境\n\nD.通过将数据写入 SNS 主题，可以实现 Lambda 函数的解耦，但这并不能有效保护数据库。即使配置了预留并发，SNS 主题也无法缓冲大量数据写入操作，仍然可能导致数据库崩溃。"
+},
+{
+  "QuestionID": 213,
+  "QuestionType": "single",
+  "QuestionText": "A company uses a Grafana data visualization solution that runs on a single Amazon EC2 instance to monitor the health of the company's AWS workloads. The company has invested time and effort to create dashboards that the company wants to preserve. The dashboards need to be highly available and cannot be down for longer than 10 minutes. The company needs to minimize ongoing maintenance. Which solution will meet these requirements with the LEAST operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Migrate to Amazon CloudWatch dashboards. Recreate the dashboards to match the existing Grafana dashboards. Use automatic dashboards where possible." },
+    { "label": "B", "text": "Create an Amazon Managed Grafana workspace. Configure a new Amazon CloudWatch data source. Export dashboards from the existing Grafana instance. Import the dashboards into the new workspace." },
+    { "label": "C", "text": "Create an AMI that has Grafana pre-installed. Store the existing dashboards in Amazon Elastic File System (Amazon EFS). Create an Auto Scaling group that uses the new AMI. Set the Auto Scaling group's minimum, desired, and maximum number of instances to one. Create an Application Load Balancer that serves at least two Availability Zones." },
+    { "label": "D", "text": "Configure AWS Backup to back up the EC2 instance that runs Grafana once each hour. Restore the EC2 instance from the most recent snapshot in an alternate Availability Zone when required." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "Grafana 一个开源的度量分析和可视化套件，常用于监控 IT 基础设施。它支持多种数据源（如 CloudWatch, Prometheus）。\nAmazon Managed Grafana (AMG)：是一个托管的 Grafana 服务，可以简化 Grafana 的部署和管理。通过使用 AMG，企业可以专注于仪表板的创建和维护，而无需担心底层基础设施的管理。\nAmazon CloudWatch Dashboards：是一个完全托管的仪表板服务，可以用来监控 AWS 资源和应用程序的性能\nAMI (Amazon Machine Image)包含启动实例所需信息（操作系统、应用服务器等）的模板\nAmazon EFS (Elastic File System)：是一个完全托管的文件存储服务，可以与多个 EC2 实例共享数据。常用于存储持久化配置\n\nB.通过创建一个新的 Amazon Managed Grafana 工作区，可以轻松迁移现有的 Grafana 仪表板,Grafana 支持导出/导入 JSON 格式的仪表板配置。将旧实例的配置导入新空间非常快捷。AMG 提供了与 CloudWatch 的原生集成，可以直接使用 CloudWatch 作为数据源。Amazon Managed Grafana (AMG) 与 CloudWatch 的集成是指：Grafana 作为一个可视化平台，通过 API 接口读取 CloudWatch 里的监控数据，并把这些数据画成更漂亮、更复杂的图表。\n\nA.通过迁移到 Amazon CloudWatch 仪表板，可以将现有的 Grafana 仪表板重新创建为 CloudWatch 仪表板。虽然这需要一些手动工作，但可以利用 CloudWatch 的原生功能来监控 AWS 资源。题目明确要求“保留已有的仪表板”。\n\nC.通过创建一个 AMI，可以将现有的 Grafana 实例打包为一个镜像，并在需要时快速启动新的实例。结合 Amazon EFS，可以实现仪表板的持久化存储和共享。但这种方法需要更多的基础设施管理，增加了运维复杂性。需要维护 AMI、配置 EFS 挂载脚本、管理 ALB 成本。相比选项 B 的全托管服务，操作开销大得多\n\nD.通过配置 AWS Backup，可以定期备份运行 Grafana 的 EC2 实例，并在需要时快速恢复。这种方法可以确保在出现故障时，能够在短时间内恢复 Grafana 实例，但仍然需要手动干预来启动恢复过程。每小时备份一次。如果故障发生在备份前一分钟，你可能会丢失近一小时的数据。且手动恢复 EC2 实例很难保证在 10 分钟内完成,这只是“灾难恢复”方案，不是“高可用”方案，存在明显的业务中断。"
+},
+{
+  "QuestionID": 214,
+  "QuestionType": "single",
+  "QuestionText": "A company needs to migrate its customer transactions database from on premises to AWS. The database resides on an Oracle DB instance that runs on a Linux server. According to a new security requirement, the company must rotate the database password each year. Which solution will meet these requirements with the LEAST operational overhead?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Convert the database to Amazon DynamoDB by using the AWS Schema Conversion Tool (AWS SCT). Store the password in AWS Systems Manager Parameter Store. Create an Amazon CloudWatch alarm to invoke an AWS Lambda function for yearly password rotation." },
+    { "label": "B", "text": "Migrate the database to Amazon RDS for Oracle. Store the password in AWS Secrets Manager. Turn on automatic rotation. Configure a yearly rotation schedule." },
+    { "label": "C", "text": "Migrate the database to an Amazon EC2 instance. Use AWS Systems Manager Parameter Store to keep and rotate the connection string by using an AWS Lambda function on a yearly schedule." },
+    { "label": "D", "text": "Migrate the database to Amazon Neptune by using the AWS Schema Conversion Tool (AWS SCT). Create an Amazon CloudWatch alarm to invoke an AWS Lambda function for yearly password rotation." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "Amazon RDS for Oracle:AWS 的关系型数据库托管服务。它负责处理硬件配置、数据库设置、补丁和备份。由于本地已经是 Oracle，迁移到 RDS for Oracle 属于“同构迁移”，工作量最小。\nAWS Secrets Manager：是一个服务，用于安全地存储和管理敏感信息，如数据库凭证、API 密钥等，并支持自动轮换功能。\nAWS Systems Manager Parameter Store: 用于存储配置数据和密码。虽然它支持加密，但它不具备原生自动轮换数据库凭证的功能（需要手动结合 Lambda 实现，而 Secrets Manager 是开箱即用的）。\nAmazon DynamoDB: 是一个 NoSQL 数据库服务，不适合直接迁移关系型数据库，且需要重写应用程序代码。\nAmazon Neptune: 是一个图数据库服务（用于处理社交网络、推荐引擎等复杂关系），不适合直接迁移关系型数据库，且需要重写应用程序代码。\n\nA.虽然 AWS Systems Manager Parameter Store 可以存储加密的参数，但它不提供自动轮换数据库凭证的功能，因此不满足要求。\n\nB.使用 Amazon RDS for Oracle 可以轻松迁移现有的 Oracle 数据库，并且 AWS Secrets Manager 提供了内置的自动轮换功能，可以满足每年旋转密码的要求，同时最小化了操作复杂性。\n\nC.迁移到 EC2 属于 IaaS（基础设施即服务），你仍需自己管理操作系统补丁、数据库升级和备份。此外，使用 Parameter Store 配合 Lambda 实现轮换需要大量的手动开发和维护工作。\n\nD.虽然 Amazon Neptune 是一个强大的图数据库服务，但它不适合直接迁移关系型数据库，且需要重写应用程序代码，不符合“最少操作开销”的要求。"
+},
+{
+  "QuestionID": 215,
+  "QuestionType": "multiple",
+  "QuestionText": "A solutions architect is designing an AWS account structure for a company that consists of multiple teams. All the teams will work in the same AWS Region. The company needs a VPC that is connected to the on-premises network. The company expects less than 50 Mbps of total traffic to and from the on-premises network. Which combination of steps will meet these requirements MOST cost-effectively?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an AWS CloudFormation template that provisions a VPC and the required subnets. Deploy the template to each AWS account." },
+    { "label": "B", "text": "Create an AWS CloudFormation template that provisions a VPC and the required subnets. Deploy the template to a shared services account. Share the subnets by using AWS Resource Access Manager." },
+    { "label": "C", "text": "Use AWS Transit Gateway along with an AWS Site-to-Site VPN for connectivity to the on-premises network. Share the transit gateway by using AWS Resource Access Manager." },
+    { "label": "D", "text": "Use AWS Site-to-Site VPN for connectivity to the on-premises network." },
+    { "label": "E", "text": "Use AWS Direct Connect for connectivity to the on-premises network." }
+  ],
+  "CorrectAnswer": ["B", "D"],
+  "Explanation": "AWS RAM (Resource Access Manager) 允许跨账户共享资源，包括 VPC 和子网。通过在共享服务账户中创建 VPC 并共享子网，可以实现成本效益高的网络架构。\nVPC Sharing: 一种架构模式，由一个中心账号（通常是网络或共享服务账号）创建 VPC 和子网，然后通过 RAM 分享给其他成员账号。成员账号可以在这些子网里创建自己的资源（如 EC2）\nAWS Site-to-Site VPN: 是一种通过公共互联网连接 AWS 和本地网络的安全方式，适合低到中等带宽需求（如题目中的 <50 Mbps）。\nAWS Direct Connect: 是一种专用网络连接服务，提供更高的带宽和更稳定的连接，但对于低带宽需求来说可能过于昂贵。\n\nA.虽然使用 CloudFormation 模板可以自动化 VPC 和子网的创建，但在每个账户中部署模板会增加管理复杂性和成本，不如集中在一个共享服务账户中更高效。如果在每个账号里都建一个 VPC，那么每个 VPC 都需要独立的 VPN 连接或对等连接，管理和计费成本会成倍增加。\n\nB.通过在共享服务账户中创建 VPC 并使用 AWS RAM 共享子网，可以实现跨账户资源共享，简化网络管理，并且成本效益高。通过 RAM 共享子网，公司只需要维护一个共享 VPC，所有团队都在这个 VPC 不同的子网里工作，极大地节省了网络资源开销。\n\nC.虽然 AWS Transit Gateway 可以提供集中式连接管理，但 TGW 本身会有额外的每小时挂载费用（每挂载一个 VPC 都要钱），但对于低带宽需求来说可能过于复杂和昂贵，不如直接使用 Site-to-Site VPN 更合适。\n\nD.使用 AWS Site-to-Site VPN 可以满足低带宽需求，并且成本较低，是一个合适的选择。\n\nE.虽然 AWS Direct Connect 提供更高的性能，但对于 <50 Mbps 的需求来说可能过于昂贵，不符合成本效益要求。"
+},
+{
+  "QuestionID": 216,
+  "QuestionType": "single",
+  "QuestionText": "A solutions architect at a large company needs to set up network security for outbound traffic to the internet from all AWS accounts within an organization in AWS Organizations. The organization has more than 100 AWS accounts, and the accounts route to each other by using a centralized AWS Transit Gateway. Each account has both an internet gateway and a NAT gateway for outbound traffic to the internet. The company deploys resources only into a single AWS Region. The company needs the ability to add centrally managed rule-based filtering on all outbound traffic to the internet for all AWS accounts in the organization. The peak load of outbound traffic will not exceed 25 Gbps in each Availability Zone. Which solution meets these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create a new VPC for outbound traffic to the internet. Connect the existing transit gateway to the new VPC. Configure a new NAT gateway. Create an Auto Scaling group of Amazon EC2 instances that run an open-source internet proxy for rule-based filtering across all Availability Zones in the Region. Modify all default routes to point to the proxy's Auto Scaling group." },
+    { "label": "B", "text": "Create a new VPC for outbound traffic to the internet. Connect the existing transit gateway to the new VPC. Configure a new NAT gateway. Use an AWS Network Firewall firewall for rule-based filtering. Create Network Firewall endpoints in each Availability Zone. Modify all default routes to point to the Network Firewall endpoints." },
+    { "label": "C", "text": "Create an AWS Network Firewall firewall for rule-based filtering in each AWS account. Modify all default routes to point to the Network Firewall firewalls in each account." },
+    { "label": "D", "text": "In each AWS account, create an Auto Scaling group of network-optimized Amazon EC2 instances that run an open-source internet proxy for rule-based filtering. Modify all default routes to point to the proxy's Auto Scaling group." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "AWS Transit Gateway (TGW)：是一个网络枢纽，可以连接多个 VPC 和本地网络。通过 TGW，企业可以实现集中式网络管理和路由。\nAWS Network Firewall：是一个托管的网络安全服务，可以保护 VPC 内的资源免受网络威胁。它支持基于规则的过滤，可以用于监控和控制出站流量。\nCentralized Inspection VPC:一种架构设计模式。所有的互联网流量不从各账号本地出去，而是通过 TGW 路由到一个专门的“出口 VPC”，在那里经过防火墙检查后再放行。\nOpen-source Proxy：是指源代码公开、任何人都可以免费使用、修改和分发的代理服务器软件。代理服务器 (Proxy) 是充当“中间人”。当你的私有子网里的服务器（如 EC2）想要访问互联网时：EC2 不直接连接互联网。EC2 把请求发给 Proxy。Proxy 代表 EC2 去访问互联网，拿到结果后再转交给 EC2。\n\nA.虽然使用 Auto Scaling 组运行open-source internet proxy可以实现规则过滤，但这种方法需要大量的手动配置和维护，并且可能无法满足高可用性和性能要求。\n\nB.通过创建一个新的 VPC 并连接到现有的 Transit Gateway，可以集中管理所有账户的出站流量。使用 AWS Network Firewall 可以提供强大的规则过滤功能，并且在每个可用区创建端点可以确保高可用性和性能，满足 25 Gbps 的流量需求。\nEC2 (账号 A) ➔  TGW (分拣中心) ➔  Egress VPC (检查站) ➔  Firewall (安检) ➔  NAT Gateway ➔  IGW ➔  互联网\n\nC.在每个 AWS 账户中创建 Network Firewall 会增加管理复杂性，并且无法实现集中管理，不符合要求。\n\nD.在每个账号里部署 EC2 代理集群。这不仅管理极其分散（100 多个集群！），而且运维成本极高"
+},
+{
+  "QuestionID": 217,
+  "QuestionType": "single",
+  "QuestionText": "A company uses a load balancer to distribute traffic to Amazon EC2 instances in a single Availability Zone. The company is concerned about security and wants a solutions architect to re-architect the solution to meet the following requirements: \n\nInbound requests must be filtered for common vulnerability attacks.\nRejected requests must be sent to a third-party auditing application.\nAll resources should be highly available.\n\nWhich solution meets these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Configure a Multi-AZ Auto Scaling group using the application's AMI. Create an Application Load Balancer (ALB) and select the previously created Auto Scaling group as the target. Use Amazon Inspector to monitor traffic to the ALB and EC2 instances. Create a web ACL in WAF. Create an AWS WAF using the web ACL and ALB. Use an AWS Lambda function to frequently push the Amazon Inspector report to the third-party auditing application." },
+    { "label": "B", "text": "Configure an Application Load Balancer (ALB) and add the EC2 instances as targets. Create a web ACL in WAF. Create an AWS WAF using the web ACL and ALB name and enable logging with Amazon CloudWatch Logs. Use an AWS Lambda function to frequently push the logs to the third-party auditing application." },
+    { "label": "C", "text": "Configure an Application Load Balancer (ALB) along with a target group adding the EC2 instances as targets. Create an Amazon Kinesis Data Firehose with the destination of the third-party auditing application. Create a web ACL in WAF. Create an AWS WAF using the web ACL and ALB then enable logging by selecting the Kinesis Data Firehose as the destination. Subscribe to AWS Managed Rules in AWS Marketplace, choosing the WAF as the subscriber." },
+    { "label": "D", "text": "Configure a Multi-AZ Auto Scaling group using the application's AMI. Create an Application Load Balancer (ALB) and select the previously created Auto Scaling group as the target. Create an Amazon Kinesis Data Firehose with a destination of the third-party auditing application. Create a web ACL in WAF. Create an AWS WAF using the WebACL and ALB then enable logging by selecting the Kinesis Data Firehose as the destination. Subscribe to AWS Managed Rules in AWS Marketplace, choosing the WAF as the subscriber." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "Multi-AZ Auto Scaling Group: 通过在多个可用区（如子网 A、B、C）部署 EC2 实例，可以提高应用程序的可用性和容错能力。如果一个可用区倒塌，ASG 会在其他可用区补齐机器，确保高可用。\nApplication Load Balancer (ALB): 是一个第 7 层负载均衡器，适用于 HTTP 和 HTTPS 流量，可以根据内容路由请求。\nAWS WAF (Web Application Firewall): 是一个托管的网络安全服务，可以保护 Web 应用程序免受常见的网络攻击。通过创建 Web ACL（访问控制列表），可以定义规则来过滤恶意请求。\nAmazon Kinesis Data Firehose: 是一个完全托管的服务，用于实时流数据传输，它可以将 WAF 日志实时捕获、转换并加载到指定的目的地（如 S3, Redshift, HTTP Endpoint 或第三方审计工具）,可以将数据直接发送到第三方应用程序或 AWS 服务。\nAWS Managed Rules: 是 AWS WAF 提供的一组预定义规则，可以帮助保护 Web 应用程序免受常见的攻击，如 SQL 注入和跨站脚本攻击。\n\nA.虽然 Amazon Inspector 是用于扫描 EC2 实例上的软件漏洞或不安全配置的,可以提供安全评估，但它不适合实时过滤入站请求，并且需要额外的配置来将报告发送到第三方应用程序，增加了操作复杂性。\n\nB.虽然提到了 ALB 和 WAF，但没有明确提到 Multi-AZ（高可用要求）。此外，使用 Lambda 定期推送日志到第三方应用，在处理海量、实时日志时，不如 Kinesis Data Firehose 稳定且低开销。\n\nC.虽然使用 AWS WAF 和 Kinesis Data Firehose 可以实现规则过滤和日志传输，但没有提到使用 Multi-AZ Auto Scaling Group 来提高可用性，不符合要求。\n\nD.通过配置 Multi-AZ Auto Scaling Group 和 ALB，可以确保高可用性。使用 AWS WAF 进行规则过滤，并通过 Kinesis Data Firehose 将 WAF 的日志实时、自动化地推送到第三方审计程序，通过订阅 AWS Managed Rules 可以增强安全性，满足所有要求。"
+},
+{
+  "QuestionID": 218,
+  "QuestionType": "single",
+  "QuestionText": "A company is running an application in the AWS Cloud. The application consists of microservices that run on a fleet of Amazon EC2 instances in multiple Availability Zones behind an Application Load Balancer. The company recently added a new REST API that was implemented in Amazon API Gateway. Some of the older microservices that run on EC2 instances need to call this new API. The company does not want the API to be accessible from the public internet and does not want proprietary data to traverse the public internet. What should a solutions architect do to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Create an AWS Site-to-Site VPN connection between the VPC and the API Gateway. Use API Gateway to generate a unique API Key for each microservice. Configure the API methods to require the key." },
+    { "label": "B", "text": "Create an interface VPC endpoint for API Gateway, and set an endpoint policy to only allow access to the specific API. Add a resource policy to API Gateway to only allow access from the VPC endpoint. Change the API Gateway endpoint type to private." },
+    { "label": "C", "text": "Modify the API Gateway to use IAM authentication. Update the IAM policy for the IAM role that is assigned to the EC2 instances to allow access to the API Gateway. Move the API Gateway into a new VPC. Deploy a transit gateway and connect the VPCs." },
+    { "label": "D", "text": "Create an accelerator in AWS Global Accelerator, and connect the accelerator to the API Gateway. Update the route table for all VPC subnets with a route to the created Global Accelerator endpoint IP address. Add an API key for each service to use for authentication." }
+  ],
+  "CorrectAnswer": ["B"],
+  "Explanation": "Amazon API Gateway: 是一个完全托管的服务，可以让开发者轻松创建、发布、维护、监控和保护 API。API Gateway 支持多种端点类型，包括公共端点和私有端点。\nInterface VPC Endpoint: 是一种通过 AWS PrivateLink 提供的 VPC 终端节点，可以让你在 VPC 内部安全地访问支持 PrivateLink 的 AWS 服务，而无需通过公共互联网。它是 VPC 中的一个虚拟网卡（Elastic Network Interface, ENI），具有来自子网 IP 地址范围的私有 IP 地址。它允许你通过 AWS 内部网络私密地连接到支持的 AWS 服务（如 API Gateway），而无需使用公网 IP、NAT 网关或 Internet 网关。\nEndpoint Policy: 是一种资源策略，可以附加到 VPC 终端节点上，用于控制哪些主体可以访问该终端节点以及可以执行哪些操作。\nResource Policy: 是一种 IAM 策略，可以附加到 API Gateway 上，用于控制哪些主体可以访问 API 以及可以执行哪些操作。\nPrivate API:一种只能通过 VPC 端点在 VPC 内部访问的 API。它在公共 DNS 中没有记录，外部互联网无法解析或连接\n\nA.Site-to-Site VPN VPN 通常用于连接本地数据中心和 AWS VPC。API Gateway 是 AWS 的托管服务，不需要通过 VPN 在内部 VPC 之间连接，但它不适合在同一 AWS 区域内的服务之间通信，且配置复杂度较高。API Gateway 不支持直接通过 VPN 连接访问。\n\nB.通过创建一个接口 VPC 终端节点并将 API Gateway 设置为私有端点，可以确保 API 只能从 VPC 内部访问。Endpoint Policy 和 Resource Policy 提供了双重安全保障，限制只有指定的 VPC 才能调用 API，将 API 类型改为 Private，直接从源头上杜绝了互联网访问。\n\nC.虽然使用 IAM 认证可以提供安全访问，但将 API Gateway 移动到新的 VPC 并使用 Transit Gateway 连接，Transit Gateway（中转网关）通常用于连接多个 VPC 或本地网络。题目中微服务和 API 都在 AWS 云端，最直接私密的方式是 VPC Endpoint，而不是为了这个 API 去构建复杂的跨 VPC 路由架构\n\nD.虽然 AWS Global Accelerator 可以提供全球流量管理，旨在通过 AWS 的全球网络优化全球用户访问应用的性能。它主要针对公网入口进行加速，但它不适合用于限制 API 访问仅限于 VPC 内部，并且配置复杂度较高，不符合要求。"
+},
+{
+  "QuestionID": 219,
+  "QuestionType": "single",
+  "QuestionText": "A company has set up its entire infrastructure on AWS. The company uses Amazon EC2 instances to host its ecommerce website and uses Amazon S3 to store static data. Three engineers at the company handle the cloud administration and development through one AWS account. Occasionally, an engineer alters an EC2 security group configuration of another engineer and causes noncompliance issues in the environment. A solutions architect must set up a system that tracks changes that the engineers make. The system must send alerts when the engineers make noncompliant changes to the security settings for the EC2 instances. What is the FASTEST way for the solutions architect to meet these requirements?",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Set up AWS Organizations for the company. Apply SCPs to govern and track noncompliant security group changes that are made to the AWS account." },
+    { "label": "B", "text": "Enable AWS CloudTrail to capture the changes to EC2 security groups. Enable Amazon CloudWatch rules to provide alerts when noncompliant security settings are detected." },
+    { "label": "C", "text": "Enable SCPs on the AWS account to provide alerts when noncompliant security group changes are made to the environment." },
+    { "label": "D", "text": "Enable AWS Config on the EC2 security groups to track any noncompliant changes. Send the changes as alerts through an Amazon Simple Notification Service (Amazon SNS) topic." }
+  ],
+  "CorrectAnswer": ["D"],
+  "Explanation": "AWS Config: 是一个完全托管的服务，可以评估、审核和评估 AWS 资源的配置。它可以持续监控和记录 AWS 资源的配置更改，并提供自动化的合规性检查。\nAmazon SNS (Simple Notification Service): 是一个完全托管的消息发布/订阅服务，可以用来发送通知和警报。\nAWS CloudTrail: 是一个服务，用于记录 AWS 账户中的 API 调用和活动，但它不提供实时合规性检查和警报功能。\n\nAC.SCP 是用来“限制”权限的（预防性控制），比如禁止某人修改安全组。但题目要求的是“追踪变更”和“针对非合规操作报警”，而不是直接禁止修改。此外，SCP 无法提供复杂的合规性评估报告。\n\nB.虽然 AWS CloudTrail 可以捕获安全组的更改，但配置起来比较繁琐。你需要写复杂的 CloudWatch Event 模式来匹配特定的安全组变更 API，然后再触发告警,它不提供实时合规性检查和警报功能，无法满足要求。\n\nD.通过启用 AWS Config，可以持续监控 EC2 安全组的配置更改，并设置规则来检测非合规更改。当检测到非合规更改时，可以通过 Amazon SNS 发送即时通知，满足所有要求。AWS Config 天生就是干这个活的。它内置了许多“托管规则”（Managed Rules），比如 restricted-common-ports。你只需要开启 Config，勾选安全组相关的规则，关联一个 SNS Topic，一旦有人改出了不符合规则的配置，Config 会自动标记为“Noncompliant”并触发告警。"
+},
+{
+  "QuestionID": 220,
+  "QuestionType": "multiple",
+  "QuestionText": "A company has IoT sensors that monitor traffic patterns throughout a large city. The company wants to read and collect data from the sensors and perform aggregations on the data. A solutions architect designs a solution in which the IoT devices are streaming to Amazon Kinesis Data Streams. Several applications are reading from the stream. However, several consumers are experiencing throttling and are periodically encountering a ReadProvisionedThroughputExceeded error. Which actions should the solutions architect take to resolve this issue? (Choose three.)",
+  "ImageURL": "",
+  "Options": [
+    { "label": "A", "text": "Reshard the stream to increase the number of shards in the stream." },
+    { "label": "B", "text": "Use the Kinesis Producer Library (KPL). Adjust the polling frequency." },
+    { "label": "C", "text": "Use consumers with the enhanced fan-out feature." },
+    { "label": "D", "text": "Reshard the stream to reduce the number of shards in the stream." },
+    { "label": "E", "text": "Use an error retry and exponential backoff mechanism in the consumer logic." },
+    { "label": "F", "text": "Configure the stream to use dynamic partitioning." }
+  ],
+  "CorrectAnswer": ["A", "C", "E"],
+  "Explanation": "Amazon Kinesis Data Streams:一项大规模可扩展且持久的实时数据流服务。它由多个分片（Shards）组成。每个分片都有一个固定的读写吞吐量限制。当消费者的读取速率超过这些限制时，就会出现 ReadProvisionedThroughputExceeded 错误。\nKinesis Data Streams Enhanced Fan-out它为每个消费者提供专用的 2 MB/s 吞吐量，且数据由 Kinesis 主动推送到消费者，不再需要轮询\nExponential Backoff(指数退避):一种重试策略。当请求失败时，程序不是立刻重试，而是等待一段不断增加的时间（如 1s, 2s, 4s...），以减轻服务器压力并提高重试成功率。\n\nA. 通过重新分片，可以增加流中的分片数量，从而提高并行处理能力，减少消费者的读取延迟。\n\nC. 使用Enhanced fan-out 增强型分发功能的消费者可以独立于其他消费者进行读取，从而避免共享分片的吞吐量限制。\n\nE. 在消费者逻辑中使用错误重试和指数退避机制可以帮助处理临时的吞吐量限制错误，确保数据最终被处理。面对 ProvisionedThroughputExceeded 这种瞬时错误，在客户端代码中加入重试机制是 AWS 官方推荐的最佳实践，可以平滑流量抖动。\n\nB.虽然 Kinesis Producer Library (KPL) 可以优化数据生产者的性能，降低轮询频率虽然能减少报错次数，但会增加数据延迟，但它并不能直接解决消费者的吞吐量限制问题。\n\nD.减少分片数量会降低流的总吞吐量，可能会加剧消费者的读取限制问题，不是解决方案。\n\nF.动态分区（Dynamic Partitioning）是 Kinesis Data Firehose 的功能，用于根据数据内容（如 JSON 里的城市名）将数据存入 S3 不同的目录，与 Data Streams 的读取限制无关,不适用于 Kinesis Data Streams，因此无法解决问题。"
 }
 
 
